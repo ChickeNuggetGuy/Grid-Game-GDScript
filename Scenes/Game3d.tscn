@@ -1,0 +1,71 @@
+[gd_scene load_steps=7 format=4 uid="uid://bxup2rkksx6g1"]
+
+[ext_resource type="Script" uid="uid://bjauxagwg8odf" path="res://Scripts/GridSystem/GridSystem.gd" id="1_okx4y"]
+[ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/CameraController.gd" id="2_wl7jf"]
+[ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/GameManager.gd" id="3_tf88f"]
+[ext_resource type="Script" uid="uid://bcbu1daq3ta3q" path="res://Scripts/MeshTerrainManager.gd" id="4_at5uv"]
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_tf88f"]
+_surfaces = [{
+"aabb": AABB(-5, -0.5, -5, 10, 1, 10),
+"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
+"format": 34359738391,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 36,
+"vertex_data": PackedByteArray("AACgwAAAAL8AAKBAAACgwAAAAL8AAKDAAACgwAAAAD8AAKDAAACgQAAAAL8AAKDAAACgwAAAAL8AAKDAAACgwAAAAL8AAKBAAACgwAAAAD8AAKDAAACgwAAAAL8AAKDAAACgQAAAAL8AAKDAAACgwAAAAD8AAKDAAACgwAAAAD8AAKBAAACgwAAAAL8AAKBAAACgwAAAAL8AAKBAAACgwAAAAD8AAKBAAACgQAAAAD8AAKBAAACgQAAAAD8AAKBAAACgwAAAAD8AAKBAAACgwAAAAD8AAKDAAACgwAAAAL8AAKBAAACgQAAAAL8AAKBAAACgQAAAAL8AAKDAAACgQAAAAD8AAKBAAACgQAAAAL8AAKBAAACgwAAAAL8AAKBAAACgQAAAAL8AAKDAAACgQAAAAL8AAKBAAACgQAAAAD8AAKBAAACgQAAAAL8AAKDAAACgQAAAAD8AAKDAAACgwAAAAD8AAKDAAACgwAAAAD8AAKDAAACgQAAAAD8AAKDAAACgQAAAAD8AAKBAAACgQAAAAD8AAKBAAACgQAAAAD8AAKDAAACgQAAAAL8AAKDAAAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
+}]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_tf88f"]
+data = PackedVector3Array(-5, -0.5, 5, -5, -0.5, -5, -5, 0.5, -5, 5, -0.5, -5, -5, -0.5, -5, -5, -0.5, 5, -5, 0.5, -5, -5, -0.5, -5, 5, -0.5, -5, -5, 0.5, -5, -5, 0.5, 5, -5, -0.5, 5, -5, -0.5, 5, -5, 0.5, 5, 5, 0.5, 5, 5, 0.5, 5, -5, 0.5, 5, -5, 0.5, -5, -5, -0.5, 5, 5, -0.5, 5, 5, -0.5, -5, 5, 0.5, 5, 5, -0.5, 5, -5, -0.5, 5, 5, -0.5, -5, 5, -0.5, 5, 5, 0.5, 5, 5, -0.5, -5, 5, 0.5, -5, -5, 0.5, -5, -5, 0.5, -5, 5, 0.5, -5, 5, 0.5, 5, 5, 0.5, 5, 5, 0.5, -5, 5, -0.5, -5)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84449816, 1.2518566)
+
+[node name="CameraController" type="Camera3D" parent="Node3D" node_paths=PackedStringArray("transposer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5322876, 2.9549038)
+script = ExtResource("2_wl7jf")
+transposer = NodePath("..")
+metadata/_custom_type_script = "uid://dp870a6rqd874"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+use_collision = true
+size = Vector3(10, 1, 10)
+
+[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("ArrayMesh_tf88f")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="CSGBakedMeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CSGBakedMeshInstance3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_tf88f")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.80860645, 0.5883499, 0, -0.5883499, 0.80860645, 0, 0.9739627, 0)
+
+[node name="Managers" type="Node" parent="."]
+
+[node name="GridSystem" type="Node" parent="Managers" groups=["Managers"]]
+script = ExtResource("1_okx4y")
+gridSize = Vector3i(5, 5, 5)
+gridCellSize = Vector2(1, 1)
+raycastCheck = true
+raycastOffset = Vector3(0, 1.5, 0)
+raycastLength = 10.0
+colliderSize = Vector3(0.9, 0.9, 0.9)
+collideroffset = Vector3(0, 0.45, 0)
+colliderLength = 0.9000000000087311
+metadata/_custom_type_script = "uid://bjauxagwg8odf"
+
+[node name="GameManager" type="Node" parent="Managers" groups=["Managers"]]
+script = ExtResource("3_tf88f")
+metadata/_custom_type_script = "uid://mg5g38d61gap"
+
+[node name="MeshTerrainManager" type="Node" parent="Managers" groups=["Managers"]]
+script = ExtResource("4_at5uv")
+map_size = Vector2i(1, 1)
+color = Color(6.016344e-08, 0.464778, 0.02903064, 1)
+amplitude = 3.0
+metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
