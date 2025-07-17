@@ -11,5 +11,8 @@ func _init(xCoord: int, zCoord: int, layerCoord: int, center: Vector3 = Vector3.
 	layer = layerCoord
 	worldCenter = center
 
+func get_coords() -> Vector3:
+	return Vector3(x,layer,z)
+	
 func _to_string() -> String:
 	return " (X: " +str(x) + ",Z: " + str(z) + ",Y: " + str(layer) + ")";

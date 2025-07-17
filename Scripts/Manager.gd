@@ -1,49 +1,62 @@
-@abstract 
-class_name Manager
-extends Node
+# Manager.gd
+@abstract
+class_name Manager extends Node
 
-#region Variables
-var isSetup: bool = false
-var isExecuted: bool = false
-
-static var _instances := {}
+#region Signals
+signal setup_completed()
+signal execution_completed()
 #endregion
 
-#region Functions
+#region Singleton Instance
 
-func _ready() -> void:
-	var s := get_script() as Script
-	if _instances.has(s):
-		push_error("%s: duplicate manager!" % s.resource_path)
-	_instances[s] = self
+#endregion
 
-# renamed to avoid colliding with Object.wget()
-static func get_manager(script_res: Script) -> Manager:
-	return _instances.get(script_res, null) as Manager	
+#region Initialization and Setup
 
+# Abstract method for the manager's name.
 @abstract func _get_manager_name() -> String
 
+func _init() -> void: add_to_group("Managers")
+# Orchestrates the manager's setup phase.
+func setup_manager_flow():
+	print("%s: Starting setup flow..." % _get_manager_name())
 
-func setup_call():
-	if(isSetup):
-		return;
-	else:
-		_setup();
-		isSetup = true;
-		return;
-	
+	if _setup_conditions() == false:
+		push_warning("%s: Setup conditions not met. Skipping setup." % _get_manager_name())
+		return
 
-@abstract func _setup_conditions()
+	_setup.call_deferred()
+	await setup_completed
+	print("%s: Setup Completed!" % _get_manager_name())
+
+# Abstract method to check if setup can proceed.
+@abstract func _setup_conditions() -> bool
+
+# Abstract method for concrete setup logic.
+# Concrete implementations must emit `setup_completed()` when done.
 @abstract func _setup()
 
-func execute():
-	print(name + " Executed!")
-	_execute()
-	isExecuted = true
+#endregion
 
+#region Execution
 
+# Orchestrates the manager's execution phase.
+func execute_manager_flow():
+	print("%s: Starting execution flow..." % _get_manager_name())
+
+	if not _execute_conditions():
+		push_warning("%s: Execution conditions not met. Skipping execution." % _get_manager_name())
+		return
+
+	_execute.call_deferred()
+	await execution_completed
+	print("%s: Execution Completed!" % _get_manager_name())
+
+# Abstract method for concrete execution logic.
+# Concrete implementations must emit `execution_completed()` when done.
 @abstract func _execute()
-@abstract func _execute_conditions() -> bool
 
+# Abstract method to check if execution can proceed.
+@abstract func _execute_conditions() -> bool
 
 #endregion
