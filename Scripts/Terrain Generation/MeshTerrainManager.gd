@@ -1,23 +1,24 @@
 # MeshTerrainManager.gd
 extends Manager
-class_name MeshTerrainManager
 
 # Exported properties
 @export var map_size: Vector2i = Vector2i(2, 2)
 @export var chunk_size: int = 16
 @export var cell_size: Vector2 = Vector2(1.0, 1.0)
 @export var chunk_types: Array = []  # Array of ChunkData resources
-@export var color: Color = Color.WHITE
+@export var color: Color = Color.SEA_GREEN
 @export var amplitude: float = 5.0
 # Internal variables
 var terrain_heights = []  # 2D array of Vector3 positions
 var locked_vertices = []  # 2D array of booleans
 
 func _get_manager_name() -> String: return "Mesh Terrain"
-func _setup_conditions(): return
+func _setup_conditions(): return true
 
-func _setup(): return
-func _execute_conditions() -> bool: return false
+func _setup(): 
+	print("HELP")
+	setup_completed.emit()
+func _execute_conditions() -> bool: return true
 func _execute() -> void:
 	# Adjust map settings if needed here.
 	generate_height_map()
@@ -26,7 +27,9 @@ func _execute() -> void:
 	
 	for x in range(map_size.x):
 		for y in range(map_size.y):
-			generate_chunk(x, y)
+			await generate_chunk(x, y)
+	print("GGGGGGGGGGGGGGGG")
+	execution_completed.emit()
 
 func generate_height_map() -> void:
 	var width = (map_size.x * chunk_size * 2) + 1
@@ -43,24 +46,19 @@ func generate_height_map() -> void:
 	
 	# Use Godot’s built-in FastNoiseLite for noise.
 	var noise = FastNoiseLite.new()
-	noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
+	noise.cellular_return_type = FastNoiseLite.RETURN_CELL_VALUE
 	noise.seed = randi()
 	noise.frequency = 1.0 / 10.0
-	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
-	noise.fractal_octaves = 4
-	noise.fractal_lacunarity = 2.0
-	noise.fractal_gain = 0.5
-	
+
 	for x in range(width):
 		for z in range(height):
 			var noise_val = noise.get_noise_2d(x, z)
-			# Option 1: Remove snapping completely to get smooth variation:
-			var height_val = noise_val * amplitude
-			# Option 2: Snap height to a grid, for example:
-			# var height_val = round(noise_val * amplitude / cell_size.y) * cell_size.y
+			# Snap height to a grid
+			var height_val = round(noise_val * amplitude / cell_size.y) * cell_size.y
 			terrain_heights[x][z] = Vector3(x * cell_size.x, height_val, z * cell_size.x)
 	
-	# Initialize chunk types for each chunk.
+	# Initialize chunk types for each chunk.a
 	var total_chunks = map_size.x * map_size.y
 	chunk_types.clear()
 	for i in range(total_chunks):
@@ -186,7 +184,7 @@ func generate_chunk(x: int, y: int) -> void:
 		return
 	
 	print("Generating mesh for chunk %s, %s" % [x, y])
-	c_data.chunk.generate(color)
+	await c_data.chunk.generate(color)
 
 func lock_manmade_edges() -> void:
 	var total_width = map_size.x * chunk_size + 1

@@ -125,13 +125,16 @@ func generate(color: Color) -> void:
 	mesh_instance.material_override = new_material
 	
 	mesh_instance.create_trimesh_collision()
+
 	if mesh_instance.get_child_count() > 0:
 		var body = mesh_instance.get_child(0)
 		if body is StaticBody3D:
-			body.set_collision_layer_value(2, true)
-			body.set_collision_mask_value(2, true)
-	
+			# Use the named constant for clarity
+			body.set_collision_layer_value(PhysicsLayersUtility.TERRAIN, true) # Set to Layer 2
+			body.set_collision_mask_value(PhysicsLayersUtility.TERRAIN, true)  # Collide with Layer 2
+
 	bounds = mesh.get_aabb()
+	add_to_group("Mouse")
 	add_to_group("Mouse")
 
 static func CalculateSmoothNormals(mesh: ArrayMesh) -> void:

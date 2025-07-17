@@ -15,6 +15,14 @@ run/main_scene="uid://bxup2rkksx6g1"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+PhysicsLayersUtility="*res://Scripts/Utility/PhysicsLayersUtility.gd"
+GameManager="*res://Scripts/GameManager.gd"
+MeshTerrainManager="*res://Scripts/Terrain Generation/MeshTerrainManager.gd"
+GridSystem="*res://Scripts/GridSystem/GridSystem.gd"
+UnitManager="*res://Scripts/UnitManager.gd"
+
 [debug_draw_3d]
 
 settings/addon_root_folder="res://addons/debug_draw_3d"

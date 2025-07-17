@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://hhe7ab2xbje0"]
+
+[ext_resource type="Script" uid="uid://cpnc8piuddbx2" path="res://Scripts/GridObject/GridObject.gd" id="1_qk68r"]
+
+[node name="Unit" type="Node3D"]
+script = ExtResource("1_qk68r")
+metadata/_custom_type_script = "uid://cpnc8piuddbx2"
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
