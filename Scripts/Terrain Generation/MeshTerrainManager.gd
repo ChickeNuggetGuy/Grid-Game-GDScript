@@ -1,30 +1,33 @@
-# MeshTerrainManager.gd
 extends Manager
 
-# Exported properties
 @export var map_size: Vector2i = Vector2i(2, 2)
 @export var chunk_size: int = 16
 @export var cell_size: Vector2 = Vector2(1.0, 1.0)
-@export var chunk_types: Array = []  # Array of ChunkData resources
+@export var chunk_types: Array = []
 @export var color: Color = Color.SEA_GREEN
-@export var amplitude: float = 5.0
-# Internal variables
-var terrain_heights = []  # 2D array of Vector3 positions
-var locked_vertices = []  # 2D array of booleans
+@export var amplitude: float = 1.2
 
-func _get_manager_name() -> String: return "Mesh Terrain"
-func _setup_conditions(): return true
+var terrain_heights = []
+var locked_vertices = []
 
-func _setup(): 
+func _get_manager_name() -> String:
+	return "Mesh Terrain"
+
+func _setup_conditions():
+	return true
+
+func _setup():
 	print("HELP")
 	setup_completed.emit()
-func _execute_conditions() -> bool: return true
+
+func _execute_conditions() -> bool:
+	return true
+
 func _execute() -> void:
-	# Adjust map settings if needed here.
 	generate_height_map()
 	lock_manmade_edges()
 	validate_heights_ignoring_locked(terrain_heights, 2, 2)
-	
+	_normalize_terrain_heights()
 	for x in range(map_size.x):
 		for y in range(map_size.y):
 			await generate_chunk(x, y)
@@ -43,8 +46,7 @@ func generate_height_map() -> void:
 		for j in range(height):
 			terrain_heights[i].append(Vector3.ZERO)
 			locked_vertices[i].append(false)
-	
-	# Use Godot’s built-in FastNoiseLite for noise.
+
 	var noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
 	noise.cellular_return_type = FastNoiseLite.RETURN_CELL_VALUE
@@ -54,16 +56,14 @@ func generate_height_map() -> void:
 	for x in range(width):
 		for z in range(height):
 			var noise_val = noise.get_noise_2d(x, z)
-			# Snap height to a grid
 			var height_val = round(noise_val * amplitude / cell_size.y) * cell_size.y
 			terrain_heights[x][z] = Vector3(x * cell_size.x, height_val, z * cell_size.x)
-	
-	# Initialize chunk types for each chunk.a
+
 	var total_chunks = map_size.x * map_size.y
 	chunk_types.clear()
 	for i in range(total_chunks):
 		chunk_types.append(null)
-	
+
 	for x in range(map_size.x):
 		for y in range(map_size.y):
 			var index = x + y * map_size.x
@@ -75,8 +75,8 @@ func generate_height_map() -> void:
 			else:
 				cd.chunk_type = ChunkData.ChunkType.PROCEDURAL
 			chunk_types[index] = cd
+
 func validate_heights_ignoring_locked(verts, validation_passes: int, max_difference: float) -> void:
-	# Assume verts is a 2D array: verts[x][y]
 	var width = verts.size()
 	if width == 0:
 		return
@@ -174,39 +174,33 @@ func generate_chunk(x: int, y: int) -> void:
 				chunk_node.add_child(c_data.chunk)
 	if c_data.chunk_type != ChunkData.ChunkType.MAN_MADE:
 		chunk_node.position = Vector3(x * chunk_size * cell_size.x, 0, y * chunk_size * cell_size.x)
-		
 	print("Initializing chunk %s, %s" % [x, y])
 	c_data.chunk.initialize(x, y, chunk_size, terrain_heights, cell_size.x, c_data)
 	print("Initialized chunk %s, %s" % [x, y])
-	
 	if c_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
 		print("Skipping mesh generation for ManMade chunk %s, %s" % [x, y])
 		return
-	
 	print("Generating mesh for chunk %s, %s" % [x, y])
 	await c_data.chunk.generate(color)
 
 func lock_manmade_edges() -> void:
 	var total_width = map_size.x * chunk_size + 1
 	var total_height = map_size.y * chunk_size + 1
-
 	for y in range(total_height):
 		for x in range(total_width):
 			var is_vertical_boundary = (x % chunk_size == 0 and x != 0)
 			var is_horizontal_boundary = (y % chunk_size == 0 and y != 0)
 			if not is_vertical_boundary and not is_horizontal_boundary:
 				continue
-
 			var current_chunk = get_chunk_from_vertex_index(x, y)
 			if current_chunk == null:
 				continue
-			
 			if is_vertical_boundary:
 				var left_x = x - 1
 				var left_chunk = get_chunk_from_vertex_index(left_x, y)
 				if left_chunk:
-					var boundary_between = ((current_chunk.chunk_type == 
-						ChunkData.ChunkType.MAN_MADE and left_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL) or 
+					var boundary_between = ((current_chunk.chunk_type ==
+						ChunkData.ChunkType.MAN_MADE and left_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL) or
 						(current_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL and left_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE))
 					if boundary_between:
 						var manmade_chunk_data = left_chunk if left_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE else current_chunk
@@ -219,8 +213,8 @@ func lock_manmade_edges() -> void:
 				var below_y = y - 1
 				var below_chunk = get_chunk_from_vertex_index(x, below_y)
 				if below_chunk:
-					var boundary_between = ((current_chunk.chunk_type == 
-						ChunkData.ChunkType.MAN_MADE and below_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL) or 
+					var boundary_between = ((current_chunk.chunk_type ==
+						ChunkData.ChunkType.MAN_MADE and below_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL) or
 						(current_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL and below_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE))
 					if boundary_between:
 						var manmade_chunk_data = below_chunk if below_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE else current_chunk
@@ -233,17 +227,13 @@ func lock_manmade_edges() -> void:
 func get_manmade_chunk_height(global_x: int, global_y: int, manmade_chunk_data) -> float:
 	var world = get_viewport().get_world_3d()
 	var space_state = world.direct_space_state
-	var ray_origin_height = 500.0
-	var origin = Vector3(global_x * cell_size.x, ray_origin_height, global_y * cell_size.x)
+	var origin = Vector3(global_x * cell_size.x, 500.0, global_y * cell_size.x)
 	var to = origin + Vector3.DOWN * 1000.0
-
-	# Create and configure the query parameters for the raycast.
 	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
 	query.from = origin
 	query.to = to
 	query.collide_with_bodies = true
 	query.collide_with_areas = true
-
 	var result = space_state.intersect_ray(query)
 	if result:
 		return result.position.y
@@ -286,3 +276,15 @@ func get_cell_size() -> Vector2:
 
 func get_map_cell_size() -> Vector3:
 	return Vector3(map_size.x * chunk_size, chunk_size, map_size.y * chunk_size)
+
+func _normalize_terrain_heights() -> void:
+	var min_y = INF
+	for col in terrain_heights:
+		for v in col:
+			if v.y < min_y:
+				min_y = v.y
+	for x in range(terrain_heights.size()):
+		for z in range(terrain_heights[x].size()):
+			var v = terrain_heights[x][z]
+			v.y -= min_y
+			terrain_heights[x][z] = v

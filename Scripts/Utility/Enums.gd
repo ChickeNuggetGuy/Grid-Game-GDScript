@@ -1,3 +1,5 @@
 class_name Enums
 
-enum unit_team {None,Player,Enemy}
+enum unitTeam {NONE,PLAYER,ENEMY}
+
+enum facingDirection {NONE,NORTH,NORTHEAST,EAST,SOUTHEAST,SOUTH,SOUTHWEST,WEST,NORTHWEST}

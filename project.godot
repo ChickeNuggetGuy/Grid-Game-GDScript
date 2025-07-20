@@ -18,10 +18,14 @@ config/icon="res://icon.svg"
 [autoload]
 
 PhysicsLayersUtility="*res://Scripts/Utility/PhysicsLayersUtility.gd"
-GameManager="*res://Scripts/GameManager.gd"
+GameManager="*res://Scripts/Managers/GameManager.gd"
 MeshTerrainManager="*res://Scripts/Terrain Generation/MeshTerrainManager.gd"
 GridSystem="*res://Scripts/GridSystem/GridSystem.gd"
-UnitManager="*res://Scripts/UnitManager.gd"
+UnitManager="*res://Scripts/Managers/UnitManager.gd"
+GridInputManager="*res://Scripts/Managers/GridInputManager.gd"
+UiManager="*res://Scripts/Managers/UIManager.gd"
+UnitActionManager="*res://Scripts/Managers/UnitActionManager.gd"
+Pathfinder="*res://Scripts/Managers/Pathfinder.gd"
 
 [debug_draw_3d]
 

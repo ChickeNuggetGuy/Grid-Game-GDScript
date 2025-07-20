@@ -9,22 +9,21 @@ static var instance: CameraController
 @export var zoom_speed: float = 50.0
 @export var rotation_speed: float = 2.0
 
+func _init() -> void:
+		instance = self
 func _ready() -> void:
-	instance = self
-	#call_deferred("setup")
+	call_deferred("setup")
 
-#func setup() -> void:
-	#UnitManager.instance.connect(
-		#"SelectedUnitChanged",
-		#self,
-		#"_on_unit_manager_selected_unit"
-	#)
+func setup() -> void:
+	UnitManager.connect("UnitSelected", _unitmanager_unitselected)
 
 func _exit_tree() -> void:
 	# Optional: disconnect if you want to clean up manually
-	# UnitManager.instance.disconnect("SelectedUnitChanged", self,
-	# "_on_unit_manager_selected_unit")
-	pass
+	UnitManager.instance.disconnect("SelectedUnitChanged", self,
+	 "_on_unit_manager_selected_unit")
+
+func _unitmanager_unitselected(newUnit : GridObject, oldUnit : GridObject):
+	quick_switch_target(newUnit)
 
 func look_at_transposer() -> void:
 	look_at(transposer.position + look_at_offset, Vector3.UP)
@@ -102,7 +101,7 @@ func _camera_zoom(delta: float) -> void:
 	if Input.is_action_just_pressed("Camera_Scroll_Down"):
 		zoom_dir += 1
 
-	if zoom_dir != 0:
+	if zoom_dir != 0  and (self.position.y >= transposer.position.y or zoom_dir > 0):
 		position.y += zoom_dir * zoom_speed * delta
 
 func _transform_rotation(delta: float) -> void:

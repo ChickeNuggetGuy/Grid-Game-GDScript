@@ -1,0 +1,2 @@
+extends ActionNode
+class_name MoveActionNode
