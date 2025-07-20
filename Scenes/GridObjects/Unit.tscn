@@ -1,10 +1,41 @@
-[gd_scene load_steps=2 format=3 uid="uid://hhe7ab2xbje0"]
+[gd_scene load_steps=7 format=3 uid="uid://hhe7ab2xbje0"]
 
 [ext_resource type="Script" uid="uid://cpnc8piuddbx2" path="res://Scripts/GridObject/GridObject.gd" id="1_qk68r"]
+[ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveActionNode.gd" id="2_33ww8"]
+[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionNode.gd" id="2_h0wo4"]
+[ext_resource type="Script" uid="uid://07clnlq34uec" path="res://Scripts/GridObject/Actions/MoveAction.gd" id="3_ndapa"]
+[ext_resource type="Script" uid="uid://bfvlkl0xm1hd8" path="res://Scripts/GridObject/Actions/RotateAction.gd" id="3_wgt2k"]
 
-[node name="Unit" type="Node3D"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_qwska"]
+data = PackedVector3Array(-0.3536, -1, -0.3536, -0.5, -1, 0, 0, -1, 0, -0.5, -1, 0, -0.3536, -1, -0.3536, -0.3536, 1, -0.3536, 0, -1, -0.5, -0.3536, -1, -0.3536, 0, -1, 0, -0.3536, -1, -0.3536, 0, -1, -0.5, 0, 1, -0.5, -0.5, -1, 0, -0.3536, -1, 0.3536, 0, -1, 0, -0.3536, -1, 0.3536, -0.5, -1, 0, -0.5, 1, 0, -0.3536, -1, 0.3536, 0, -1, 0.5, 0, -1, 0, 0, -1, 0.5, -0.3536, -1, 0.3536, -0.3536, 1, 0.3536, -0.3536, 1, -0.3536, -0.5, 1, 0, -0.5, -1, 0, -0.5, 1, 0, -0.3536, 1, -0.3536, 0, 1, 0, 0, 1, -0.5, -0.3536, 1, -0.3536, -0.3536, -1, -0.3536, -0.3536, 1, -0.3536, 0, 1, -0.5, 0, 1, 0, -0.5, 1, 0, -0.3536, 1, 0.3536, -0.3536, -1, 0.3536, -0.3536, 1, 0.3536, -0.5, 1, 0, 0, 1, 0, -0.3536, 1, 0.3536, 0, 1, 0.5, 0, -1, 0.5, 0, 1, 0.5, -0.3536, 1, 0.3536, 0, 1, 0, 0.3536, -1, -0.3536, 0, -1, -0.5, 0, -1, 0, 0, -1, -0.5, 0.3536, -1, -0.3536, 0.3536, 1, -0.3536, 0.5, -1, 0, 0.3536, -1, -0.3536, 0, -1, 0, 0.3536, -1, -0.3536, 0.5, -1, 0, 0.5, 1, 0, 0, -1, 0.5, 0.3536, -1, 0.3536, 0, -1, 0, 0.3536, -1, 0.3536, 0, -1, 0.5, 0, 1, 0.5, 0.3536, -1, 0.3536, 0.5, -1, 0, 0, -1, 0, 0.5, -1, 0, 0.3536, -1, 0.3536, 0.3536, 1, 0.3536, 0.3536, 1, -0.3536, 0, 1, -0.5, 0, -1, -0.5, 0, 1, -0.5, 0.3536, 1, -0.3536, 0, 1, 0, 0.5, 1, 0, 0.3536, 1, -0.3536, 0.3536, -1, -0.3536, 0.3536, 1, -0.3536, 0.5, 1, 0, 0, 1, 0, 0, 1, 0.5, 0.3536, 1, 0.3536, 0.3536, -1, 0.3536, 0.3536, 1, 0.3536, 0, 1, 0.5, 0, 1, 0, 0.3536, 1, 0.3536, 0.5, 1, 0, 0.5, -1, 0, 0.5, 1, 0, 0.3536, 1, 0.3536, 0, 1, 0)
+
+[node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "action_holder")]
 script = ExtResource("1_qk68r")
+visual = NodePath("StaticBody3D")
+action_holder = NodePath("Actions")
 metadata/_custom_type_script = "uid://cpnc8piuddbx2"
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_qwska")
 
 [node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Actions" type="Node" parent="."]
+
+[node name="MoveActionNode" type="Node" parent="Actions"]
+script = ExtResource("2_33ww8")
+action_script = ExtResource("3_ndapa")
+metadata/_custom_type_script = "uid://kvwmhrhi3w7q"
+
+[node name="RotateActionNode" type="Node" parent="Actions"]
+script = ExtResource("2_h0wo4")
+action_script = ExtResource("3_wgt2k")
+metadata/_custom_type_script = "uid://ov18vmu15p05"
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.687, -0.5)
+size = Vector3(0.59069824, 0.4227295, 0.61083984)

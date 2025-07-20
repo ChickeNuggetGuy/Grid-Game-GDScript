@@ -3,20 +3,20 @@
 extends Manager
 
 #region Varibles
-var gridCells: Dictionary[GridCoords,GridCell]
-@export var gridSize: Vector3i = Vector3i(20,5,20)
+var grid_cells: Dictionary[Vector3i,GridCell]
+@export var gridSize: Vector3i = Vector3i(20,15,20)
 @export var gridCellSize: Vector2 = Vector2(1,0.5)
 
 #region Grid Validation Settings
 @export var raycastCheck : bool = true
-@export var raycastOffset: Vector3  = Vector3(0,5,0)
+@export var raycastOffset: Vector3  = Vector3(0, 0.4,0)
 @export var  raycastLength : float = 10
 
-@export var  colliderCheck : bool
+@export var  colliderCheck : bool = false
 @export var  colliderSize : Vector3
 @export var  collideroffset : Vector3
 @export var  colliderLength : float
-var dome: bool = false
+
 #@export var groundInventoryPrefab: InventoryGrid;
 #endregion
 #endregion
@@ -24,7 +24,7 @@ var dome: bool = false
 #region
 func _get_manager_name() -> String: return "GridSystem"
 
-func _setup_conditions(): return
+func _setup_conditions(): return true
 
 func _setup(): 
 	print("HELP")
@@ -58,10 +58,8 @@ func _process(_delta: float) -> void:
 		#setup_grid()
 
 
-
 func setup_grid():
-	print("HMMMM")
-	gridCells = {}
+	grid_cells = {}
 	var spaceState = get_tree().root.world_3d.direct_space_state
 	for layer in range(gridSize.y):
 		for x in range(gridSize.x):
@@ -74,10 +72,6 @@ func setup_grid():
 				)
 
 				#DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y*2, gridCellSize.x), Color.RED, true, 500)
-
-				# Define the collision mask for both queries (only for layer 2)
-				var collision_mask_for_terrain = 1 << 1 # (1 << (LayerNumber - 1)) for layer 2
-
 				# 1) Collider check
 				if colliderCheck:
 					var box = BoxShape3D.new()
@@ -87,7 +81,7 @@ func setup_grid():
 					qp.transform = Transform3D(Basis.IDENTITY, position + collideroffset)
 					qp.collide_with_bodies = true
 					qp.collide_with_areas = true
-					qp.collision_mask = collision_mask_for_terrain # <-- ADD THIS LINE
+					qp.collision_mask = PhysicsLayer.TERRAIN# <-- ADD THIS LINE
 					var hits = spaceState.intersect_shape(qp)
 
 					var collider_color = Color.BLUE if hits.size() > 0 else Color.GREEN
@@ -108,7 +102,7 @@ func setup_grid():
 							rq.collide_with_bodies = true
 							rq.collide_with_areas = true
 							rq.hit_from_inside = true
-							rq.collision_mask = collision_mask_for_terrain # <-- ADD THIS LINE
+							rq.collision_mask = PhysicsLayer.TERRAIN
 							var r = spaceState.intersect_ray(rq)
 
 							if r:
@@ -157,52 +151,47 @@ func setup_grid():
 				else:
 					DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.RED, true)
 
-				var coords = GridCoords.new(x, z, layer)
-				if not gridCells.has(coords) || gridCells[coords] == null:
-					var cell = GridCell.new(x,z,layer, position, walkable, null, self)
-					gridCells[coords] = cell
+				var coords = Vector3i(x,layer, z)
+				if not grid_cells.has(coords) || grid_cells[coords] == null:
+					var cell = GridCell.new(x,layer,z, position, walkable, null, self)
+					grid_cells[coords] = cell
 				else:
-					gridCells[coords].walkable = walkable
-					gridCells[coords].worldPosition = position
-				
-				if gridCells[coords].walkable:
-					print("Wallkable")
-				else:
-					print("UNWallkable")
+					grid_cells[coords].walkable = walkable
+					grid_cells[coords].worldPosition = position
 					
 	await get_tree().create_timer(0.1).timeout
-	print(gridCells.size())
-
+	print(grid_cells.size())
 
 
 func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
 	# pack coords into a key
-	var key = GridCoords.new(x, z, y)
+	var key = Vector3i(x,y,z)
 	if(value.gridCoordinates == null || value.gridCoordinates != key):
 		value.gridCoordinates = key
 		
-	gridCells[key] = value
-
+	grid_cells[key] = value
 
 
 
 func get_cell(x: int, z: int, y: int, default_value = null):
 	var key = Vector3(x, y, z)
-	return gridCells.get(key, default_value)
+	return grid_cells.get(key, default_value)
 
 
 func has_cell(x: int, z: int, y: int) -> bool:
-	return gridCells.has(GridCoords.new(x,z,y))
+	return grid_cells.has(Vector3i(x,y,z))
 
 
 func remove_cell(x: int, z: int, y: int) -> void:
-	gridCells.erase(Vector3(x, y, z))
+	grid_cells.erase(Vector3(x, y, z))
 
 
 func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest: bool = false) -> Dictionary:
-	var retVal: Dictionary = {"Success": false, "GridCell": null}
+	var retVal: Dictionary = {"success": false, "gridCell": null}
 
-	if (gridCellSize.x <= 0 or gridCellSize.y <= 0): return retVal # Check both dimensions
+	if (gridCellSize.x <= 0 or gridCellSize.y <= 0): 
+		print("BAD")
+		return retVal # Check both dimensions
 
 	var x_coord = int(floor(worldPosition.x / gridCellSize.x))
 	var y_coord = int(floor(worldPosition.y / gridCellSize.y))
@@ -211,17 +200,17 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	# Clamp coordinates to grid boundaries
 	x_coord = clamp(x_coord, 0, gridSize.x - 1)
 	y_coord = clamp(y_coord, 0, gridSize.y - 1)
-	z_coord = clamp(z_coord, 0, gridSize.z - 1) # Assuming gridSize.z is for Z-dimension
+	z_coord = clamp(z_coord, 0, gridSize.z - 1) 
 
 	# Assuming GridCoords(x, z, y_layer)
-	var target_key = GridCoords.new(x_coord, z_coord, y_coord) # Or Vector3i(x_coord, y_coord, z_coord) if you switch
-
-	if gridCells.has(target_key):
-		retVal["GridCell"] = gridCells[target_key]
-		retVal["Success"] = true
+	var target_key = Vector3i(x_coord,y_coord, z_coord) # Or Vector3i(x_coord, y_coord, z_coord) if you switch
+	#print(target_key)
+	if grid_cells.has(target_key):
+		retVal["gridCell"] = grid_cells[target_key]
+		retVal["success"] = true
 		return retVal
 	elif (!nullGetNearest):
-		retVal["Success"] = false
+		retVal["success"] = false
 		return retVal
 
 	# If nullGetNearest is true, search for the nearest valid grid cell on the same LAYER
@@ -232,9 +221,9 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	var minDistanceSq = INF
 	var nearest_cell: GridCell = null
 
-	for key_coords in gridCells.keys():
+	for key_coords in grid_cells.keys():
 		if key_coords.layer == y_coord: # Check if on the same y-layer
-			var candidate_cell: GridCell = gridCells[key_coords]
+			var candidate_cell: GridCell = grid_cells[key_coords]
 			var distSq: float = (candidate_cell.worldPosition - worldPosition).length_squared()
 			if distSq < minDistanceSq:
 				minDistanceSq = distSq
@@ -252,7 +241,7 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.
 func get_max_height() -> int:
 	var max_height := 0
-	for key in gridCells.keys():
+	for key in grid_cells.keys():
 		# if you’re using float‐y Vector3s, cast to int
 		var layer := int(key.layer)
 		max_height = max(max_height, layer)
@@ -261,7 +250,7 @@ func get_max_height() -> int:
 
 func get_min_height() -> int:
 	var min_height := 0
-	for key in gridCells.keys():
+	for key in grid_cells.keys():
 		# if you’re using float‐y Vector3s, cast to int
 		var layer := int(key.layer)
 		min_height = min(min_height, layer)
@@ -270,7 +259,7 @@ func get_min_height() -> int:
 
 func try_get_randomGrid_cell() -> Dictionary:
 	
-	var cell = gridCells.values().pick_random()
+	var cell = grid_cells.values().pick_random()
 	
 	
 	return {"success": true,"cell":cell}
@@ -282,7 +271,7 @@ func is_gridcell_walkable(cell: GridCell) -> bool:
 
 
 func  try_get_random_walkable_cell() -> Dictionary:
-	var cell = UtilityMethods.get_random_value_with_condition(gridCells.values(),is_gridcell_walkable)
+	var cell = UtilityMethods.get_random_value_with_condition(grid_cells.values(),is_gridcell_walkable)
 	
 	if cell == null:
 		return {"success": false, "cell": null}
