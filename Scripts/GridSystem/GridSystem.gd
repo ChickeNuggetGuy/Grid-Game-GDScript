@@ -17,6 +17,8 @@ var grid_cells: Dictionary[Vector3i,GridCell]
 @export var  collideroffset : Vector3
 @export var  colliderLength : float
 
+@export var ground_inventory_grid : InventoryGrid
+
 #@export var groundInventoryPrefab: InventoryGrid;
 #endregion
 #endregion
@@ -27,7 +29,7 @@ func _get_manager_name() -> String: return "GridSystem"
 func _setup_conditions(): return true
 
 func _setup(): 
-	print("HELP")
+	ground_inventory_grid = load("res://Data/Inventory/GroundInventory.tres")
 	setup_completed.emit()
 
 func _execute_conditions() -> bool: return true
@@ -153,7 +155,7 @@ func setup_grid():
 
 				var coords = Vector3i(x,layer, z)
 				if not grid_cells.has(coords) || grid_cells[coords] == null:
-					var cell = GridCell.new(x,layer,z, position, walkable, null, self)
+					var cell = GridCell.new(x,layer,z, position, walkable, ground_inventory_grid.duplicate(), self)
 					grid_cells[coords] = cell
 				else:
 					grid_cells[coords].walkable = walkable
@@ -238,6 +240,7 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	retVal["Success"] = false
 	return retVal
 
+
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.
 func get_max_height() -> int:
 	var max_height := 0
@@ -257,13 +260,38 @@ func get_min_height() -> int:
 	return min_height
 
 
+func get_grid_cell_neighbors(target_grid_cell: GridCell) -> Array[GridCell]:
+	var ret_val: Array[GridCell] = []
+	
+	# Iterate through all 26 neighbors (including diagonals)
+	for x in range(-1, 2):  # -1, 0, 1
+		for y in range(-1, 2):  # -1, 0, 1
+			for z in range(-1, 2):  # -1, 0, 1
+				# Skip the center cell (0, 0, 0)
+				if x == 0 and y == 0 and z == 0:
+					continue
+				
+				# Calculate the neighbor's coordinates
+				var test_coords = Vector3i(
+					target_grid_cell.gridCoordinates.x + x,
+					target_grid_cell.gridCoordinates.y + y,
+					target_grid_cell.gridCoordinates.z + z
+				)
+				
+				# Check if the neighbor exists in the grid
+				if grid_cells.has(test_coords):
+					ret_val.append(grid_cells[test_coords])
+	
+	return ret_val
+
+
+
 func try_get_randomGrid_cell() -> Dictionary:
 	
 	var cell = grid_cells.values().pick_random()
 	
 	
 	return {"success": true,"cell":cell}
-	
 
 
 func is_gridcell_walkable(cell: GridCell) -> bool:

@@ -6,18 +6,19 @@ var worldPosition: Vector3
 
 var walkable: bool = false
 
-var gridInventory
+var gridInventory : InventoryGrid
 
 var gridSystem: GridSystem
 var gridObject
 
 #endregion
 #region Functions
-func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, walkableVal: bool, inventory, parentGridSystem: GridSystem):
+func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, walkableVal: bool, inventory : InventoryGrid, parentGridSystem: GridSystem):
 	gridCoordinates = Vector3i(xCoord,layerCoord,zCoord)
 	worldPosition = worldPos
 	self.walkable = walkableVal;
 	self.gridInventory = inventory 
+	self.gridInventory.initialize()
 	self.gridSystem = parentGridSystem
 	self.gridObject = gridObject
 

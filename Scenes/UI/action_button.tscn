@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://ccej7wk8dhb5y"]
+
+[ext_resource type="Script" uid="uid://uywahlewgl47" path="res://Scripts/UI/ActionButton.gd" id="1_fpu3n"]
+
+[node name="ActionButton" type="Button"]
+size_flags_horizontal = 3
+text = "Action"
+script = ExtResource("1_fpu3n")
+metadata/_custom_type_script = "uid://uywahlewgl47"

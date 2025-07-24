@@ -1,0 +1,158 @@
+[gd_scene load_steps=7 format=3 uid="uid://c8ylwvjtychxr"]
+
+[ext_resource type="Script" uid="uid://d222p848qf3w4" path="res://Scripts/UI/UnitActionUI.gd" id="1_o0cgi"]
+[ext_resource type="PackedScene" uid="uid://ccej7wk8dhb5y" path="res://Scenes/UI/action_button.tscn" id="2_ga4cb"]
+[ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_6lbs1"]
+[ext_resource type="Script" uid="uid://cyrbxh22vfj6b" path="res://Scripts/UI/StatProgressBar.gd" id="4_odcd3"]
+[ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="4_wi8ec"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_ga4cb"]
+font_size = 24
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="UnitDetailPanel" type="Control" parent="." node_paths=PackedStringArray("action_button_holder", "stat_progress_bars", "visual")]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -223.0
+offset_right = 333.0
+offset_bottom = -37.999756
+grow_vertical = 0
+script = ExtResource("1_o0cgi")
+action_button_prefab = ExtResource("2_ga4cb")
+action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/VBoxContainer")
+stat_progress_bars = [NodePath("PanelContainer/HBoxContainer/RightSide/Control/ProgressBar"), NodePath("PanelContainer/HBoxContainer/RightSide/Control/ProgressBar2"), NodePath("PanelContainer/HBoxContainer/RightSide/Control/ProgressBar3"), NodePath("PanelContainer/HBoxContainer/RightSide/Control/ProgressBar4")]
+input_key = 85
+visual = NodePath("PanelContainer")
+ui_name = "UnitActionUI"
+metadata/_custom_type_script = "uid://d222p848qf3w4"
+
+[node name="PanelContainer" type="PanelContainer" parent="UnitDetailPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = -0.062000003
+anchor_right = 1.0
+anchor_bottom = 1.062
+offset_top = 10.044001
+offset_bottom = -10.044006
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer"]
+layout_mode = 2
+
+[node name="LeftSide" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Unit Name" type="Label" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Unit Unitson"
+label_settings = SubResource("LabelSettings_ga4cb")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide"]
+layout_mode = 2
+size_flags_vertical = 3
+stretch_mode = 1
+
+[node name="TextureRect" type="TextureRect" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide/AspectRatioContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("3_6lbs1")
+
+[node name="RightSide" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide"]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="ProgressBar" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Control"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+step = 1.0
+value = 100.0
+show_percentage = false
+script = ExtResource("4_odcd3")
+stat_name = "Health"
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="ProgressBar2" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Control"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+script = ExtResource("4_odcd3")
+stat_name = "TimeUnits"
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="ProgressBar3" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Control"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+script = ExtResource("4_odcd3")
+stat_name = "Stamina"
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="ProgressBar4" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Control"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+script = ExtResource("4_odcd3")
+stat_name = "Bravery"
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="UIWindow" type="Control" parent="UnitDetailPanel" node_paths=PackedStringArray("visual")]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 75.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("4_wi8ec")
+visual = NodePath("HBoxContainer")
+ui_name = "QuickSelect"
+metadata/_custom_type_script = "uid://djnfglh5vj3vy"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/UIWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/UIWindow/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VSeparator" type="VSeparator" parent="UnitDetailPanel/UIWindow/HBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UnitDetailPanel/UIWindow/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3

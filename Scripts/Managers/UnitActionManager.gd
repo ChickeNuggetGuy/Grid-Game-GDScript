@@ -28,7 +28,6 @@ func _execute() -> void:
 
 func _set_selected_action(action : ActionNode): 
 	selected_action = action
-	print(selected_action.name)
 
 
 func try_set_selected_action(action : ActionNode) -> bool:
@@ -43,17 +42,31 @@ func try_set_selected_action(action : ActionNode) -> bool:
 
 func _unhandled_input(event):
 	if event is InputEventMouseButton:
+		
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			print("Execution attempted with " )
 			var current_cell = GridInputManager.currentGridCell
+			
 			if current_cell != null:
+
 				try_execute_selected_action(current_cell)
 			else:
 				print("Grid cell is null")
 			
 func try_execute_selected_action(current_grid_cell : GridCell):
+	
+	var selected_unit : GridObject = UnitManager.selectedUnit
+	
+	if selected_unit == null:
+		return
+		
 	if selected_action != null:
-		print("Execution attempted with " + selected_action.name)
-		await selected_action.instantiate(UnitManager.selectedUnit,current_grid_cell ).execute()
+		var result = selected_action.can_execute(selected_unit, selected_unit.grid_position_data.grid_cell,current_grid_cell)
+		if result["can_execute"]:
+			print("Executing action, using " + str(result["cost"]) + " Time units!")
+			await selected_action.instantiate(UnitManager.selectedUnit,selected_unit.grid_position_data.grid_cell,current_grid_cell ).execute_call()
+		else:
+			print("Failed to execute action: " + result["reason"])
 	else:
 		print("No selected action")
 		
