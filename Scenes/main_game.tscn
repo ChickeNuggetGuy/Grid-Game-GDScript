@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://djp7ngnurdxef"]
+
+[ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/CameraController.gd" id="1_l756w"]
+
+[node name="MainGame" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8086065, 0.58834994, 0, -0.58834994, 0.8086065, 0, 0.9739627, 0)
+
+[node name="Camera" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84449816, 1.2518566)
+
+[node name="CameraController" type="Camera3D" parent="Camera" node_paths=PackedStringArray("transposer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5322876, 2.9549038)
+script = ExtResource("1_l756w")
+transposer = NodePath("..")
+metadata/_custom_type_script = "uid://dp870a6rqd874"

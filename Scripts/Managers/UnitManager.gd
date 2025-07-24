@@ -102,7 +102,7 @@ func set_selected_unit_next():
 
 func _unhandled_input(event):
 	if event is InputEventKey:
-		if event.pressed and event.keycode == KEY_TAB:
+		if event.pressed and event.keycode == KEY_C:
 			set_selected_unit_next()
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

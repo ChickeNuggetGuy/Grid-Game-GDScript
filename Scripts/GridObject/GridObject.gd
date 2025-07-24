@@ -1,12 +1,23 @@
 class_name GridObject
 extends Node3D
 
+#region Variables
 var grid_position_data : GridPositionData
 @export var visual :  StaticBody3D
 @export var action_holder: Node
 @export var action_library: Array[ActionNode] = []
-@export var ap = 40
 
+@export var stat_holder: Node
+@export var stat_library: Array[GridObjectStat] = []
+
+var action_queue : Array[Action]
+#endregion
+
+
+#region Signals
+signal  gridObject_stat_changed(stat : GridObjectStat, snew_vaule : int)
+#endregion
+#region Functions
 
 func _ready() -> void:
 	visual.collision_layer =PhysicsLayersUtility.PLAYER
@@ -17,3 +28,58 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection):
 	grid_position_data = data
 	
 	action_library.append_array(action_holder.get_children())
+	stat_library.append_array(stat_holder.get_children())
+	
+	for stat in stat_library:
+		var grid_stat = stat
+		grid_stat.setUp(self)
+
+func get_action_node_by_index(i: int) -> ActionNode:
+	var a = action_library[i]
+	if a == null:
+		print("Action not found at index")
+		return null
+	else:
+		return a
+
+func get_action_node_by_name(name: String) -> ActionNode:
+	# Assuming action_library is an Array of ActionNode objects
+	for action_node in action_library:
+		if action_node.name == name: # Assuming 'n' is the property holding the name
+			print(action_node.name) # Print the name of the found node
+			return action_node
+	
+	# If the loop finishes, the action node was not found
+	print("Action not found: " + name)
+	return null
+
+
+func get_stat_by_name(name: String) -> GridObjectStat:
+	# Assuming action_library is an Array of ActionNode objects
+	for stat in stat_library:
+		if stat.stat_name == name: # Assuming 'n' is the property holding the name
+			return stat
+	
+	# If the loop finishes, the action node was not found
+	print("Action not found: " + name)
+	return null
+
+
+func try_spend_stat_value(stat_name : String, amount_to_spend : int) -> Dictionary:
+	var retVal: Dictionary = {"success": false, "new_value": 0}
+	var stat = get_stat_by_name(stat_name)
+	if stat == null:
+		retVal["success"] = false
+		retVal["new_value"] = -1
+		return retVal
+	
+	if stat.try_remove_value(amount_to_spend):
+		retVal["success"] = true
+		retVal["new_value"] = stat.current_value
+		return retVal
+	else:
+		retVal["success"] = false
+		retVal["new_value"] = -1
+		return retVal
+	
+#endregion

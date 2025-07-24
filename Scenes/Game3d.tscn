@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/CameraController.gd" id="2_wl7jf"]
 
-[node name="Node3D" type="Node3D"]
+[node name="MainGame" type="Node3D"]
 
 [node name="Transposer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84449816, 1.2518566)
