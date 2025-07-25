@@ -17,8 +17,6 @@ var grid_cells: Dictionary[Vector3i,GridCell]
 @export var  collideroffset : Vector3
 @export var  colliderLength : float
 
-@export var ground_inventory_grid : InventoryGrid
-
 #@export var groundInventoryPrefab: InventoryGrid;
 #endregion
 #endregion
@@ -29,7 +27,6 @@ func _get_manager_name() -> String: return "GridSystem"
 func _setup_conditions(): return true
 
 func _setup(): 
-	ground_inventory_grid = load("res://Data/Inventory/GroundInventory.tres")
 	setup_completed.emit()
 
 func _execute_conditions() -> bool: return true
@@ -155,7 +152,11 @@ func setup_grid():
 
 				var coords = Vector3i(x,layer, z)
 				if not grid_cells.has(coords) || grid_cells[coords] == null:
-					var cell = GridCell.new(x,layer,z, position, walkable, ground_inventory_grid.duplicate(), self)
+					var result  = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
+					if !result["success"]:
+						print("AAAAAAAAAA")
+					var ground_inventory_grid = result["inventory_grid"]
+					var cell = GridCell.new(x,layer,z, position, walkable, ground_inventory_grid, self)
 					grid_cells[coords] = cell
 				else:
 					grid_cells[coords].walkable = walkable

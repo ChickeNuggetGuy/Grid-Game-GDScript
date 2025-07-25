@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://lced8akkq4yt"]
+
+[ext_resource type="Script" uid="uid://mtb3au1134nr" path="res://Scripts/UI/InventorySlotUI.gd" id="1_o8sks"]
+
+[node name="InventorySlotUI" type="Button"]
+custom_minimum_size = Vector2(20, 20)
+expand_icon = true
+script = ExtResource("1_o8sks")
+metadata/_custom_type_script = "uid://mtb3au1134nr"

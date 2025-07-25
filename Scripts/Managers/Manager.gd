@@ -17,6 +17,9 @@ signal execution_completed()
 @abstract func _get_manager_name() -> String
 
 func _init() -> void: add_to_group("Managers")
+
+
+
 # Orchestrates the manager's setup phase.
 func setup_manager_flow():
 	print("%s: Starting setup flow..." % _get_manager_name())
@@ -32,7 +35,7 @@ func setup_manager_flow():
 # Abstract method to check if setup can proceed.
 @abstract func _setup_conditions() -> bool
 
-# Abstract method for concrete setup logic.
+
 # Concrete implementations must emit `setup_completed()` when done.
 @abstract func _setup()
 

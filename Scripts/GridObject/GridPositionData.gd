@@ -13,7 +13,7 @@ signal grid_position_data_updated(grid_cell : GridCell)
 func _init(parent : GridObject, cell : GridCell, dir : Enums.facingDirection):
 	parent_gridobject = parent
 	set_grid_cell(cell)
-	cell.set_gridobject(parent)
+	cell.set_gridobject(parent, cell.walkable)
 	set_direction(dir)
 
 
@@ -34,9 +34,9 @@ func set_grid_cell(target_grid_cell : GridCell):
 		return
 		
 	if grid_cell != null:
-		grid_cell.set_gridobject(null)
+		grid_cell.set_gridobject(null, grid_cell.walkable)
 	
 	grid_cell = target_grid_cell
-	grid_cell.set_gridobject(parent_gridobject)
+	grid_cell.set_gridobject(parent_gridobject, false)
 	grid_position_data_updated.emit(target_grid_cell)
 #endregion
