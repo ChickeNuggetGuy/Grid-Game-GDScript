@@ -1,10 +1,11 @@
 @tool
-class_name InventoryGrid extends Resource
+class_name InventoryGrid 
+extends Resource
 
 #region Variables
 @export var inventory_name: String = ""
+@export var inventory_type: Enums.inventoryType
 
-# Correct way to export a resource of a specific class_name
 @export var inventory_shape: GridShape:
 	set(value):
 		inventory_shape = value
@@ -19,13 +20,13 @@ class_name InventoryGrid extends Resource
 	get:
 		return inventory_shape
 
-var _items: Array[Array] # Represents the 2D grid: Array[Array[Item]]
+var _items: Array[Array] = [] # Represents the 2D grid: Array[Array[Item]]
 
 @export var use_item_size: bool = true
 
 @export var item_count: int:
 	get:
-		if _items == null:
+		if _items == null or _items.is_empty():
 			return 0
 		else:
 			var unique_items: Array[Item] = []
@@ -52,10 +53,10 @@ func _init():
 	use_item_size = true
 	_items = [] # Initialize as empty array of arrays
 
-
 func initialize() -> void:
-	if not inventory_shape is GridShape:
-		push_error("InventoryShape was assigned a generic Resource — please assign a GridShape asset in the Inspector.")
+	if inventory_shape == null:
+		push_error("InventoryShape is null")
+		_items = []
 		return
 
 	if inventory_shape.grid_width <= 0 or inventory_shape.grid_height <= 0:
@@ -67,19 +68,21 @@ func initialize() -> void:
 	_items.clear()
 	_items.resize(inventory_shape.grid_height) # Height determines number of rows
 	for y in range(inventory_shape.grid_height):
-		_items[y] = Array()
+		_items[y] = []
 		_items[y].resize(inventory_shape.grid_width) # Width determines number of columns in each row
-		_items[y].fill(null) # Fill with null initially
-
-	# The C# code had a commented out section for initializing default InventoryShape if null.
-	# In GDScript, it's typically better to ensure 'inventory_shape' is assigned in the editor,
-	# or initialized within the Item's constructor/initialize_shape method.
-	# If 'inventory_shape' is null at this point, the initial check would have caught it.
-
+		# Fill with null initially
+		for x in range(inventory_shape.grid_width):
+			_items[y][x] = null
 
 func try_add_item(item_to_add: Item) -> bool:
+	if item_to_add == null:
+		print("Cannot add null item")
+		return false
+		
 	# Ensure the item's own shape is initialized.
-	# item_to_add.initialize_shape() # This should ideally be handled by the Item itself
+	if item_to_add.shape == null:
+		print("Item has no shape")
+		return false
 
 	# Iterate through every possible top-left starting position.
 	for y in range(inventory_shape.grid_height):
@@ -93,6 +96,9 @@ func try_add_item(item_to_add: Item) -> bool:
 	return false # No valid spot found in the entire grid.
 
 func remove_item(item_to_remove: Item) -> Item:
+	if item_to_remove == null:
+		return null
+		
 	var removed_item = item_to_remove
 	# Iterate using the actual dimensions of the _items array
 	for y in range(_items.size()): # Iterating through rows
@@ -103,8 +109,9 @@ func remove_item(item_to_remove: Item) -> Item:
 	emit_signal("inventory_changed")
 	return removed_item
 
-
 static func try_transfer_item(from_grid: InventoryGrid, to_grid: InventoryGrid, item_to_transfer: Item) -> bool:
+	if item_to_transfer == null:
+		return false
 	if not from_grid.has_item(item_to_transfer):
 		return false
 
@@ -124,6 +131,8 @@ static func try_transfer_item(from_grid: InventoryGrid, to_grid: InventoryGrid, 
 	return true
 
 static func try_transfer_item_at(from_grid: InventoryGrid, to_grid: InventoryGrid, item_to_transfer: Item, coords: Vector2i) -> bool:
+	if item_to_transfer == null:
+		return false
 	if not from_grid.has_item(item_to_transfer):
 		return false
 
@@ -146,6 +155,9 @@ static func try_transfer_item_at(from_grid: InventoryGrid, to_grid: InventoryGri
 #region Helper Functions
 
 func can_place_item(item_to_check: Item) -> bool:
+	if item_to_check == null or item_to_check.shape == null:
+		return false
+		
 	for y in range(inventory_shape.grid_height):
 		for x in range(inventory_shape.grid_width):
 			var position = Vector2i(x, y)
@@ -153,44 +165,48 @@ func can_place_item(item_to_check: Item) -> bool:
 				return true
 	return false
 
-
 func can_place_item_at(item: Item, position: Vector2i) -> bool:
 	if item == null or item.shape == null:
 		return false
 
+	# Check bounds first
+	if position.x < 0 or position.y < 0:
+		return false
+
 	if use_item_size:
-		# Optional: Early out if the item obviously won’t fit
+		# Check if the item would fit within the grid boundaries
 		if position.x + item.shape.grid_width > inventory_shape.grid_width or \
 		   position.y + item.shape.grid_height > inventory_shape.grid_height:
 			return false
 
+		# Check each cell that the item would occupy
 		for item_y in range(item.shape.grid_height):
 			for item_x in range(item.shape.grid_width):
-				if not item.shape.get_grid_shape_cell(item_x, item_y):
-					continue
+				# Only check cells that are part of the item's shape
+				if item.shape.get_grid_shape_cell(item_x, item_y):
+					var grid_x = position.x + item_x
+					var grid_y = position.y + item_y
 
-				var grid_x = position.x + item_x
-				var grid_y = position.y + item_y
+					# Double-check bounds (shouldn't be needed due to earlier check, but safe)
+					if grid_x >= inventory_shape.grid_width or grid_y >= inventory_shape.grid_height:
+						return false
 
-				# Already ensured bounds above, but safe to double-check
-				if grid_x < 0 or grid_y < 0 or \
-				   grid_x >= inventory_shape.grid_width or grid_y >= inventory_shape.grid_height:
-					return false
+					# Check if the inventory shape allows this cell
+					if not inventory_shape.get_grid_shape_cell(grid_x, grid_y):
+						return false
 
-				if not inventory_shape.get_grid_shape_cell(grid_x, grid_y):
-					return false
-
-				if _items[grid_y][grid_x] != null: # Accessing as _items[row][column]
-					return false
+					# Check if the cell is already occupied
+					if _items[grid_y][grid_x] != null:
+						return false
 	else:
-		if position.x < 0 or position.y < 0 or \
-		   position.x >= inventory_shape.grid_width or position.y >= inventory_shape.grid_height:
+		# For single-cell items
+		if position.x >= inventory_shape.grid_width or position.y >= inventory_shape.grid_height:
 			return false
 
 		if not inventory_shape.get_grid_shape_cell(position.x, position.y):
 			return false
 
-		if _items[position.y][position.x] != null: # Accessing as _items[row][column]
+		if _items[position.y][position.x] != null:
 			return false
 
 	return true
@@ -202,22 +218,32 @@ func try_place_item_at(item: Item, position: Vector2i) -> bool:
 	_place_item_at(item, position)
 	return true
 
-
 func _place_item_at(item: Item, position: Vector2i) -> void:
-	if use_item_size:
+	if item == null:
+		return
+		
+	if use_item_size and item.shape != null:
 		for item_y in range(item.shape.grid_height):
 			for item_x in range(item.shape.grid_width):
 				# Only place a reference to the item if that part of the item's shape exists.
 				if item.shape.get_grid_shape_cell(item_x, item_y):
 					var grid_x = position.x + item_x
 					var grid_y = position.y + item_y
-					_items[grid_y][grid_x] = item # Accessing as _items[row][column]
+					# Additional bounds check
+					if grid_y >= 0 and grid_y < _items.size() and \
+					   grid_x >= 0 and grid_x < _items[grid_y].size():
+						_items[grid_y][grid_x] = item
 	else:
-		_items[position.y][position.x] = item # Accessing as _items[row][column]
+		if position.y >= 0 and position.y < _items.size() and \
+		   position.x >= 0 and position.x < _items[position.y].size():
+			_items[position.y][position.x] = item
 
 	emit_signal("inventory_changed")
 
 func has_item(item_to_check: Item) -> bool:
+	if item_to_check == null:
+		return false
+		
 	for y in range(_items.size()):
 		for x in range(_items[y].size()):
 			var item: Item = _items[y][x]
@@ -227,11 +253,14 @@ func has_item(item_to_check: Item) -> bool:
 				return true
 	return false
 
-func has_item_at(position: Vector2i) -> Item: # Returns Item or null, similar to C# out parameter pattern
-	if position.y >= _items.size() or position.x >= _items[0].size(): # Check bounds using actual array dimensions
+func has_item_at(position: Vector2i) -> Item:
+	# Check bounds using actual array dimensions
+	if _items.is_empty() or \
+	   position.y < 0 or position.y >= _items.size() or \
+	   position.x < 0 or position.x >= _items[0].size():
 		return null # Out of bounds
 
 	var item: Item = _items[position.y][position.x]
-	return item # Will be Item or null
+	return item
 
 #endregion

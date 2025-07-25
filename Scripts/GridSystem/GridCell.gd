@@ -22,8 +22,9 @@ func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, walkabl
 	self.gridSystem = parentGridSystem
 	self.gridObject = gridObject
 
-func set_gridobject(target : GridObject):
+func set_gridobject(target : GridObject, walkability : bool):
 	self.gridObject = target
+	walkable =walkability
 func hasGridObject():return gridObject != null
 
 func hasSpecificGridObject(gridObjectToCheck):return gridObject == gridObjectToCheck

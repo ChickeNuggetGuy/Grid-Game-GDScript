@@ -1,18 +1,42 @@
-extends Control
+extends Manager
 
+var ui_holder : Control
 var currentCellUI : Label
 var ui_windows : Dictionary[String, UIWindow] ={}
 
-func _init() -> void:
-	self.set_anchors_preset(Control.PRESET_FULL_RECT)
-	mouse_filter =Control.MOUSE_FILTER_IGNORE
-	currentCellUI = Label.new()
-	add_child(currentCellUI)
-	currentCellUI.set_anchors_preset(Control.PRESET_CENTER_TOP)
+
+
+func _get_manager_name() -> String: return "UI Manager"
+
+
+func _setup_conditions() -> bool: return true
+
+
+func _setup() -> void:
 	var interface_scene : PackedScene = load("res://Scenes/Interface.tscn")
 	var interface : Control = interface_scene.instantiate()
-	add_child(interface)
+	ui_holder = interface
+	ui_holder.add_child(interface)
 	interface.set_anchors_preset(Control.PRESET_FULL_RECT)
+	setup_completed.emit()
+	add_child(ui_holder)
+	ui_holder.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ui_holder.mouse_filter =Control.MOUSE_FILTER_IGNORE
+	currentCellUI = Label.new()
+	ui_holder.add_child(currentCellUI)
+	currentCellUI.set_anchors_preset(Control.PRESET_CENTER_TOP)
+
+
+func _execute_conditions() -> bool: return true
+
+
+func _execute():
+	for  window in ui_windows.values():
+		var ui_window : UIWindow = window
+		ui_window.setup_call()
+	
+	execution_completed.emit()
+
 
 
 func add_ui_window(window_to_add : UIWindow):

@@ -16,6 +16,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if !GameManager.execution_completed:
+		return
 	var mp   = get_viewport().get_mouse_position()
 	var from = camera.project_ray_origin(mp)
 	var dir  = camera.project_ray_normal(mp)
@@ -52,9 +54,9 @@ func _process(delta: float) -> void:
 	
 	if currentGridCell == null:
 		visual.position = Vector3(-10,-10,-10)
-		UiManager.currentCellUI.text = ""
+		#UiManager.currentCellUI.text = ""
 	else:
-		UiManager.currentCellUI.text = "Current Gridcell: " + currentGridCell.to_string()
+		#UiManager.currentCellUI.text = "Current Gridcell: " + currentGridCell.to_string()
 		visual.position = currentGridCell.worldPosition
 
 func _get_manager_name() -> String: return "GridInputManager"

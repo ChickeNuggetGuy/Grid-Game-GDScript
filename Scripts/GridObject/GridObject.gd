@@ -6,11 +6,14 @@ var grid_position_data : GridPositionData
 @export var visual :  StaticBody3D
 @export var action_holder: Node
 @export var action_library: Array[ActionNode] = []
+var action_queue : Array[Action]
 
 @export var stat_holder: Node
 @export var stat_library: Array[GridObjectStat] = []
 
-var action_queue : Array[Action]
+@export var inventory_grid_types : Array[Enums.inventoryType] = []
+var inventory_grids : Dictionary[Enums.inventoryType,InventoryGrid] = {}
+@export var test_item : Item
 #endregion
 
 
@@ -33,6 +36,19 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection):
 	for stat in stat_library:
 		var grid_stat = stat
 		grid_stat.setUp(self)
+	
+	setup_inventory_grids()
+
+
+func setup_inventory_grids():
+	for inventory_type in inventory_grid_types:
+		
+		var result = InventoryManager.try_get_inventory_grid(inventory_type)
+		if result["success"]:
+			print("success: " + str(inventory_type))
+			inventory_grids[inventory_type] =  result["inventory_grid"]
+
+
 
 func get_action_node_by_index(i: int) -> ActionNode:
 	var a = action_library[i]
@@ -41,6 +57,7 @@ func get_action_node_by_index(i: int) -> ActionNode:
 		return null
 	else:
 		return a
+
 
 func get_action_node_by_name(name: String) -> ActionNode:
 	# Assuming action_library is an Array of ActionNode objects
@@ -81,5 +98,11 @@ func try_spend_stat_value(stat_name : String, amount_to_spend : int) -> Dictiona
 		retVal["success"] = false
 		retVal["new_value"] = -1
 		return retVal
-	
+
+func _unhandled_input(event):
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_B:
+			if UnitManager.selectedUnit == self:
+				inventory_grids[Enums.inventoryType.BACKPACK].try_add_item(test_item)
+
 #endregion

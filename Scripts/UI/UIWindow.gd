@@ -40,6 +40,17 @@ func toggle():
 		show_call()
 
 
+func  _setup():
+	var ui_elements : Array = UtilityMethods.find_children_by_type(self, "UIElement")
+	
+	if ui_elements == null or ui_elements.size() < 1:
+		return
+	
+	for element in ui_elements:
+		if element is UIElement:
+			element.setup_call()
+
+
 func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == input_key:
