@@ -3,15 +3,14 @@
 [ext_resource type="Script" uid="uid://bvaar7mvf43va" path="res://Scripts/InventorySystem/InventoryGrid.gd" id="1_5q8iv"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="1_6jtki"]
 
-[sub_resource type="Resource" id="Resource_u30h6"]
+[sub_resource type="Resource" id="Resource_240ow"]
+resource_local_to_scene = true
 script = ExtResource("1_6jtki")
-shape_grid = Array[bool]([true, true, true, false, false, false, false, false, false, true, true, true, false, false, false, false, false, false, true, true, true, false, false, false, false, false, false])
 grid_width = 9
-grid_height = 3
-metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 [resource]
 script = ExtResource("1_5q8iv")
 inventory_name = "Ground"
-inventory_shape = SubResource("Resource_u30h6")
+shape = SubResource("Resource_240ow")
 metadata/_custom_type_script = "uid://bvaar7mvf43va"

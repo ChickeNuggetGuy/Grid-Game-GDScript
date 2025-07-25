@@ -11,21 +11,51 @@ var parent_grid_object: GridObject
 
 var action_blueprints : Array[ActionNode]
 
+# REMOVE THESE - dimensions are now solely in GridShape
+# var _grid_width: int = 3
+# var _grid_height: int = 3
+# @export var grid_width: int: ...
+# @export var grid_height: int: ...
+
 func _init():
-	# Initialize properties if needed, though exported properties usually handle this.
-	item_name = ""
-	description = ""
-	icon = null
-	shape = null # Ensure it's null by default to trigger InitializeShape
+	resource_local_to_scene = true
+	shape = null 
 	action_blueprints = []
 
-func initialize_shape() -> void:
-	if shape != null:
-		return
+func _post_initialize():
+	# Ensure shape is created and initialized based on its *own* loaded dimensions.
+	_ensure_shape_exists_and_matches()
 
-	shape = GridShape.new()
-	# Assuming GridShape's constructor sets default GridWidth and GridHeight
-	# If not, you might need to set them here, e.g., shape.grid_width = 3, shape.grid_height = 3
-	for x in range(shape.grid_width):
-		for y in range(shape.grid_height):
-			shape.set_grid_shape_cell(x, y, true)
+func _ensure_shape_exists_and_matches(): # No arguments needed now
+	if shape == null:
+		# Create new shape with default dimensions (3,3 from GridShape's @export defaults)
+		shape = GridShape.new()
+		# Initialize all cells to true if that's the default for new items
+		for y in range(shape.grid_height): # Use shape.grid_height
+			for x in range(shape.grid_width): # Use shape.grid_width
+				shape.set_grid_shape_cell(x, y, true)
+		if Engine.is_editor_hint():
+			notify_property_list_changed() # Notify Item changed
+	# No explicit resizing here; GridShape's own setters handle it.
+
+func _duplicate(for_resources: bool) -> Resource:
+	var new_item = Item.new()
+
+	new_item.item_name = item_name
+	new_item.description = description
+	new_item.icon = icon
+	
+	if shape != null:
+		new_item.shape = shape.duplicate(true)
+	else:
+		new_item.shape = null
+
+	new_item.action_blueprints.resize(action_blueprints.size())
+	for i in range(action_blueprints.size()):
+		var blueprint = action_blueprints[i]
+		if blueprint != null and blueprint is Resource:
+			new_item.action_blueprints[i] = blueprint.duplicate(true)
+		else:
+			new_item.action_blueprints[i] = blueprint
+	
+	return new_item

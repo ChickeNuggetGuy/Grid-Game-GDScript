@@ -3,7 +3,8 @@ extends Manager
 var ui_holder : Control
 var currentCellUI : Label
 var ui_windows : Dictionary[String, UIWindow] ={}
-
+var blocking_input : bool = false
+var blocking_window : UIElement = null
 
 
 func _get_manager_name() -> String: return "UI Manager"
@@ -16,7 +17,7 @@ func _setup() -> void:
 	var interface_scene : PackedScene = load("res://Scenes/Interface.tscn")
 	var interface : Control = interface_scene.instantiate()
 	ui_holder = interface
-	ui_holder.add_child(interface)
+
 	interface.set_anchors_preset(Control.PRESET_FULL_RECT)
 	setup_completed.emit()
 	add_child(ui_holder)
@@ -37,6 +38,18 @@ func _execute():
 	
 	execution_completed.emit()
 
+
+func try_block_input(windw : UIWindow) -> bool:
+	if UnitActionManager.is_busy:
+		return false
+	
+	blocking_window = windw
+	blocking_input = true
+	return true
+
+
+func unblock_input():
+	blocking_input = false
 
 
 func add_ui_window(window_to_add : UIWindow):

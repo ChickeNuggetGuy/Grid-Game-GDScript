@@ -2,8 +2,16 @@ extends Manager
 
 #region Variables
 var selected_action : ActionNode
+
+var is_busy : bool = false
 #endregion
 
+#region signals
+
+signal is_busy_value_changed(current_value: bool)
+signal action_execution_started(current_action: ActionNode)
+signal action_execution_finished(current_action: ActionNode)
+#endregion
 
 #region Functions
 func _get_manager_name() -> String: return "UnitActionManager"
@@ -41,6 +49,12 @@ func try_set_selected_action(action : ActionNode) -> bool:
 	return ret_val
 
 func _unhandled_input(event):
+	if is_busy:
+		return
+	
+	if UiManager.blocking_input:
+		return
+	
 	if event is InputEventMouseButton:
 		
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -64,7 +78,11 @@ func try_execute_selected_action(current_grid_cell : GridCell):
 		var result = selected_action.can_execute(selected_unit, selected_unit.grid_position_data.grid_cell,current_grid_cell)
 		if result["can_execute"]:
 			print("Executing action, using " + str(result["cost"]) + " Time units!")
+			set_is_busy(true)
+			action_execution_started.emit(selected_action)
 			await selected_action.instantiate(UnitManager.selectedUnit,selected_unit.grid_position_data.grid_cell,current_grid_cell ).execute_call()
+			action_execution_finished.emit(selected_action)
+			set_is_busy(false)
 		else:
 			print("Failed to execute action: " + result["reason"])
 	else:
@@ -74,4 +92,13 @@ func try_execute_selected_action(current_grid_cell : GridCell):
 func _unitmanager_unitselected(newUnit : GridObject, oldUnit : GridObject):
 	_set_selected_action(newUnit.action_library[0])
 #endregion
+
+func set_is_busy(value : bool):
+	if is_busy == value:
+		return
+	else:
+		is_busy = value
+		print("is busy changed to:" + str(is_busy))
+		is_busy_value_changed.emit(is_busy)
+
 #endregion
