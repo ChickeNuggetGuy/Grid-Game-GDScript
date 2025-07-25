@@ -4,6 +4,7 @@ class_name UIWindow
 #region Varibles
 var is_shown : bool
 @export var start_hidden : bool = false
+@export var block_inputs : bool
 @export var input_key : Key
 @export var visual : Control
 #endregion
@@ -19,17 +20,27 @@ func show_call():
 	_show()
 
 func _show():
+	if block_inputs and UnitActionManager.is_busy:
+		return
 	visual.show()
 	visual.set_process(true)
 	is_shown = true
+	if block_inputs:
+		UiManager.try_block_input(self)
 
 
 func hide_call():
 	_hide()
 
 func _hide():
-	visual.hide()
-	visual.set_process(false)
+	if visual == null:
+		printerr("UI Visual is null")
+	else:
+		visual.hide()
+		visual.set_process(false)
+	
+	if UiManager.blocking_input and UiManager.blocking_window == self:
+		UiManager.unblock_input()
 	is_shown = false
 
 

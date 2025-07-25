@@ -1,10 +1,17 @@
 class_name MainInventoryUI
 extends UIWindow
 
+#region Varibales
+static var intance : MainInventoryUI
 var inventory_ui_grids : Dictionary[Enums.inventoryType, InventoryGridUI] = {}
 @export var inventory_grids_holder : Control
+@export var mouse_held_inventory_ui : InventoryGridUI
+
+#endregion
 
 func _setup():
+	intance = self
+	UnitActionManager.connect("action_execution_started",UnitActionManager_action_started)
 	for child in inventory_grids_holder.get_children():
 		if child is InventoryGridUI:
 			var inventory_ui = child as InventoryGridUI
@@ -31,3 +38,8 @@ func _hide():
 			inventory_ui.hide_call()
 		
 	super._hide()
+
+
+func UnitActionManager_action_started(action : ActionNode):
+	if is_shown:
+		hide()

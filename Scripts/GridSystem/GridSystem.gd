@@ -153,8 +153,7 @@ func setup_grid():
 				var coords = Vector3i(x,layer, z)
 				if not grid_cells.has(coords) || grid_cells[coords] == null:
 					var result  = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
-					if !result["success"]:
-						print("AAAAAAAAAA")
+
 					var ground_inventory_grid = result["inventory_grid"]
 					var cell = GridCell.new(x,layer,z, position, walkable, ground_inventory_grid, self)
 					grid_cells[coords] = cell

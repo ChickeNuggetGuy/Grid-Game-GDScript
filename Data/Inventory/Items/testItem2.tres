@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Item" load_steps=5 format=3 uid="uid://bp8ds8vdcf3b1"]
+
+[ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="1_0as36"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/Item.gd" id="2_iqtct"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="3_0as36"]
+
+[sub_resource type="Resource" id="Resource_iqtct"]
+resource_local_to_scene = true
+script = ExtResource("3_0as36")
+grid_width = 2
+grid_height = 2
+shape_grid = Array[int]([1, 1, 1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("2_iqtct")
+item_name = "Test"
+description = "Test Item"
+icon = ExtResource("1_0as36")
+shape = SubResource("Resource_iqtct")
+metadata/_custom_type_script = "uid://8if3mtpocl51"

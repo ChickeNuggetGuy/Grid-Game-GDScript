@@ -15,6 +15,17 @@ static func get_random_value_with_condition(original_array: Array, condition_fun
 		return null # No elements met the condition
 
 
+
+static func get_all_children(node: Node, recursive: bool = true) -> Array:
+	var children := []
+	for child in node.get_children():
+		children.append(child)
+		if recursive and child.get_child_count() > 0:
+			children.append_array(get_all_children(child, recursive))
+	return children
+
+
+
 static func find_children_by_type(node: Node, type: String) -> Array:
 	var result = []
 

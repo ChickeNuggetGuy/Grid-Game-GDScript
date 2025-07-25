@@ -1,6 +1,9 @@
-[gd_scene format=3 uid="uid://cwtbsxp5pkayj"]
+[gd_scene load_steps=2 format=3 uid="uid://cwtbsxp5pkayj"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_msw2s"]
 
 [node name="InventorySlotUI" type="TextureRect"]
 custom_minimum_size = Vector2(20, 20)
 offset_right = 20.0
 offset_bottom = 20.0
+texture = SubResource("CanvasTexture_msw2s")

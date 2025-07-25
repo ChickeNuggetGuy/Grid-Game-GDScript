@@ -1,13 +1,14 @@
-[gd_scene load_steps=10 format=3 uid="uid://c8ylwvjtychxr"]
+[gd_scene load_steps=11 format=3 uid="uid://c8ylwvjtychxr"]
 
 [ext_resource type="Script" uid="uid://d222p848qf3w4" path="res://Scripts/UI/UnitActionUI.gd" id="1_o0cgi"]
 [ext_resource type="PackedScene" uid="uid://ccej7wk8dhb5y" path="res://Scenes/UI/action_button.tscn" id="2_ga4cb"]
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_6lbs1"]
 [ext_resource type="Script" uid="uid://cyrbxh22vfj6b" path="res://Scripts/UI/StatProgressBar.gd" id="4_odcd3"]
 [ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="4_wi8ec"]
-[ext_resource type="PackedScene" uid="uid://lced8akkq4yt" path="res://Scenes/UI/inventory_slot_ui.tscn" id="6_mbk52"]
 [ext_resource type="Script" uid="uid://d0wjd6ik205n2" path="res://Scripts/UI/MainInventoryUI.gd" id="6_v4j0p"]
 [ext_resource type="Script" uid="uid://ngmp1p2lmuk1" path="res://Scripts/UI/InventoryGridUI.gd" id="7_xn8c0"]
+[ext_resource type="Script" uid="uid://dx5eic3uowker" path="res://Scripts/UI/MouseHeldInventory.gd" id="8_laqcf"]
+[ext_resource type="Script" uid="uid://e3rapksgaklp" path="res://Scripts/InventorySystem/InventoryGridHolder.gd" id="8_v4j0p"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ga4cb"]
 font_size = 24
@@ -159,7 +160,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="InventoryGrids" type="Control" parent="." node_paths=PackedStringArray("inventory_grids_holder", "visual")]
+[node name="InventoryGrids" type="Control" parent="." node_paths=PackedStringArray("inventory_grids_holder", "mouse_held_inventory_ui", "visual")]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -170,9 +171,12 @@ offset_right = 225.0
 offset_bottom = 400.0
 grow_horizontal = 2
 pivot_offset = Vector2(0.5, 0.5)
+mouse_filter = 2
 script = ExtResource("6_v4j0p")
 inventory_grids_holder = NodePath("Panel")
+mouse_held_inventory_ui = NodePath("../MouseHeldInventory")
 start_hidden = true
+block_inputs = true
 input_key = 73
 visual = NodePath("Panel")
 ui_name = "InventoryUI"
@@ -194,7 +198,6 @@ offset_right = 450.0
 offset_bottom = 339.0
 size_flags_vertical = 8
 script = ExtResource("7_xn8c0")
-inventory_slot_prefab = ExtResource("6_mbk52")
 inventory_slot_holder = NodePath("GridContainer")
 visual = NodePath("GridContainer")
 ui_name = "GroundUI"
@@ -224,7 +227,6 @@ grow_horizontal = 0
 size_flags_vertical = 0
 script = ExtResource("7_xn8c0")
 inventory_grid_type = 2
-inventory_slot_prefab = ExtResource("6_mbk52")
 inventory_slot_holder = NodePath("GridContainer")
 visual = NodePath("GridContainer")
 ui_name = "GroundUI"
@@ -239,3 +241,35 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 8
+
+[node name="MouseHeldInventory" type="Control" parent="." node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -113.5
+offset_right = 20.0
+offset_bottom = -73.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("8_laqcf")
+inventory_grid_type = 8
+inventory_slot_holder = NodePath("AspectRatioContainer")
+start_hidden = true
+visual = NodePath("AspectRatioContainer")
+metadata/_custom_type_script = "uid://dx5eic3uowker"
+
+[node name="MouseHeldInventory" type="Node" parent="MouseHeldInventory"]
+script = ExtResource("8_v4j0p")
+inventory_grid_type = 8
+metadata/_custom_type_script = "uid://e3rapksgaklp"
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="MouseHeldInventory"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2

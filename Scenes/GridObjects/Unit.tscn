@@ -1,9 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://hhe7ab2xbje0"]
+[gd_scene load_steps=10 format=3 uid="uid://hhe7ab2xbje0"]
 
 [ext_resource type="Script" uid="uid://cpnc8piuddbx2" path="res://Scripts/GridObject/GridObject.gd" id="1_qk68r"]
 [ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveActionNode.gd" id="2_33ww8"]
 [ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionNode.gd" id="2_h0wo4"]
-[ext_resource type="Resource" uid="uid://lqamy0tpufw" path="res://Data/Inventory/Items/testItem.tres" id="2_jq84y"]
 [ext_resource type="Script" uid="uid://07clnlq34uec" path="res://Scripts/GridObject/Actions/MoveAction.gd" id="3_ndapa"]
 [ext_resource type="Script" uid="uid://bfvlkl0xm1hd8" path="res://Scripts/GridObject/Actions/RotateAction.gd" id="3_wgt2k"]
 [ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStepActionNode.gd" id="6_45onm"]
@@ -19,7 +18,6 @@ visual = NodePath("StaticBody3D")
 action_holder = NodePath("Actions")
 stat_holder = NodePath("Stats")
 inventory_grid_types = Array[int]([2])
-test_item = ExtResource("2_jq84y")
 metadata/_custom_type_script = "uid://cpnc8piuddbx2"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
