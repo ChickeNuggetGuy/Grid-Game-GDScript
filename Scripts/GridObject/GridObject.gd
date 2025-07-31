@@ -5,7 +5,7 @@ extends Node3D
 var grid_position_data : GridPositionData
 @export var visual :  StaticBody3D
 @export var action_holder: Node
-@export var action_library: Array[ActionNode] = []
+@export var action_library: Array[BaseActionDefinition] = []
 var action_queue : Array[Action]
 
 @export var stat_holder: Node
@@ -30,7 +30,6 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection):
 	add_child(data)
 	grid_position_data = data
 	
-	action_library.append_array(action_holder.get_children())
 	stat_library.append_array(stat_holder.get_children())
 	
 	for stat in stat_library:
@@ -50,7 +49,7 @@ func setup_inventory_grids():
 
 
 
-func get_action_node_by_index(i: int) -> ActionNode:
+func get_action_node_by_index(i: int) -> BaseActionDefinition:
 	var a = action_library[i]
 	if a == null:
 		print("Action not found at index")
@@ -58,17 +57,35 @@ func get_action_node_by_index(i: int) -> ActionNode:
 	else:
 		return a
 
+func try_get_action_definition_by_type(type_to_find: String) -> Dictionary:
+	var retval : Dictionary = {"success": false, "action_definition" : null}
 
-func get_action_node_by_name(name: String) -> ActionNode:
-	# Assuming action_library is an Array of ActionNode objects
-	for action_node in action_library:
-		if action_node.name == name: # Assuming 'n' is the property holding the name
-			print(action_node.name) # Print the name of the found node
-			return action_node
+	var target_script_path: String = ""
+	# First, try to find the script path for the given type_string if it's a custom class_name
+	var global_classes = ProjectSettings.get_global_class_list()
+	for class_info in global_classes:
+		if class_info["class"] == type_to_find:
+			target_script_path = class_info["path"]
+			break
+
+	# Assuming action_library is an Array of ActionNode objects (or whatever base class they extend)
+	for action_def in action_library:
+		# 1. Check if it's a built-in engine class
+		if action_def.is_class(type_to_find):
+			retval["success"] = true
+			retval["action_definition"] = action_def
+			return retval
+
+		# 2. Check if it's a custom class_name
+		if target_script_path != "":
+			if action_def.get_script() != null and action_def.get_script().resource_path == target_script_path:
+				retval["success"] = true
+				retval["action_definition"] = action_def
+				return retval
 	
 	# If the loop finishes, the action node was not found
-	print("Action not found: " + name)
-	return null
+	print("Action not found: " + type_to_find)
+	return retval
 
 
 func get_stat_by_name(name: String) -> GridObjectStat:

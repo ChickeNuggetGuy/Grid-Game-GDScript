@@ -40,6 +40,6 @@ func _hide():
 	super._hide()
 
 
-func UnitActionManager_action_started(action : ActionNode):
+func UnitActionManager_action_started(action : BaseActionDefinition):
 	if is_shown:
 		hide()

@@ -1,8 +1,14 @@
-[gd_resource type="Resource" script_class="Item" load_steps=5 format=3 uid="uid://bp8ds8vdcf3b1"]
+[gd_resource type="Resource" script_class="Item" load_steps=8 format=3 uid="uid://bp8ds8vdcf3b1"]
 
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="1_0as36"]
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/BaseActionDefinition.gd" id="1_w2ukb"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/ThrowActionDefintion.gd" id="2_bks1a"]
 [ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/Item.gd" id="2_iqtct"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="3_0as36"]
+
+[sub_resource type="Resource" id="Resource_gbhr5"]
+script = ExtResource("2_bks1a")
+metadata/_custom_type_script = "uid://bj86rurumq14y"
 
 [sub_resource type="Resource" id="Resource_iqtct"]
 resource_local_to_scene = true
@@ -19,4 +25,5 @@ item_name = "Test"
 description = "Test Item"
 icon = ExtResource("1_0as36")
 shape = SubResource("Resource_iqtct")
+action_blueprints = Array[ExtResource("1_w2ukb")]([SubResource("Resource_gbhr5")])
 metadata/_custom_type_script = "uid://8if3mtpocl51"

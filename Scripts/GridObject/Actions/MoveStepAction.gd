@@ -22,7 +22,12 @@ func _execute() -> void:
 	)
 	
 	if dir_dictionary["direction"] != owner.grid_position_data.direction:
-		var rotate_action_node : RotateActionNode = owner.get_action_node_by_name("Rotate")
+		var get_action_result = owner.try_get_action_definition_by_type("RotateActionDefinition")
+		
+		if get_action_result["success"] == false:
+			return
+	
+		var rotate_action_node : RotateActionDefinition = get_action_result["action_definition"]
 		var rotate_action = rotate_action_node.instantiate(owner, start_grid_cell, target_grid_cell)
 		sub_actions.append(rotate_action)
 	
@@ -33,6 +38,6 @@ func _execute() -> void:
 	await move_tween.finished
 
 func _action_complete() -> void:
-	var success = owner.try_spend_stat_value("TimeUnits", cost)
-	var remaining = owner.get_stat_by_name("TimeUnits").current_value
+	#var success = owner.try_spend_stat_value("TimeUnits", cost)
+	#var remaining = owner.get_stat_by_name("TimeUnits").current_value
 	owner.grid_position_data.set_grid_cell(target_grid_cell)

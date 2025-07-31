@@ -7,6 +7,7 @@ var currentGridCell : GridCell;
 var visual : Node3D
 #endregion
 
+signal grid_cell_selected(grid_cell : GridCell)
 #region Functions
 func _ready() -> void:
 	camera = CameraController.instance;
@@ -48,7 +49,7 @@ func _process(delta: float) -> void:
 		else:
 			var hit_pos = hit.position
 			var r = gridSystem.try_get_gridCell_from_world_position(hit_pos)
-			currentGridCell = r["gridCell"] if r["success"] else null
+			currentGridCell = r["grid_cell"] if r["success"] else null
 	else:
 		currentGridCell = null
 	
@@ -70,4 +71,11 @@ func _setup():
 func _execute_conditions() -> bool: return true
 
 func _execute(): execution_completed.emit() 
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if currentGridCell != null:
+				grid_cell_selected.emit(currentGridCell)
+		
 #endregion

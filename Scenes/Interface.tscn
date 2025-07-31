@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="4_wi8ec"]
 [ext_resource type="Script" uid="uid://d0wjd6ik205n2" path="res://Scripts/UI/MainInventoryUI.gd" id="6_v4j0p"]
 [ext_resource type="Script" uid="uid://ngmp1p2lmuk1" path="res://Scripts/UI/InventoryGridUI.gd" id="7_xn8c0"]
-[ext_resource type="Script" uid="uid://dx5eic3uowker" path="res://Scripts/UI/MouseHeldInventory.gd" id="8_laqcf"]
+[ext_resource type="Script" uid="uid://dx5eic3uowker" path="res://Scripts/UI/MouseHeldInventoryUI.gd" id="8_laqcf"]
 [ext_resource type="Script" uid="uid://e3rapksgaklp" path="res://Scripts/InventorySystem/InventoryGridHolder.gd" id="8_v4j0p"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ga4cb"]
@@ -24,7 +24,6 @@ mouse_filter = 2
 
 [node name="UnitDetailPanel" type="Control" parent="." node_paths=PackedStringArray("action_button_holder", "visual")]
 layout_mode = 1
-anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -223.0
@@ -33,10 +32,12 @@ offset_bottom = -37.999756
 grow_vertical = 0
 script = ExtResource("1_o0cgi")
 action_button_prefab = ExtResource("2_ga4cb")
-action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/VBoxContainer")
+start_hidden = null
+block_inputs = null
 input_key = 85
-visual = NodePath("PanelContainer")
 ui_name = "UnitActionUI"
+action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/VBoxContainer")
+visual = NodePath("PanelContainer")
 metadata/_custom_type_script = "uid://d222p848qf3w4"
 
 [node name="PanelContainer" type="PanelContainer" parent="UnitDetailPanel"]
@@ -129,7 +130,6 @@ metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="UIWindow" type="Control" parent="UnitDetailPanel" node_paths=PackedStringArray("visual")]
 layout_mode = 1
-anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -162,7 +162,6 @@ size_flags_horizontal = 3
 
 [node name="InventoryGrids" type="Control" parent="." node_paths=PackedStringArray("inventory_grids_holder", "mouse_held_inventory_ui", "visual")]
 layout_mode = 1
-anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -225.0
@@ -199,6 +198,7 @@ offset_bottom = 339.0
 size_flags_vertical = 8
 script = ExtResource("7_xn8c0")
 inventory_slot_holder = NodePath("GridContainer")
+slot_behavior = 1
 visual = NodePath("GridContainer")
 ui_name = "GroundUI"
 metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
@@ -216,7 +216,6 @@ size_flags_vertical = 8
 [node name="Backpack" type="Control" parent="InventoryGrids/Panel" node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 1
-anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -125.0
@@ -244,7 +243,6 @@ size_flags_vertical = 8
 
 [node name="MouseHeldInventory" type="Control" parent="." node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 layout_mode = 1
-anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5

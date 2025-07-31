@@ -3,6 +3,7 @@ extends UIWindow
 
 @export var inventory_grid_type : Enums.inventoryType
 @export var inventory_slot_holder : Container
+@export var slot_behavior :  Enums.inventory_UI_slot_behavior = Enums.inventory_UI_slot_behavior.TRY_TRANSFER
 
 var inventory_grid : InventoryGrid
 var inventory_slots : Dictionary[Vector2i, Control] = {}
@@ -10,6 +11,7 @@ var inventory_slots : Dictionary[Vector2i, Control] = {}
 func _init() -> void:
 	start_hidden = true
 	UnitManager.connect("UnitSelected",unit_manager_unit_selected)
+
 
 func _setup():
 	var selected_unit : GridObject = UnitManager.selectedUnit
@@ -46,6 +48,7 @@ func _setup():
 	
 	call_deferred("draw_inventory")
 
+
 func _set_current_inventory_grid(new_grid: InventoryGrid):
 	if inventory_grid == new_grid:
 		return
@@ -60,17 +63,21 @@ func _set_current_inventory_grid(new_grid: InventoryGrid):
 	
 	_clear_slots()
 
+
 func _show():
 	call_deferred("draw_inventory")
 	super._show()
 
+
 func _hide():
 	super._hide()
+
 
 func _clear_slots():
 	for slot_control in inventory_slot_holder.get_children():
 		slot_control.queue_free()
 	inventory_slots.clear()
+
 
 func draw_inventory():
 	if inventory_grid == null or inventory_grid.shape == null:
@@ -100,6 +107,7 @@ func draw_inventory():
 			else:
 				instantiate_inventory_slot_ui(coords)
 
+
 func instantiate_inventory_slot_ui(grid_coords : Vector2i):
 	var instantiated_slot : Control
 	
@@ -119,6 +127,7 @@ func instantiate_inventory_slot_ui(grid_coords : Vector2i):
 		update_slot(instantiated_slot)
 	elif instantiated_slot == null:
 		push_error("Error: Failed to instantiate inventory slot UI at coords " + str(grid_coords))
+
 
 func update_slot(slot : InventorySlotUI):
 	if slot == null:
@@ -142,15 +151,26 @@ func update_slot(slot : InventorySlotUI):
 	else:
 		slot.icon = null
 
+
 func unit_manager_unit_selected(new_Unit : GridObject,old_unit : GridObject):
 	_setup()
+
 
 func inventory_slot_pressed(grid_coords : Vector2i):
 	var slot = inventory_slots[grid_coords]
 	
 	if slot == null:
 		return
+	
+	match slot_behavior:
+		Enums.inventory_UI_slot_behavior.EXECUTE_ACTION:
+				try_execute_item_action(grid_coords)
 		
+		Enums.inventory_UI_slot_behavior.TRY_TRANSFER:
+			item_try_transfer(grid_coords)
+	
+
+func item_try_transfer(grid_coords : Vector2i):
 	var item =  inventory_grid.has_item_at(grid_coords)
 	
 	var mouse_held_inventory = 	MainInventoryUI.intance.mouse_held_inventory_ui.inventory_grid
@@ -165,3 +185,32 @@ func inventory_slot_pressed(grid_coords : Vector2i):
 		if inventory_grid.try_transfer_item_at( mouse_held_inventory ,inventory_grid, mouse_held_item, grid_coords):
 			MainInventoryUI.intance.mouse_held_inventory_ui.position =  Vector2i(-10,-10)
 			MainInventoryUI.intance.mouse_held_inventory_ui.hide_call()
+
+
+func try_execute_item_action(grid_coords : Vector2i):
+	var slot = inventory_slots[grid_coords]
+		
+	if slot == null:
+		return
+	
+
+	var item : Item =  inventory_grid.has_item_at(grid_coords)
+	
+	if item == null:
+		print("Item is null")
+		return
+	
+	var item_action = item.action_blueprints[0]
+	
+	if item_action == null:
+		print("Item  action is null")
+		return
+	
+	hide_call()
+	var selected_grid_cell: GridCell = await GridInputManager.grid_cell_selected
+	
+	if selected_grid_cell == null:
+		print("selected_grid_cell is null")
+		return
+	
+	UnitActionManager.try_execute_item_action(item_action, item)

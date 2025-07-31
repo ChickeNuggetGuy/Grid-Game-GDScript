@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="ActionResource" load_steps=3 format=3 uid="uid://byxgdeudo6lav"]
+[gd_resource type="Resource" script_class="RotateActionDefinition" load_steps=2 format=3 uid="uid://byxgdeudo6lav"]
 
-[ext_resource type="Script" uid="uid://bfvlkl0xm1hd8" path="res://Scripts/GridObject/Actions/RotateAction.gd" id="1_jx6i3"]
-[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/ActionNode.gd" id="1_rv6ep"]
+[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionDefinition.gd" id="1_rv6ep"]
 
 [resource]
 script = ExtResource("1_rv6ep")
-action_script = ExtResource("1_jx6i3")
+script_path = "res://Scripts/GridObject/Actions/RotateAction.gd"
 metadata/_custom_type_script = "uid://c6nuakjynh4o6"
