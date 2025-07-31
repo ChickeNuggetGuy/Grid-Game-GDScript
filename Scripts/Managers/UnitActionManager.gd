@@ -1,7 +1,7 @@
 extends Manager
 
 #region Variables
-var selected_action : ActionNode
+var selected_action : BaseActionDefinition
 
 var is_busy : bool = false
 #endregion
@@ -9,8 +9,8 @@ var is_busy : bool = false
 #region signals
 
 signal is_busy_value_changed(current_value: bool)
-signal action_execution_started(current_action: ActionNode)
-signal action_execution_finished(current_action: ActionNode)
+signal action_execution_started(current_action: BaseActionDefinition)
+signal action_execution_finished(current_action: BaseActionDefinition)
 #endregion
 
 #region Functions
@@ -34,11 +34,11 @@ func _execute_conditions() -> bool: return true
 func _execute() -> void: 
 	execution_completed.emit()
 
-func _set_selected_action(action : ActionNode): 
+func _set_selected_action(action : BaseActionDefinition): 
 	selected_action = action
 
 
-func try_set_selected_action(action : ActionNode) -> bool:
+func try_set_selected_action(action : BaseActionDefinition) -> bool:
 	var ret_val : bool = false
 	
 	if action == null:
@@ -75,7 +75,7 @@ func try_execute_selected_action(current_grid_cell : GridCell):
 		return
 		
 	if selected_action != null:
-		var result = selected_action.can_execute(selected_unit, selected_unit.grid_position_data.grid_cell,current_grid_cell)
+		var result = selected_action.can_execute({"unit" : selected_unit,"from_grid_cell" : selected_unit.grid_position_data.grid_cell,"target_grid_cell" : current_grid_cell})
 		if result["can_execute"]:
 			print("Executing action, using " + str(result["cost"]) + " Time units!")
 			set_is_busy(true)
@@ -87,6 +87,42 @@ func try_execute_selected_action(current_grid_cell : GridCell):
 			print("Failed to execute action: " + result["reason"])
 	else:
 		print("No selected action")
+
+
+func try_execute_item_action(action_to_execute : BaseItemActionDefinition, item : Item) -> Dictionary:
+	var ret_val = {"success": false, "Reasoning": "N/A"}
+	
+	var selected_unit = UnitManager.selectedUnit
+	
+	var current_grid_cell = GridInputManager.currentGridCell
+	
+	if current_grid_cell == null:
+		ret_val["Reasoning"] = "current grid cell is null!"
+		return ret_val
+	
+	
+	if selected_unit == null:
+		ret_val["Reasoning"] = "selected Unit is null!"
+		return ret_val
+	
+	if action_to_execute == null:
+		ret_val["Reasoning"] = "Action definition provided is null!"
+		return ret_val
+		
+	if item == null:
+		ret_val["Reasoning"] = "item provided is null!"
+		return ret_val
+	
+	var item_action_result = action_to_execute.can_execute({"unit" : selected_unit,"from_grid_cell" : selected_unit.grid_position_data.grid_cell,"target_grid_cell" : current_grid_cell, "item" : item})
+	
+	if item_action_result["success"] == true:
+		print("I FUCKING DID IT ")
+	
+	 
+	
+	
+	
+	return ret_val
 		
 #region signal calbacks
 func _unitmanager_unitselected(newUnit : GridObject, oldUnit : GridObject):

@@ -33,9 +33,9 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 	if start == null or goal == null:
 		return path
 	var dict = GridSystem.grid_cells
-	if not adjacent and not goal.walkable:
+	if not adjacent and not goal.grid_cell_state & Enums.cellState.WALKABLE:
 		return path
-	if start == goal and goal.walkable:
+	if start == goal and goal.grid_cell_state & Enums.cellState.WALKABLE:
 		return [start]
 
 	var targets := []
@@ -105,3 +105,57 @@ func _cost(a: GridCell, b: GridCell) -> float:
 	var dz = a.gridCoordinates.z - b.gridCoordinates.z
 	var dl = a.gridCoordinates.y - b.gridCoordinates.y
 	return Vector3(dx, dl, dz).length()
+
+
+
+func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell) -> Dictionary:
+	var ret_val = {"success": false ,"path" : [] }
+	
+	var start = start_pos
+	var end = end_pos
+	var cell_size = GridSystem.gridCellSize
+
+	# Validate start and end points
+	if start.grid_cell_state & Enums.cellState.OBSTRUCTED \
+	or end.grid_cell_state & Enums.cellState.OBSTRUCTED :
+		print("Start or end point is obstructed.")
+		return ret_val
+
+	# Calculate the direction and distance
+	var direction = end.worldPosition - start.worldPosition
+	var distance = direction.length()
+
+	# Define the height of the arc (you can adjust this as needed)
+	var arc_height = distance * 02 # Example: arc height is half the distance
+
+	# Number of points to sample along the arc
+	var num_points = int(distance / cell_size.y) + 1
+
+	for i in range(num_points + 1):
+		var t = float(i) / num_points # Interpolation factor (0 to 1)
+
+		# Calculate the current position along the straight line
+		var current_pos = start.worldPosition.lerp(end.worldPosition, t)
+
+		# Calculate the vertical offset for the arc (parabolic shape)
+		var vertical_offset = -4 * arc_height * t * (t - 1) # Parabola formula
+
+		# Apply the vertical offset to create the arc
+		var arc_pos = current_pos + Vector3.UP * vertical_offset
+
+		# Convert world position to grid coordinates
+		var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(arc_pos)
+		print(get_grid_cell_result["success"])
+		if get_grid_cell_result["success"] == false:
+			return ret_val
+		
+		var grid_cell : GridCell = get_grid_cell_result["grid_cell"]
+
+		# Validate if the cell is air
+		if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
+			print("Obstacle detected at: ", grid_cell)
+			return ret_val # Return an empty path if an obstacle is found
+
+		ret_val["path"].append(arc_pos)
+
+	return ret_val

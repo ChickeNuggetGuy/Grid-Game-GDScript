@@ -4,7 +4,7 @@ class_name GridCell
 var gridCoordinates: Vector3i
 var worldPosition: Vector3
 
-var walkable: bool = false
+var grid_cell_state : Enums.cellState
 
 var gridInventory : InventoryGrid
 
@@ -13,22 +13,22 @@ var gridObject
 
 #endregion
 #region Functions
-func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, walkableVal: bool, inventory : InventoryGrid, parentGridSystem: GridSystem):
+func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, cell_state: Enums.cellState, inventory : InventoryGrid, parentGridSystem: GridSystem):
 	gridCoordinates = Vector3i(xCoord,layerCoord,zCoord)
 	worldPosition = worldPos
-	self.walkable = walkableVal;
+	self.grid_cell_state = cell_state;
 	self.gridInventory = inventory 
 	self.gridInventory.initialize()
 	self.gridSystem = parentGridSystem
 	self.gridObject = gridObject
 
-func set_gridobject(target : GridObject, walkability : bool):
+func set_gridobject(target : GridObject, cell_state : Enums.cellState):
 	self.gridObject = target
-	walkable =walkability
+	grid_cell_state = cell_state
 func hasGridObject():return gridObject != null
 
 func hasSpecificGridObject(gridObjectToCheck):return gridObject == gridObjectToCheck
 
 func _to_string() -> String:
-	return str(gridCoordinates) + " \nwalkable: " + str(walkable)
+	return str(gridCoordinates) + "state: " + str(grid_cell_state)
 #endregion

@@ -21,7 +21,12 @@ func _execute() -> void:
 	)
 	#var path : Array[GridCell] = Pathfinder.find_path(owner.grid_position_data.grid_cell, target_grid_cell)
 	
-	var move_action_node : MoveStepActionNode = owner.get_action_node_by_name("MoveStep")
+	var get_action_result  = owner.try_get_action_definition_by_type("MoveStepActionDefinition")
+	
+	if get_action_result["success"] ==  false:
+		return
+		
+	var move_action_node : MoveStepActionDefinition = get_action_result["action_definition"]
 	for i in range(path.size() - 1):
 		
 		var from_cell: GridCell = path[i]

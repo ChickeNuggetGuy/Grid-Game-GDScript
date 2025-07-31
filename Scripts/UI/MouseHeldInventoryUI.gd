@@ -1,5 +1,5 @@
 extends InventoryGridUI
-class_name MouseHeldInventory
+class_name MouseHeldInventoryUI
 
 
 

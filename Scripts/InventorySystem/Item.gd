@@ -9,7 +9,7 @@ var parent_grid_object: GridObject
 
 @export var shape: GridShape
 
-var action_blueprints : Array[ActionNode]
+@export var action_blueprints : Array[BaseActionDefinition]
 
 # REMOVE THESE - dimensions are now solely in GridShape
 # var _grid_width: int = 3

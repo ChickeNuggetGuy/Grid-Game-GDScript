@@ -1,0 +1,2 @@
+@abstract extends  BaseActionDefinition
+class_name BaseItemActionDefinition

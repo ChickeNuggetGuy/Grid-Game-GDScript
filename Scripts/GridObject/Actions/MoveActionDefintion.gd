@@ -1,20 +1,20 @@
-extends ActionNode
-class_name MoveActionNode
+extends BaseActionDefinition
+class_name MoveActionDefinition
 
-func can_execute(parent_gridObject: GridObject,starting_cell: GridCell, target_grid_cell: GridCell) -> Dictionary:
+func can_execute(parameters : Dictionary) -> Dictionary:
 	var ret_val = {"can_execute": false, "cost" : -1, "reason" : "N/A"}
 	
 	var temp_cost = 0
 	
 	# Check if path is possible first
-	if not Pathfinder.is_path_possible(parent_gridObject.grid_position_data.grid_cell, target_grid_cell):
+	if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
 		print("Path not possible!")
 		ret_val["can_execute"] = false
 		ret_val["cost"] = -1
 		ret_val["reason"] = "No path possible!"
 		return ret_val
 	
-	var path = Pathfinder.find_path(parent_gridObject.grid_position_data.grid_cell, target_grid_cell)
+	var path = Pathfinder.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
 	
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")
@@ -23,8 +23,8 @@ func can_execute(parent_gridObject: GridObject,starting_cell: GridCell, target_g
 		ret_val["reason"] = "No path found!"
 		return ret_val
 	
-	var current_direction: Enums.facingDirection = parent_gridObject.grid_position_data.direction
-	var current_gridCell: GridCell = starting_cell
+	var current_direction: Enums.facingDirection = parameters["unit"].grid_position_data.direction
+	var current_gridCell: GridCell = parameters["from_grid_cell"]
 	
 	# Iterate through path segments (from current cell to next cell)
 	for i in range(path.size() - 1):
@@ -37,7 +37,15 @@ func can_execute(parent_gridObject: GridObject,starting_cell: GridCell, target_g
 			# This shouldn't happen, but just in case
 			current_gridCell = from_cell
 		
-		var move_step_result = parent_gridObject.get_action_node_by_name("MoveStep").can_execute(parent_gridObject, from_cell,to_cell )
+		var get_action_result = parameters["unit"].try_get_action_definition_by_type("MoveStepActionDefinition")
+		if get_action_result["success"] == false:
+			return ret_val
+		var move_step_result = get_action_result["action_definition"].can_execute({
+				"unit": parameters["unit"], 
+				"from_grid_cell": from_cell, 
+				"target_grid_cell": to_cell
+				})
+		
 		if move_step_result["can_execute"] == false:
 			ret_val["can_execute"] = false
 			ret_val["cost"] = -1
@@ -59,7 +67,7 @@ func can_execute(parent_gridObject: GridObject,starting_cell: GridCell, target_g
 		#current_gridCell = to_cell
 	
 	# Check if we have enough time units
-	if temp_cost > parent_gridObject.get_stat_by_name("TimeUnits").current_value:
+	if temp_cost > parameters["unit"].get_stat_by_name("TimeUnits").current_value:
 		print("Not enough time units! Cost: ", temp_cost)
 		ret_val["can_execute"] = false
 		ret_val["cost"] = temp_cost

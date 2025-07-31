@@ -47,7 +47,7 @@ func update_action_buttons(gridObject : GridObject):
 		
 
 
-func instantiate_action_button(action_node : ActionNode):
+func instantiate_action_button(action_node : BaseActionDefinition):
 	var action_button : ActionButton = action_button_prefab.instantiate()
 	action_button_holder.add_child(action_button)
 	action_button.action_setup(action_node)

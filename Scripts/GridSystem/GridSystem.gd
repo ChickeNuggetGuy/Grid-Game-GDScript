@@ -60,18 +60,18 @@ func _process(_delta: float) -> void:
 func setup_grid():
 	grid_cells = {}
 	var spaceState = get_tree().root.world_3d.direct_space_state
+
 	for layer in range(gridSize.y):
 		for x in range(gridSize.x):
 			for z in range(gridSize.z):
-				var walkable = false
+				var cell_state: Enums.cellState = Enums.cellState.NONE
 				var position = Vector3(
 					x * gridCellSize.x + (gridCellSize.x * 0.5),
 					layer * gridCellSize.y + (gridCellSize.y * 0.5),
 					z * gridCellSize.x + (gridCellSize.x * 0.5)
 				)
 
-				#DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y*2, gridCellSize.x), Color.RED, true, 500)
-				# 1) Collider check
+				# Collider check
 				if colliderCheck:
 					var box = BoxShape3D.new()
 					box.size = colliderSize
@@ -80,21 +80,15 @@ func setup_grid():
 					qp.transform = Transform3D(Basis.IDENTITY, position + collideroffset)
 					qp.collide_with_bodies = true
 					qp.collide_with_areas = true
-					qp.collision_mask = PhysicsLayer.TERRAIN# <-- ADD THIS LINE
+					qp.collision_mask = PhysicsLayer.TERRAIN
 					var hits = spaceState.intersect_shape(qp)
 
-					var collider_color = Color.BLUE if hits.size() > 0 else Color.GREEN
-					DebugDraw3D.draw_box(qp.transform.origin, Quaternion.IDENTITY, box.size, collider_color, true, 500)
-
 					if hits.size() > 0:
-						#print("Cell %d,%d,%d: BLOCKED by collider. Hits: %s" % [x, z, layer, hits])
-						walkable = false
+						cell_state |= (Enums.cellState.OBSTRUCTED) as Enums.cellState
 					else:
 						if raycastCheck:
 							var rayStart = position + raycastOffset
-							var rayEnd   = position + raycastOffset - Vector3(0, raycastLength, 0)
-							DebugDraw3D.draw_line(rayStart, rayEnd, Color.YELLOW, 500)
-
+							var rayEnd = position + raycastOffset - Vector3(0, raycastLength, 0)
 							var rq = PhysicsRayQueryParameters3D.new()
 							rq.from = rayStart
 							rq.to = rayEnd
@@ -109,27 +103,26 @@ func setup_grid():
 								var cell_bottom_y = float(layer) * gridCellSize.y
 								var cell_top_y = float(layer + 1) * gridCellSize.y
 
-								DebugDraw3D.draw_sphere(r.position, 0.1, Color.CYAN, 500)
-
 								if hitY >= cell_bottom_y and hitY <= cell_top_y:
 									position.y = hitY
-									walkable = true
+									cell_state |= Enums.cellState.WALKABLE
+								else:
+									cell_state |= Enums.cellState.AIR
+							else:
+								cell_state |= Enums.cellState.AIR
 						else:
-							print("Cell %d,%d,%d: Raycast disabled, and collider passed. Cell remains unwalkable by default." % [x, z, layer])
-
-				else: # No collider check, only raycast (if enabled)
+							print("Cell %d,%d,%d: Raycast disabled." % [x, z, layer])
+				else:
 					if raycastCheck:
 						var rayStart = position + raycastOffset
 						var rayEnd = position + raycastOffset - Vector3(0, raycastLength, 0)
-						DebugDraw3D.draw_line(rayStart, rayEnd, Color.MAGENTA, 500)
-
 						var rq = PhysicsRayQueryParameters3D.new()
 						rq.from = rayStart
 						rq.to = rayEnd
 						rq.collide_with_bodies = true
-						rq.collide_with_areas= true
+						rq.collide_with_areas = true
 						rq.hit_from_inside = true
-						rq.collision_mask = PhysicsLayersUtility.TERRAIN
+						rq.collision_mask = PhysicsLayer.TERRAIN
 						var r = spaceState.intersect_ray(rq)
 
 						if r:
@@ -137,32 +130,35 @@ func setup_grid():
 							var cell_bottom_y = float(layer) * gridCellSize.y
 							var cell_top_y = float(layer + 1) * gridCellSize.y
 
-							DebugDraw3D.draw_sphere(r.position, 0.1, Color.CYAN, 500)
-
 							if hitY >= cell_bottom_y and hitY <= cell_top_y:
 								position.y = hitY
-								walkable = true
+								cell_state |= (Enums.cellState.WALKABLE) as Enums.cellState
+							else:
+								cell_state |= Enums.cellState.AIR
+						else:
+							cell_state |= Enums.cellState.AIR
 					else:
-						print("Cell %d,%d,%d: Neither collider nor raycast check enabled. Cell remains unwalkable." % [x, z, layer])
+						print("Cell %d,%d,%d: Neither collider nor raycast check enabled." % [x, z, layer])
 
-				if walkable:
+				# Debug visualization
+				if cell_state & Enums.cellState.WALKABLE:
 					DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.LIME_GREEN, true, 500)
-				else:
-					DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.RED, true)
+				elif  cell_state & Enums.cellState.GROUND:
+					DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.RED, true, 500)
 
-				var coords = Vector3i(x,layer, z)
+				# Update or create grid cell
+				var coords = Vector3i(x, layer, z)
 				if not grid_cells.has(coords) || grid_cells[coords] == null:
-					var result  = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
-
+					var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
 					var ground_inventory_grid = result["inventory_grid"]
-					var cell = GridCell.new(x,layer,z, position, walkable, ground_inventory_grid, self)
+					var cell = GridCell.new(x, layer, z, position, cell_state, ground_inventory_grid, self)
 					grid_cells[coords] = cell
 				else:
-					grid_cells[coords].walkable = walkable
+					grid_cells[coords].grid_cell_state = cell_state
 					grid_cells[coords].worldPosition = position
-					
-	await get_tree().create_timer(0.1).timeout
+
 	print(grid_cells.size())
+
 
 
 func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
@@ -189,7 +185,7 @@ func remove_cell(x: int, z: int, y: int) -> void:
 
 
 func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest: bool = false) -> Dictionary:
-	var retVal: Dictionary = {"success": false, "gridCell": null}
+	var retVal: Dictionary = {"success": false, "grid_cell": null}
 
 	if (gridCellSize.x <= 0 or gridCellSize.y <= 0): 
 		print("BAD")
@@ -208,7 +204,7 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	var target_key = Vector3i(x_coord,y_coord, z_coord) # Or Vector3i(x_coord, y_coord, z_coord) if you switch
 	#print(target_key)
 	if grid_cells.has(target_key):
-		retVal["gridCell"] = grid_cells[target_key]
+		retVal["grid_cell"] = grid_cells[target_key]
 		retVal["success"] = true
 		return retVal
 	elif (!nullGetNearest):
@@ -232,11 +228,11 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 				nearest_cell = candidate_cell
 
 	if nearest_cell != null:
-		retVal["GridCell"] = nearest_cell
+		retVal["grid_cell"] = nearest_cell
 		retVal["Success"] = true
 		return retVal
 
-	retVal["GridCell"] = null
+	retVal["grid_cell"] = null
 	retVal["Success"] = false
 	return retVal
 
@@ -295,7 +291,7 @@ func try_get_randomGrid_cell() -> Dictionary:
 
 
 func is_gridcell_walkable(cell: GridCell) -> bool:
-	return cell.walkable
+	return cell.grid_cell_state & Enums.cellState.WALKABLE
 
 
 func  try_get_random_walkable_cell() -> Dictionary:
