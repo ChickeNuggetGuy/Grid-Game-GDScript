@@ -26,6 +26,8 @@ func _setup() -> void:
 	currentCellUI = Label.new()
 	ui_holder.add_child(currentCellUI)
 	currentCellUI.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	
+	UnitActionManager.connect("selected_action_changed",unitActionManager_action_selected )
 
 
 func _execute_conditions() -> bool: return true
@@ -63,3 +65,19 @@ func add_ui_window(window_to_add : UIWindow):
 	
 	ui_windows[window_to_add.ui_name] = window_to_add
 	print("UI Window with name '" + window_to_add.ui_name + "' added!")
+
+
+func unitActionManager_action_selected( selected_action : BaseActionDefinition):
+	hide_non_persitent_windows()
+
+
+
+func hide_non_persitent_windows():
+	for key in ui_windows.keys():
+		var ui_window = ui_windows[key]
+		if ui_window == null:
+			continue 
+		if ui_window.is_persistent_window:
+			continue
+		else:
+			ui_window.hide_call()

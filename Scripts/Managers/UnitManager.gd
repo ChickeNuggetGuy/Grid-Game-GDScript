@@ -68,7 +68,7 @@ func spawn_unit(team : Enums.unitTeam):
 		return
 		
 	var spawneUnit : GridObject = unitScene.instantiate()
-	spawneUnit.position = result["cell"].worldPosition
+	spawneUnit.position = result["cell"].world_position
 	UnitTeams[team].gridObjects.append(spawneUnit)
 	UnitTeams[team].add_child(spawneUnit)
 	
@@ -107,7 +107,7 @@ func _unhandled_input(event):
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			if GridInputManager.currentGridCell != null:
-				var gridObject : GridObject = GridInputManager.currentGridCell.gridObject
-				if gridObject != null and UnitTeams[Enums.unitTeam.PLAYER].gridObjects.has(gridObject):
-					set_selected_unit(gridObject)
+				var grid_object : GridObject = GridInputManager.currentGridCell.grid_object
+				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].gridObjects.has(grid_object):
+					set_selected_unit(grid_object)
 #endregion

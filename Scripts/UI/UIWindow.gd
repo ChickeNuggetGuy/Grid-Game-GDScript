@@ -7,6 +7,7 @@ var is_shown : bool
 @export var block_inputs : bool
 @export var input_key : Key
 @export var visual : Control
+@export var is_persistent_window = true
 #endregion
 
 #region Functions

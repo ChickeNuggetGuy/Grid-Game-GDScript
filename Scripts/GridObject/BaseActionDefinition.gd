@@ -12,7 +12,7 @@ var action_script: Script
 @abstract func can_execute(parameters : Dictionary) -> Dictionary
 
 func _init() -> void:
-	load_action_script
+	load_action_script()
 
 
 func load_action_script():

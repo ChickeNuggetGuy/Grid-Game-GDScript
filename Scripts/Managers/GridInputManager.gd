@@ -58,19 +58,25 @@ func _process(delta: float) -> void:
 		#UiManager.currentCellUI.text = ""
 	else:
 		#UiManager.currentCellUI.text = "Current Gridcell: " + currentGridCell.to_string()
-		visual.position = currentGridCell.worldPosition
+		visual.position = currentGridCell.world_position
+
 
 func _get_manager_name() -> String: return "GridInputManager"
 
+
 func _setup_conditions(): return
+
 
 func _setup(): 
 	print("HELP")
 	setup_completed.emit()
 
+
 func _execute_conditions() -> bool: return true
 
+
 func _execute(): execution_completed.emit() 
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:

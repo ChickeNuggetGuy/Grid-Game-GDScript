@@ -59,3 +59,13 @@ func _duplicate(for_resources: bool) -> Resource:
 			new_item.action_blueprints[i] = blueprint
 	
 	return new_item
+
+
+func get_context_items() -> Dictionary[String,Callable]:
+	var ret_value :  Dictionary[String,Callable] = {}
+	
+	
+	for action in action_blueprints:
+		ret_value[action.name] = Callable.create(UnitActionManager, "try_execute_item_action").bind(action, self)
+	
+	return ret_value

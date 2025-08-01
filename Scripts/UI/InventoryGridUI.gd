@@ -9,7 +9,7 @@ var inventory_grid : InventoryGrid
 var inventory_slots : Dictionary[Vector2i, Control] = {}
 
 func _init() -> void:
-	start_hidden = true
+	#start_hidden = true
 	UnitManager.connect("UnitSelected",unit_manager_unit_selected)
 
 
@@ -25,6 +25,7 @@ func _setup():
 		var current_grid_cell = selected_unit.grid_position_data.grid_cell
 		if current_grid_cell == null:
 			_set_current_inventory_grid(null)
+		
 			return
 		new_inventory_grid = current_grid_cell.inventory_grid
 	elif inventory_grid_type == Enums.inventoryType.MOUSEHELD:
@@ -83,6 +84,17 @@ func draw_inventory():
 	if inventory_grid == null or inventory_grid.shape == null:
 		_clear_slots()
 		return
+	
+	if inventory_grid_type == Enums.inventoryType.GROUND:
+		var selected_unit = UnitManager.selectedUnit
+		var current_grid_cell : GridCell = selected_unit.grid_position_data.grid_cell
+		
+		if selected_unit == null or current_grid_cell == null or current_grid_cell.inventory_grid == null:
+			print("ERORR: updating new grid inventory for ground failed!")
+			return
+		
+		if inventory_grid != current_grid_cell.inventory_grid:
+			inventory_grid = current_grid_cell.inventory_grid
 		
 	if inventory_slot_holder is GridContainer:
 		if inventory_grid.shape.grid_width != null and inventory_grid.shape.grid_width > 0:
@@ -156,18 +168,21 @@ func unit_manager_unit_selected(new_Unit : GridObject,old_unit : GridObject):
 	_setup()
 
 
-func inventory_slot_pressed(grid_coords : Vector2i):
-	var slot = inventory_slots[grid_coords]
+func inventory_slot_pressed(grid_coords : Vector2i, is_left_click : bool):
 	
-	if slot == null:
+	var slot_ui = inventory_slots[grid_coords]
+	var item : Item = inventory_grid.has_item_at(grid_coords)
+	
+	if slot_ui == null:
 		return
-	
-	match slot_behavior:
-		Enums.inventory_UI_slot_behavior.EXECUTE_ACTION:
-				try_execute_item_action(grid_coords)
-		
-		Enums.inventory_UI_slot_behavior.TRY_TRANSFER:
+	if is_left_click:
+		if slot_behavior == Enums.inventory_UI_slot_behavior.EXECUTE_ACTION and item != null:
+			try_execute_item_action(grid_coords)
+		else:
 			item_try_transfer(grid_coords)
+	else:
+		if item != null:
+			ContextMenuUI.intance.generate_context_buttons(item)
 	
 
 func item_try_transfer(grid_coords : Vector2i):
@@ -207,7 +222,7 @@ func try_execute_item_action(grid_coords : Vector2i):
 		return
 	
 	
-	MainInventoryUI.intance.hide_call()
+	#MainInventoryUI.intance.hide_call()
 	UiManager.blocking_input = true
 	var selected_grid_cell: GridCell = await GridInputManager.grid_cell_selected
 	
@@ -217,4 +232,9 @@ func try_execute_item_action(grid_coords : Vector2i):
 	
 	await UnitActionManager.try_execute_item_action(item_action, item)
 	
-	MainInventoryUI.intance.show_call()
+	#MainInventoryUI.intance.show_call()
+
+
+#func _unhandled_input(event):
+		#if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			

@@ -15,7 +15,7 @@ script = ExtResource("1_qk68r")
 visual = NodePath("StaticBody3D")
 action_library = Array[ExtResource("2_45onm")]([ExtResource("3_45onm"), ExtResource("4_m8ecf"), ExtResource("5_uv3na")])
 stat_holder = NodePath("Stats")
-inventory_grid_types = Array[int]([2])
+inventory_grid_types = Array[int]([2, 4, 6])
 metadata/_custom_type_script = "uid://cpnc8piuddbx2"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]

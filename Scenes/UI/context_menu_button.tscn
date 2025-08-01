@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://d12db22xd5d15"]
+
+[ext_resource type="Script" uid="uid://gr5wf6tdn8jw" path="res://Scripts/UI/ContextMenuUI/ContextMenuButton.gd" id="1_upie8"]
+
+[node name="ContextMenuButton" type="Button"]
+size_flags_vertical = 3
+text = "Context"
+script = ExtResource("1_upie8")
+metadata/_custom_type_script = "uid://gr5wf6tdn8jw"

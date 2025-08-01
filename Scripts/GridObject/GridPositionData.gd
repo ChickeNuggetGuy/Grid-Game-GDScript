@@ -29,12 +29,13 @@ func set_direction(dir :Enums.facingDirection, update_transform : bool = false):
 
 
 func set_grid_cell(target_grid_cell: GridCell):
+	
 	if target_grid_cell == null:
 		print("gridcell is null, returning")
 		return
 		
 	if grid_cell != null:
-		grid_cell.set_gridobject(null, grid_cell.grid_cell_state)
+		grid_cell.set_gridobject(null, grid_cell.grid_cell_state | Enums.cellState.WALKABLE)
 	
 	grid_cell = target_grid_cell
 

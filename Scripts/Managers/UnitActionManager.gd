@@ -7,7 +7,7 @@ var is_busy : bool = false
 #endregion
 
 #region signals
-
+signal  selected_action_changed(new_selected_action : BaseActionDefinition)
 signal is_busy_value_changed(current_value: bool)
 signal action_execution_started(current_action: BaseActionDefinition)
 signal action_execution_finished(current_action: BaseActionDefinition)
@@ -36,6 +36,8 @@ func _execute() -> void:
 
 func _set_selected_action(action : BaseActionDefinition): 
 	selected_action = action
+	selected_action_changed.emit(selected_action)
+	print("Selected action set to: " + selected_action.name)
 
 
 func try_set_selected_action(action : BaseActionDefinition) -> bool:
@@ -67,16 +69,22 @@ func _unhandled_input(event):
 			else:
 				print("Grid cell is null")
 			
-func try_execute_selected_action(current_grid_cell : GridCell):
+func try_execute_selected_action(grid_cell : GridCell):
 	
+	var current_grid_cell = grid_cell
 	var selected_unit : GridObject = UnitManager.selectedUnit
 	
 	if selected_unit == null:
 		return
 		
 	if selected_action != null:
-		var result = selected_action.can_execute({"unit" : selected_unit,"from_grid_cell" : selected_unit.grid_position_data.grid_cell,"target_grid_cell" : current_grid_cell})
-		if result["can_execute"]:
+		var result : Dictionary 
+		if selected_action is BaseItemActionDefinition:
+			print("Item action called from try_execute_selected_action, this shouldnt happen as item actions shouldnt be selected!")
+			result = selected_action.can_execute({"unit" : selected_unit,"start_grid_cell" : selected_unit.grid_position_data.grid_cell,"target_grid_cell" : current_grid_cell})
+		else:
+			result = selected_action.can_execute({"unit" : selected_unit,"start_grid_cell" : selected_unit.grid_position_data.grid_cell,"target_grid_cell" : current_grid_cell})
+		if result["success"]:
 			print("Executing action, using " + str(result["cost"]) + " Time units!")
 			set_is_busy(true)
 			action_execution_started.emit(selected_action)
@@ -90,31 +98,37 @@ func try_execute_selected_action(current_grid_cell : GridCell):
 
 
 func try_execute_item_action(action_to_execute : BaseItemActionDefinition, item : Item) -> Dictionary:
+	UiManager.hide_non_persitent_windows()
+	set_is_busy(true)
 	var ret_val = {"success": false, "Reasoning": "N/A"}
 	
 	var selected_unit = UnitManager.selectedUnit
 	
-	var current_grid_cell = GridInputManager.currentGridCell
+	var current_grid_cell = await GridInputManager.grid_cell_selected
 	
 	if current_grid_cell == null:
 		ret_val["Reasoning"] = "current grid cell is null!"
+		print(ret_val["Reasoning"])
 		return ret_val
 	
 	
 	if selected_unit == null:
 		ret_val["Reasoning"] = "selected Unit is null!"
+		print(ret_val["Reasoning"])
 		return ret_val
 	
 	if action_to_execute == null:
 		ret_val["Reasoning"] = "Action definition provided is null!"
+		print(ret_val["Reasoning"])
 		return ret_val
 		
 	if item == null:
 		ret_val["Reasoning"] = "item provided is null!"
+		print(ret_val["Reasoning"])
 		return ret_val
 	
 	var item_action_result = action_to_execute.can_execute({"unit" : selected_unit,
-			"from_grid_cell" : selected_unit.grid_position_data.grid_cell,
+			"start_grid_cell" : selected_unit.grid_position_data.grid_cell,
 			"target_grid_cell" : current_grid_cell,
 			 "item" : item})
 	
@@ -126,10 +140,6 @@ func try_execute_item_action(action_to_execute : BaseItemActionDefinition, item 
 		await action_to_execute.instantiate({"unit" : UnitManager.selectedUnit, "start_grid_cell" : selected_unit.grid_position_data.grid_cell, "target_grid_cell" : current_grid_cell, "item" : item} ).execute_call()
 		action_execution_finished.emit(action_to_execute)
 		set_is_busy(false)
-	
-	 
-	
-	
 	
 	return ret_val
 		

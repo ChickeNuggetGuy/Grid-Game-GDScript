@@ -162,7 +162,7 @@ func setup_grid():
 
 
 func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
-	# pack coords into a key
+	
 	var key = Vector3i(x,y,z)
 	if(value.gridCoordinates == null || value.gridCoordinates != key):
 		value.gridCoordinates = key
@@ -170,13 +170,8 @@ func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
 	grid_cells[key] = value
 
 
-
-
-
-
 func get_grid_cell(grid_coords : Vector3i,  default_value = null):
 	return grid_cells.get(grid_coords, default_value)
-
 
 
 func has_cell(x: int, z: int, y: int) -> bool:
@@ -192,20 +187,19 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 
 	if (gridCellSize.x <= 0 or gridCellSize.y <= 0): 
 		print("BAD")
-		return retVal # Check both dimensions
+		return retVal 
 
 	var x_coord = int(floor(worldPosition.x / gridCellSize.x))
 	var y_coord = int(floor(worldPosition.y / gridCellSize.y))
-	var z_coord = int(floor(worldPosition.z / gridCellSize.x)) # Assuming Z uses X's cell size
+	var z_coord = int(floor(worldPosition.z / gridCellSize.x))
 
-	# Clamp coordinates to grid boundaries
+	
 	x_coord = clamp(x_coord, 0, gridSize.x - 1)
 	y_coord = clamp(y_coord, 0, gridSize.y - 1)
 	z_coord = clamp(z_coord, 0, gridSize.z - 1) 
-
-	# Assuming GridCoords(x, z, y_layer)
-	var target_key = Vector3i(x_coord,y_coord, z_coord) # Or Vector3i(x_coord, y_coord, z_coord) if you switch
-	#print(target_key)
+	
+	var target_key = Vector3i(x_coord,y_coord, z_coord) 
+	
 	if grid_cells.has(target_key):
 		retVal["grid_cell"] = grid_cells[target_key]
 		retVal["success"] = true
@@ -214,16 +208,12 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 		retVal["success"] = false
 		return retVal
 
-	# If nullGetNearest is true, search for the nearest valid grid cell on the same LAYER
-	# This part needs significant re-thinking if your grid is sparse and you're using a flat dictionary.
-	# Iterating all values could be slow for large grids.
-	# A spatial hash or a specialized lookup might be better for "nearest in world" queries.
-	# For now, let's just consider cells on the same Y-layer.
+
 	var minDistanceSq = INF
 	var nearest_cell: GridCell = null
 
 	for key_coords in grid_cells.keys():
-		if key_coords.layer == y_coord: # Check if on the same y-layer
+		if key_coords.layer == y_coord:
 			var candidate_cell: GridCell = grid_cells[key_coords]
 			var distSq: float = (candidate_cell.worldPosition - worldPosition).length_squared()
 			if distSq < minDistanceSq:
@@ -238,6 +228,7 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	retVal["grid_cell"] = null
 	retVal["Success"] = false
 	return retVal
+
 
 func try_get_grid_cell_of_state_below(grid_coords: Vector3, wanted_cell_state: Enums.cellState) -> Dictionary:
 	var ret_val = {"success": false, "grid_cell": null}
@@ -255,14 +246,14 @@ func try_get_grid_cell_of_state_below(grid_coords: Vector3, wanted_cell_state: E
 		))
 		
 		if temp_grid_cell == null:
-			continue  # Skip null cells, continue searching
+			continue
+		
 		elif temp_grid_cell.grid_cell_state & wanted_cell_state:
 			ret_val["success"] = true
 			ret_val["grid_cell"] = temp_grid_cell
 			return ret_val
 	
 	return ret_val
-
 
 
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.
@@ -309,7 +300,6 @@ func get_grid_cell_neighbors(target_grid_cell: GridCell) -> Array[GridCell]:
 	return ret_val
 
 
-
 func try_get_randomGrid_cell() -> Dictionary:
 	
 	var cell = grid_cells.values().pick_random()
@@ -333,7 +323,6 @@ func  try_get_random_walkable_cell() -> Dictionary:
 	#var randomIndex = randi_range(0, filteredArray.size())
 	
 	#return filteredArray[randomIndex]
-
 
 
 #endregion
