@@ -19,6 +19,7 @@ var inventory_grids : Dictionary[Enums.inventoryType,InventoryGrid] = {}
 
 #region Signals
 signal  gridObject_stat_changed(stat : GridObjectStat, snew_vaule : int)
+signal gridObject_moved(unit : GridObject, new_grid_cell : GridCell)
 #endregion
 #region Functions
 

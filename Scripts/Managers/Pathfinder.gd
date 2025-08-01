@@ -122,7 +122,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 		return ret_val
 
 	# Calculate the direction and distance
-	var direction = end.worldPosition - start.worldPosition
+	var direction = end.world_position - start.world_position
 	var distance = direction.length()
 
 	# Try different arc heights
@@ -151,7 +151,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 			var t = float(i) / num_points # Interpolation factor (0 to 1)
 
 			# Calculate the current position along the straight line
-			var current_pos = start.worldPosition.lerp(end.worldPosition, t)
+			var current_pos = start.world_position.lerp(end.world_position, t)
 
 			# Calculate the vertical offset for the arc (parabolic shape)
 			var vertical_offset = -4 * arc_height * t * (t - 1) # Parabola formula
@@ -196,4 +196,4 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 # Helper function to compare grid cells
 func _are_grid_cells_equal(cell1: GridCell, cell2: GridCell) -> bool:
 	# Compare grid cells based on their world positions
-	return cell1.worldPosition == cell2.worldPosition
+	return cell1.world_position == cell2.world_position

@@ -2,33 +2,32 @@ class_name GridCell
 #region Variables
 
 var gridCoordinates: Vector3i
-var worldPosition: Vector3
+var world_position: Vector3
 
 var grid_cell_state : Enums.cellState
 
 var inventory_grid : InventoryGrid
 
 var gridSystem: GridSystem
-var gridObject
+var grid_object : GridObject
 
 #endregion
 #region Functions
 func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, cell_state: Enums.cellState, inventory : InventoryGrid, parentGridSystem: GridSystem):
 	gridCoordinates = Vector3i(xCoord,layerCoord,zCoord)
-	worldPosition = worldPos
+	world_position = worldPos
 	self.grid_cell_state = cell_state;
 	self.inventory_grid = inventory 
 	self.inventory_grid.initialize()
 	self.inventory_grid.connect("item_added", inventory_grid_item_added)
 	self.gridSystem = parentGridSystem
-	self.gridObject = gridObject
 
 func set_gridobject(target : GridObject, cell_state : Enums.cellState):
-	self.gridObject = target
+	self.grid_object = target
 	grid_cell_state = cell_state
-func hasGridObject():return gridObject != null
+func hasGridObject():return grid_object != null
 
-func hasSpecificGridObject(gridObjectToCheck):return gridObject == gridObjectToCheck
+func hasSpecificGridObject(gridObjectToCheck):return grid_object == gridObjectToCheck
 
 func _to_string() -> String:
 	return str(gridCoordinates) + "state: " + str(grid_cell_state)

@@ -2,14 +2,14 @@ extends BaseActionDefinition
 class_name MoveActionDefinition
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_val = {"can_execute": false, "cost" : -1, "reason" : "N/A"}
+	var ret_val = {"success": false, "cost" : -1, "reason" : "N/A"}
 	
 	var temp_cost = 0
 	
 	# Check if path is possible first
 	if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
 		print("Path not possible!")
-		ret_val["can_execute"] = false
+		ret_val["success"] = false
 		ret_val["cost"] = -1
 		ret_val["reason"] = "No path possible!"
 		return ret_val
@@ -18,13 +18,13 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")
-		ret_val["can_execute"] = false
+		ret_val["success"] = false
 		ret_val["cost"] = -1
 		ret_val["reason"] = "No path found!"
 		return ret_val
 	
 	var current_direction: Enums.facingDirection = parameters["unit"].grid_position_data.direction
-	var current_gridCell: GridCell = parameters["from_grid_cell"]
+	var current_gridCell: GridCell = parameters["start_grid_cell"]
 	
 	# Iterate through path segments (from current cell to next cell)
 	for i in range(path.size() - 1):
@@ -42,12 +42,12 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			return ret_val
 		var move_step_result = get_action_result["action_definition"].can_execute({
 				"unit": parameters["unit"], 
-				"from_grid_cell": from_cell, 
+				"start_grid_cell": from_cell, 
 				"target_grid_cell": to_cell
 				})
 		
-		if move_step_result["can_execute"] == false:
-			ret_val["can_execute"] = false
+		if move_step_result["success"] == false:
+			ret_val["success"] = false
 			ret_val["cost"] = -1
 			ret_val["reason"] = "move step failed: " + move_step_result["reason"]
 			return ret_val
@@ -69,13 +69,13 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	# Check if we have enough time units
 	if temp_cost > parameters["unit"].get_stat_by_name("TimeUnits").current_value:
 		print("Not enough time units! Cost: ", temp_cost)
-		ret_val["can_execute"] = false
+		ret_val["success"] = false
 		ret_val["cost"] = temp_cost
 		ret_val["reason"] = "Not enough time units!"
 		return ret_val
 	
 	print("Move action can be executed. Cost: ", temp_cost)
-	ret_val["can_execute"] = true
+	ret_val["success"] = true
 	ret_val["cost"] = temp_cost
 	ret_val["reason"] = "success"
 	return ret_val
