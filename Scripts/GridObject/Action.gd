@@ -9,10 +9,10 @@ var target_grid_cell: GridCell = null
 
 
 
-func _init(grid_object : GridObject, start_cell:GridCell , target_cell : GridCell) -> void:
-	owner  =grid_object
-	start_grid_cell = start_cell
-	target_grid_cell = target_cell
+func _init(parameters : Dictionary) -> void:
+	owner  = parameters["grid_object"]
+	start_grid_cell = parameters["start_grid_cell"]
+	target_grid_cell = parameters["target_grid_cell"]
 
 func execute_call() -> void:
 	await _execute()

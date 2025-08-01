@@ -32,12 +32,12 @@ offset_bottom = -37.999756
 grow_vertical = 0
 script = ExtResource("1_o0cgi")
 action_button_prefab = ExtResource("2_ga4cb")
+action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/VBoxContainer")
 start_hidden = null
 block_inputs = null
 input_key = 85
-ui_name = "UnitActionUI"
-action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/VBoxContainer")
 visual = NodePath("PanelContainer")
+ui_name = "UnitActionUI"
 metadata/_custom_type_script = "uid://d222p848qf3w4"
 
 [node name="PanelContainer" type="PanelContainer" parent="UnitDetailPanel"]

@@ -120,6 +120,6 @@ func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_B:
 			if UnitManager.selectedUnit == self:
-				print(grid_position_data.grid_cell.gridInventory.try_add_item(InventoryManager.get_random_item()))
+				print(grid_position_data.grid_cell.inventory_grid.try_add_item(InventoryManager.get_random_item()))
 
 #endregion

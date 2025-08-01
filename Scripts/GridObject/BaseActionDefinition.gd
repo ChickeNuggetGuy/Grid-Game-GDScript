@@ -17,11 +17,12 @@ func _init() -> void:
 
 func load_action_script():
 		action_script = load(script_path)
-# factory method: builds a fresh Action instance
-func instantiate(owner: GridObject, start_cell:GridCell, target_cell :GridCell , custom_cost : int = -1) -> Action:
+
+
+func instantiate(parameters : Dictionary) -> Action:
 	if action_script == null:
 		load_action_script()
-	var a: Action = action_script.new(owner, start_cell, target_cell)
+	var a: Action = action_script.new(parameters)
 	a.name  = self.resource_name
 
 	return a

@@ -6,7 +6,7 @@ var worldPosition: Vector3
 
 var grid_cell_state : Enums.cellState
 
-var gridInventory : InventoryGrid
+var inventory_grid : InventoryGrid
 
 var gridSystem: GridSystem
 var gridObject
@@ -17,8 +17,9 @@ func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, cell_st
 	gridCoordinates = Vector3i(xCoord,layerCoord,zCoord)
 	worldPosition = worldPos
 	self.grid_cell_state = cell_state;
-	self.gridInventory = inventory 
-	self.gridInventory.initialize()
+	self.inventory_grid = inventory 
+	self.inventory_grid.initialize()
+	self.inventory_grid.connect("item_added", inventory_grid_item_added)
 	self.gridSystem = parentGridSystem
 	self.gridObject = gridObject
 
@@ -31,4 +32,19 @@ func hasSpecificGridObject(gridObjectToCheck):return gridObject == gridObjectToC
 
 func _to_string() -> String:
 	return str(gridCoordinates) + "state: " + str(grid_cell_state)
+
+
+func inventory_grid_item_added(item_added : Item):
+	
+	if item_added == null: 
+		print("item added was null")
+		return
+	
+	if grid_cell_state & Enums.cellState.AIR:
+		var result = GridSystem.try_get_grid_cell_of_state_below(gridCoordinates, Enums.cellState.GROUND)
+		if result["success"]:
+			InventoryGrid.try_transfer_item(inventory_grid, result["grid_cell"].inventory_grid, item_added)
+			print("Item was in air at " + self.to_string() + " and was moved to " + result["grid_cell"].to_string())
+		#Grid Cell is in air so Item should be passed downward untill ground is met
+	
 #endregion

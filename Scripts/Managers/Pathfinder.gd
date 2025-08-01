@@ -108,8 +108,8 @@ func _cost(a: GridCell, b: GridCell) -> float:
 
 
 
-func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell) -> Dictionary:
-	var ret_val = {"success": false ,"path" : [] }
+func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: int = 3) -> Dictionary:
+	var ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
 	
 	var start = start_pos
 	var end = end_pos
@@ -117,7 +117,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell) -> Dictionar
 
 	# Validate start and end points
 	if start.grid_cell_state & Enums.cellState.OBSTRUCTED \
-	or end.grid_cell_state & Enums.cellState.OBSTRUCTED :
+			or end.grid_cell_state & Enums.cellState.OBSTRUCTED:
 		print("Start or end point is obstructed.")
 		return ret_val
 
@@ -125,37 +125,75 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell) -> Dictionar
 	var direction = end.worldPosition - start.worldPosition
 	var distance = direction.length()
 
-	# Define the height of the arc (you can adjust this as needed)
-	var arc_height = distance * 02 # Example: arc height is half the distance
-
-	# Number of points to sample along the arc
-	var num_points = int(distance / cell_size.y) + 1
-
-	for i in range(num_points + 1):
-		var t = float(i) / num_points # Interpolation factor (0 to 1)
-
-		# Calculate the current position along the straight line
-		var current_pos = start.worldPosition.lerp(end.worldPosition, t)
-
-		# Calculate the vertical offset for the arc (parabolic shape)
-		var vertical_offset = -4 * arc_height * t * (t - 1) # Parabola formula
-
-		# Apply the vertical offset to create the arc
-		var arc_pos = current_pos + Vector3.UP * vertical_offset
-
-		# Convert world position to grid coordinates
-		var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(arc_pos)
-		print(get_grid_cell_result["success"])
-		if get_grid_cell_result["success"] == false:
-			return ret_val
+	# Try different arc heights
+	for attempt in range(attempts):
+		# Calculate arc height with variation for each attempt
+		# Base height with variation factor (0.1 to 0.3 for first 3 attempts)
+		var height_factor = 0.5 + (attempt * 0.2)
+		var arc_height = distance * height_factor
 		
-		var grid_cell : GridCell = get_grid_cell_result["grid_cell"]
+		print("Attempt ", attempt + 1, " with arc height: ", arc_height)
 
-		# Validate if the cell is air
-		if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
-			print("Obstacle detected at: ", grid_cell)
-			return ret_val # Return an empty path if an obstacle is found
+		# Number of points to sample along the arc
+		var num_points = int(distance / (cell_size.y * 0.5)) + 1
 
-		ret_val["path"].append(arc_pos)
+		# Keep track of the last added grid cell to avoid duplicates
+		var last_grid_cell: GridCell = null
+		
+		# Reset return value for this attempt
+		ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
+		var path_valid = true
+		
+		# Store positions for the smooth path
+		var smooth_path = []
 
+		for i in range(num_points + 1):
+			var t = float(i) / num_points # Interpolation factor (0 to 1)
+
+			# Calculate the current position along the straight line
+			var current_pos = start.worldPosition.lerp(end.worldPosition, t)
+
+			# Calculate the vertical offset for the arc (parabolic shape)
+			var vertical_offset = -4 * arc_height * t * (t - 1) # Parabola formula
+
+			# Apply the vertical offset to create the arc
+			var arc_pos = current_pos + Vector3.UP * vertical_offset
+			
+			# Store the smooth path position
+			smooth_path.append(arc_pos)
+
+			# Convert world position to grid coordinates
+			var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(arc_pos)
+			if not get_grid_cell_result["success"]:
+				print("Failed to get grid cell at position: ", arc_pos)
+				path_valid = false
+				break
+			
+			var grid_cell: GridCell = get_grid_cell_result["grid_cell"]
+
+			# Validate if the cell is air
+			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
+				print("Obstacle detected at: ", grid_cell)
+				path_valid = false
+				break # Break inner loop to try a different height
+
+			# Only add the grid cell if it's different from the last one
+			if last_grid_cell == null or not _are_grid_cells_equal(last_grid_cell, grid_cell):
+				ret_val["grid_cell_path"].append(grid_cell)
+				last_grid_cell = grid_cell
+
+		# If path is valid, return it with both paths
+		if path_valid:
+			ret_val["success"] = true
+			ret_val["vector3_path"] = smooth_path
+			return ret_val
+
+	# If all attempts failed
+	print("All ", attempts, " attempts failed to find a valid path")
+	ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
 	return ret_val
+
+# Helper function to compare grid cells
+func _are_grid_cells_equal(cell1: GridCell, cell2: GridCell) -> bool:
+	# Compare grid cells based on their world positions
+	return cell1.worldPosition == cell2.worldPosition

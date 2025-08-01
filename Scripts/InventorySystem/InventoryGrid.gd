@@ -28,6 +28,8 @@ var _items: Array[Array] = []
 		pass
 
 signal inventory_changed()
+signal item_added(item_added : Item)
+signal item_removed(item_removed : Item, new_inventory : InventoryGrid)
 
 func _init():
 	inventory_name = "New Inventory"
@@ -171,6 +173,7 @@ func _place_item_at(item: Item, position: Vector2i) -> void:
 		   position.x >= 0 and position.x < shape.grid_width:
 			_items[position.y][position.x] = item
 	emit_signal("inventory_changed")
+	emit_signal("item_added", item)
 
 func try_add_item(item_to_add: Item) -> bool:
 	if item_to_add == null or item_to_add.shape == null:
@@ -193,10 +196,12 @@ func remove_item(item_to_remove: Item) -> Item:
 			if _items[y][x] == item_to_remove:
 				_items[y][x] = null
 	emit_signal("inventory_changed")
+	emit_signal("item_removed", item_to_remove, null)
 	return removed_item
 
 static func try_transfer_item(from_grid: InventoryGrid, to_grid: InventoryGrid, item_to_transfer: Item) -> bool:
 	if item_to_transfer == null or not from_grid.has_item(item_to_transfer) or not to_grid.can_place_item(item_to_transfer):
+		print("parameters given were null")
 		return false
 
 	var removed_item = from_grid.remove_item(item_to_transfer)
