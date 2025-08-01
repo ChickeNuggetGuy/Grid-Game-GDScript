@@ -1,11 +1,11 @@
 extends CompositeAction
 
-func _init(grid_object : GridObject,start : GridCell, target : GridCell) -> void:
+func _init(parameters : Dictionary) -> void:
 	name = "Move"
 	cost = 0
-	owner = grid_object
-	target_grid_cell = target
-	start_grid_cell = start
+	owner = parameters["unit"]
+	target_grid_cell = parameters["target_grid_cell"]
+	start_grid_cell = parameters["start_grid_cell"]
 
 
 func _setup() -> void:
@@ -36,7 +36,7 @@ func _execute() -> void:
 		if to_cell == null: continue
 		if to_cell == from_cell: continue
 		
-		var move_step_action = move_action_node.instantiate(owner,from_cell, to_cell)
+		var move_step_action = move_action_node.instantiate({"unit" : owner,"start_grid_cell" : from_cell,"target_grid_cell" : to_cell})
 		sub_actions.append(move_step_action)
 
 	await super._execute()

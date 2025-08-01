@@ -80,7 +80,7 @@ func try_execute_selected_action(current_grid_cell : GridCell):
 			print("Executing action, using " + str(result["cost"]) + " Time units!")
 			set_is_busy(true)
 			action_execution_started.emit(selected_action)
-			await selected_action.instantiate(UnitManager.selectedUnit,selected_unit.grid_position_data.grid_cell,current_grid_cell ).execute_call()
+			await selected_action.instantiate({"unit" : UnitManager.selectedUnit, "start_grid_cell" : selected_unit.grid_position_data.grid_cell, "target_grid_cell" : current_grid_cell }).execute_call()
 			action_execution_finished.emit(selected_action)
 			set_is_busy(false)
 		else:
@@ -113,10 +113,19 @@ func try_execute_item_action(action_to_execute : BaseItemActionDefinition, item 
 		ret_val["Reasoning"] = "item provided is null!"
 		return ret_val
 	
-	var item_action_result = action_to_execute.can_execute({"unit" : selected_unit,"from_grid_cell" : selected_unit.grid_position_data.grid_cell,"target_grid_cell" : current_grid_cell, "item" : item})
+	var item_action_result = action_to_execute.can_execute({"unit" : selected_unit,
+			"from_grid_cell" : selected_unit.grid_position_data.grid_cell,
+			"target_grid_cell" : current_grid_cell,
+			 "item" : item})
 	
 	if item_action_result["success"] == true:
 		print("I FUCKING DID IT ")
+		print("Executing action, using " + str(item_action_result["cost"]) + " Time units!")
+		set_is_busy(true)
+		action_execution_started.emit(action_to_execute)
+		await action_to_execute.instantiate({"unit" : UnitManager.selectedUnit, "start_grid_cell" : selected_unit.grid_position_data.grid_cell, "target_grid_cell" : current_grid_cell, "item" : item} ).execute_call()
+		action_execution_finished.emit(action_to_execute)
+		set_is_busy(false)
 	
 	 
 	

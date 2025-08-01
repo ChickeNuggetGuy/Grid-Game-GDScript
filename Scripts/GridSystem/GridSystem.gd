@@ -171,9 +171,12 @@ func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
 
 
 
-func get_cell(x: int, z: int, y: int, default_value = null):
-	var key = Vector3(x, y, z)
-	return grid_cells.get(key, default_value)
+
+
+
+func get_grid_cell(grid_coords : Vector3i,  default_value = null):
+	return grid_cells.get(grid_coords, default_value)
+
 
 
 func has_cell(x: int, z: int, y: int) -> bool:
@@ -235,6 +238,31 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	retVal["grid_cell"] = null
 	retVal["Success"] = false
 	return retVal
+
+func try_get_grid_cell_of_state_below(grid_coords: Vector3, wanted_cell_state: Enums.cellState) -> Dictionary:
+	var ret_val = {"success": false, "grid_cell": null}
+	var starting_grid_cell: GridCell = get_grid_cell(grid_coords)
+	
+	if starting_grid_cell == null:
+		return ret_val
+	
+	# Search downward from the cell below the starting position
+	for y_level in range(starting_grid_cell.gridCoordinates.y - 1, -1, -1):
+		var temp_grid_cell: GridCell = get_grid_cell(Vector3(
+			starting_grid_cell.gridCoordinates.x,
+			y_level,
+			starting_grid_cell.gridCoordinates.z
+		))
+		
+		if temp_grid_cell == null:
+			continue  # Skip null cells, continue searching
+		elif temp_grid_cell.grid_cell_state & wanted_cell_state:
+			ret_val["success"] = true
+			ret_val["grid_cell"] = temp_grid_cell
+			return ret_val
+	
+	return ret_val
+
 
 
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.

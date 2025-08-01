@@ -26,7 +26,7 @@ func _setup():
 		if current_grid_cell == null:
 			_set_current_inventory_grid(null)
 			return
-		new_inventory_grid = current_grid_cell.gridInventory
+		new_inventory_grid = current_grid_cell.inventory_grid
 	elif inventory_grid_type == Enums.inventoryType.MOUSEHELD:
 		var mouse_inventory = self.find_child("MouseHeldInventory")
 		if mouse_inventory != null and mouse_inventory.has_method("_setup"):
@@ -206,11 +206,15 @@ func try_execute_item_action(grid_coords : Vector2i):
 		print("Item  action is null")
 		return
 	
-	hide_call()
+	
+	MainInventoryUI.intance.hide_call()
+	UiManager.blocking_input = true
 	var selected_grid_cell: GridCell = await GridInputManager.grid_cell_selected
 	
 	if selected_grid_cell == null:
 		print("selected_grid_cell is null")
 		return
 	
-	UnitActionManager.try_execute_item_action(item_action, item)
+	await UnitActionManager.try_execute_item_action(item_action, item)
+	
+	MainInventoryUI.intance.show_call()

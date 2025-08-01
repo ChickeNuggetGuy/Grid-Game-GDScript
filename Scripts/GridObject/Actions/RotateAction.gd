@@ -3,12 +3,12 @@ class_name RotateAction
 
 var target_direction : Enums.facingDirection
 
-func _init(grid_object : GridObject, start :GridCell, target: GridCell) -> void:
+func _init(parameters : Dictionary) -> void:
 	name = "Rotate"
 	cost = 0  # Initialize to 0, calculate actual cost
-	owner = grid_object
-	target_grid_cell = target
-	start_grid_cell = start
+	owner = parameters["unit"]
+	target_grid_cell = parameters["target_grid_cell"]
+	start_grid_cell = parameters["start_grid_cell"]
 	
 	# Calculate the actual rotation cost using the proper method
 	_calculate_rotation_cost()

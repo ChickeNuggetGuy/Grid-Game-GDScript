@@ -1,11 +1,11 @@
 extends CompositeAction
 
-func _init(grid_object : GridObject, start : GridCell, target : GridCell) -> void:
+func _init(parameters : Dictionary) -> void:
 	name = "Move Step"
-	cost = 4  # Movement cost only
-	owner = grid_object
-	target_grid_cell = target
-	start_grid_cell = start
+	cost = 4 
+	owner = parameters["unit"]
+	target_grid_cell = parameters["target_grid_cell"]
+	start_grid_cell = parameters["start_grid_cell"]
 	print("MoveStepAction created with base cost: ", cost)
 
 func _setup():
@@ -28,7 +28,7 @@ func _execute() -> void:
 			return
 	
 		var rotate_action_node : RotateActionDefinition = get_action_result["action_definition"]
-		var rotate_action = rotate_action_node.instantiate(owner, start_grid_cell, target_grid_cell)
+		var rotate_action = rotate_action_node.instantiate({"unit" : owner,"start_grid_cell" : start_grid_cell,"target_grid_cell" : target_grid_cell})
 		sub_actions.append(rotate_action)
 	
 	await super._execute()
