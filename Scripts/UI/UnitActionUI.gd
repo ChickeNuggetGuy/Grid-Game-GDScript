@@ -17,7 +17,7 @@ func _ready() -> void:
 
 
 
-func unitManager_unit_selected(selectedUnit : GridObject, old_unit : GridObject):
+func unitManager_unit_selected(selectedUnit : Unit, _old_unit : Unit):
 	print("Working!")
 	update_action_buttons(selectedUnit)
 	update_stat_bars(selectedUnit)
@@ -25,25 +25,28 @@ func unitManager_unit_selected(selectedUnit : GridObject, old_unit : GridObject)
 
 
 
-func update_stat_bars(gridObject : GridObject):
+func update_stat_bars(unit : Unit):
 	for bar in stat_progress_bars:
 		var progress_bar : StatProgressBar = bar
 		
-		var stat : GridObjectStat = gridObject.get_stat_by_name(progress_bar.stat_name)
+		var stat : GridObjectStat = unit.get_stat_by_name(progress_bar.stat_name)
 		if stat != null:
-			progress_bar.setup(gridObject, stat)
+			progress_bar.setup(unit, stat)
 			progress_bar.value = stat.current_value
-func update_action_buttons(gridObject : GridObject):
+
+
+func update_action_buttons(unit : Unit):
 	if action_button_holder.get_child_count() > 0:
 		for child in action_button_holder.get_children(false):
 			child.queue_free()
 	
-	if gridObject.action_library == null or gridObject.action_library.size() == 0:
+	if unit.action_library == null or unit.action_library.size() == 0:
 		return
 	
-	for action in gridObject.action_library:
-		var action_node = action
-		instantiate_action_button(action_node)
+	for action in unit.action_library:
+		if not action.show_in_ui:
+			continue
+		instantiate_action_button(action)
 		
 
 

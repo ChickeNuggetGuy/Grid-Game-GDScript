@@ -15,17 +15,17 @@ var mesh_instance: MeshInstance3D
 var local_vertices = []  # Local vertices (Array of Vector3)
 var bounds: AABB        # Bounding box of the mesh
 
-func initialize(chunk_index_x: int, chunk_index_y: int, chunk_size: int,
-		global_vertices, cell_size: float, chunk_data) -> void:
+func initialize(chunk_index_x: int, chunk_index_y: int, chnk_sizing: int,
+		global_vertices, cell_chnk_sizing: float, data) -> void:
 	grid_coords = Vector2i(chunk_index_x, chunk_index_y)
-	self.chunk_size = chunk_size
-	self.cell_size = cell_size
-	self.chunk_data = chunk_data
+	self.chunk_size = chnk_sizing
+	self.cell_size = cell_chnk_sizing
+	self.chunk_data = data
 	chunk_data.chunk = self
 	chunk_data.set_chunk_node(self)
 	
-	print("Initializing chunk at %s, Type: %s" % 
-		[grid_coords, str(chunk_data.chunk_type)])
+	#print("Initializing chunk at %s, Type: %s" % 
+		#[grid_coords, str(chunk_data.chunk_type)])
 	
 	if chunk_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
 		print("Skipping mesh generation for ManMade chunk.")
@@ -53,8 +53,8 @@ func initialize(chunk_index_x: int, chunk_index_y: int, chunk_size: int,
 			var local_z = world_pos.z - (start_y * self.cell_size)
 			local_vertices.append(Vector3(local_x, local_y, local_z))
 	
-	print("Chunk %s initialized with %s vertices." % 
-		[str(grid_coords), local_vertices.size()])
+	#print("Chunk %s initialized with %s vertices." % 
+		#[str(grid_coords), local_vertices.size()])
 
 func generate(color: Color) -> void:
 	if chunk_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
@@ -137,8 +137,8 @@ func generate(color: Color) -> void:
 	add_to_group("Mouse")
 	add_to_group("Mouse")
 
-static func CalculateSmoothNormals(mesh: ArrayMesh) -> void:
-	var arrays = mesh.surface_get_arrays(0)
+static func CalculateSmoothNormals(array_mesh: ArrayMesh) -> void:
+	var arrays = array_mesh.surface_get_arrays(0)
 	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
 	var normals = PackedVector3Array()
@@ -167,11 +167,12 @@ static func CalculateSmoothNormals(mesh: ArrayMesh) -> void:
 			normals[i] = Vector3.UP
 	
 	arrays[Mesh.ARRAY_NORMAL] = normals
-	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	array_mesh.clear_surfaces()
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
-static func RecalculateMeshNormalsInPlace(mesh_instance: MeshInstance3D) -> void:
-	var mesh = mesh_instance.mesh as ArrayMesh
+static func RecalculateMeshNormalsInPlace(instance: MeshInstance3D) -> void:
+	@warning_ignore("shadowed_variable")
+	var mesh = instance.mesh as ArrayMesh
 	if mesh == null:
 		return
 	var arrays = mesh.surface_get_arrays(0)
@@ -204,8 +205,8 @@ static func RecalculateMeshNormalsInPlace(mesh_instance: MeshInstance3D) -> void
 	mesh.clear_surfaces()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
-static func CalculateFlatNormals(mesh: ArrayMesh) -> void:
-	var arrays = mesh.surface_get_arrays(0)
+static func CalculateFlatNormals(array_mesh: ArrayMesh) -> void:
+	var arrays = array_mesh.surface_get_arrays(0)
 	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
 	var normals = PackedVector3Array()
@@ -226,5 +227,5 @@ static func CalculateFlatNormals(mesh: ArrayMesh) -> void:
 		normals[i1] = face_normal
 		normals[i2] = face_normal
 	arrays[Mesh.ARRAY_NORMAL] = normals
-	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	array_mesh.clear_surfaces()
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)

@@ -4,8 +4,8 @@ var arc_path_results : Dictionary
 var item : Item
 
 func _init(parameters : Dictionary) -> void:
-	name = "Throw"
-	cost = 8
+	action_name = "Throw"
+	costs = {"time_units" :8, "stamina" : 2}
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]

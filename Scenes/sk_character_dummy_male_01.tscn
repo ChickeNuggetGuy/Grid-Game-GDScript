@@ -1,0 +1,116 @@
+[gd_scene load_steps=23 format=3 uid="uid://x26e67sqwlij"]
+
+[ext_resource type="PackedScene" uid="uid://b74m0t5wj6mao" path="res://Third-Party Assets/Characters/SK_Character_Dummy_Male_01.fbx" id="1_m2umb"]
+[ext_resource type="AnimationLibrary" uid="uid://dg1sgsvuh088q" path="res://Data/Unit.res" id="2_d5q3i"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_brlb1"]
+animation = &"Unit/idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4rhxl"]
+animation = &"Unit/idle_crouching"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_bhc2b"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_crouched() and not is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_lm57f"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "is_crouched() and not is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qlnnx"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0raj2"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_d5q3i"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_moving() and not is_crouched()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_brlb1"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_moving() and is_crouched()"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_0dq7h"]
+states/Unit_idle/node = SubResource("AnimationNodeAnimation_brlb1")
+states/Unit_idle/position = Vector2(453, 36.5)
+states/Unit_idle_crouching/node = SubResource("AnimationNodeAnimation_4rhxl")
+states/Unit_idle_crouching/position = Vector2(463.5, 175)
+transitions = ["Start", "Unit_idle", SubResource("AnimationNodeStateMachineTransition_bhc2b"), "Start", "Unit_idle_crouching", SubResource("AnimationNodeStateMachineTransition_lm57f"), "Unit_idle", "End", SubResource("AnimationNodeStateMachineTransition_qlnnx"), "Unit_idle_crouching", "End", SubResource("AnimationNodeStateMachineTransition_0raj2"), "Unit_idle_crouching", "Unit_idle", SubResource("AnimationNodeStateMachineTransition_d5q3i"), "Unit_idle", "Unit_idle_crouching", SubResource("AnimationNodeStateMachineTransition_brlb1")]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_vnaax"]
+animation = &"Unit/walk_crouching_forward"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jpqeb"]
+animation = &"Unit/walk_forward"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4rhxl"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_crouched()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mfuwn"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "is_crouched()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_plef7"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ens2b"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_moving()"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_bhc2b"]
+states/Unit_walk_crouching_forward/node = SubResource("AnimationNodeAnimation_vnaax")
+states/Unit_walk_crouching_forward/position = Vector2(392, 157.5)
+states/Unit_walk_forward/node = SubResource("AnimationNodeAnimation_jpqeb")
+states/Unit_walk_forward/position = Vector2(438.5, 58)
+transitions = ["Start", "Unit_walk_forward", SubResource("AnimationNodeStateMachineTransition_4rhxl"), "Start", "Unit_walk_crouching_forward", SubResource("AnimationNodeStateMachineTransition_mfuwn"), "Unit_walk_forward", "End", SubResource("AnimationNodeStateMachineTransition_plef7"), "Unit_walk_crouching_forward", "End", SubResource("AnimationNodeStateMachineTransition_ens2b")]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vnaax"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jpqeb"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0dq7h"]
+xfade_time = 0.3
+advance_mode = 2
+advance_expression = "not is_moving()"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_4rhxl"]
+states/idle/node = SubResource("AnimationNodeStateMachine_0dq7h")
+states/idle/position = Vector2(413, 106)
+states/walking/node = SubResource("AnimationNodeStateMachine_bhc2b")
+states/walking/position = Vector2(657.5, 92.875)
+transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_vnaax"), "idle", "walking", SubResource("AnimationNodeStateMachineTransition_jpqeb"), "walking", "idle", SubResource("AnimationNodeStateMachineTransition_0dq7h")]
+graph_offset = Vector2(30, 22)
+
+[node name="SK_Character_Dummy_Male_01" instance=ExtResource("1_m2umb")]
+
+[node name="AnimationPlayer" parent="." index="2"]
+libraries = {
+&"Unit": ExtResource("2_d5q3i")
+}
+blend_times = [&"Unit/turn_90_left", &"Unit/turn_90_left", 3.0, &"Unit/walk_forward", &"Unit/idle", 1.0]
+
+[node name="AnimationTree" type="AnimationTree" parent="." index="3"]
+libraries = {
+&"Unit": ExtResource("2_d5q3i")
+}
+tree_root = SubResource("AnimationNodeStateMachine_4rhxl")
+anim_player = NodePath("../AnimationPlayer")

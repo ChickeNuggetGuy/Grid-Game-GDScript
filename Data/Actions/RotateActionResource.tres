@@ -5,4 +5,6 @@
 [resource]
 script = ExtResource("1_rv6ep")
 script_path = "res://Scripts/GridObject/Actions/RotateAction.gd"
+action_name = "Rotate"
+cost = 1
 metadata/_custom_type_script = "uid://c6nuakjynh4o6"

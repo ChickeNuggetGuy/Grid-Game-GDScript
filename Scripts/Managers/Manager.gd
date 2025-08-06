@@ -2,14 +2,12 @@
 @abstract
 class_name Manager extends Node
 
+@export var debug_mode : bool = false
 #region Signals
 signal setup_completed()
 signal execution_completed()
 #endregion
 
-#region Singleton Instance
-
-#endregion
 
 #region Initialization and Setup
 
@@ -22,7 +20,6 @@ func _init() -> void: add_to_group("Managers")
 
 # Orchestrates the manager's setup phase.
 func setup_manager_flow():
-	print("%s: Starting setup flow..." % _get_manager_name())
 
 	if _setup_conditions() == false:
 		push_warning("%s: Setup conditions not met. Skipping setup." % _get_manager_name())
@@ -53,7 +50,6 @@ func execute_manager_flow():
 
 	_execute.call_deferred()
 	await execution_completed
-	print("%s: Execution Completed!" % _get_manager_name())
 
 # Abstract method for concrete execution logic.
 # Concrete implementations must emit `execution_completed()` when done.

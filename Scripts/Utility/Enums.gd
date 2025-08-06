@@ -17,3 +17,10 @@ enum cellState {
 
 
 enum inventory_UI_slot_behavior {SELECT,EXECUTE_ACTION,TRY_TRANSFER}
+
+
+enum UnitStance {
+	NORMAL = 1 << 0,
+	CROUCHED = 1 << 1,
+	STATIONARY = 1 << 2,
+	MOVING = 1 << 3}

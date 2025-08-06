@@ -64,10 +64,9 @@ func add_ui_window(window_to_add : UIWindow):
 		return
 	
 	ui_windows[window_to_add.ui_name] = window_to_add
-	print("UI Window with name '" + window_to_add.ui_name + "' added!")
 
 
-func unitActionManager_action_selected( selected_action : BaseActionDefinition):
+func unitActionManager_action_selected(_selected_action : BaseActionDefinition):
 	hide_non_persitent_windows()
 
 

@@ -54,8 +54,9 @@ func _post_initialize():
 	if shape_grid.is_empty() and expected_size > 0:
 		_resize_grid_internal(true) 
 	elif shape_grid.size() != expected_size and expected_size > 0:
-		var old_grid_width_from_data = 0
+		var old_grid_width_from_data : int  = 0
 		if shape_grid.size() > 0 and grid_height > 0:
+			@warning_ignore("integer_division")
 			old_grid_width_from_data = shape_grid.size() / grid_height
 		_resize_grid_internal(false, old_grid_width_from_data, grid_height)
 

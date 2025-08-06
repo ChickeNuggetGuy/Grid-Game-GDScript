@@ -2,10 +2,11 @@ extends Action
 class_name RotateAction
 
 var target_direction : Enums.facingDirection
+var rotation_direction : String
 
 func _init(parameters : Dictionary) -> void:
-	name = "Rotate"
-	cost = 0  # Initialize to 0, calculate actual cost
+	action_name = "Rotate"
+	costs = {}
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
@@ -26,13 +27,26 @@ func _calculate_rotation_cost() -> void:
 	#print("Rotation steps: ", rotation_info["rotation_steps"])
 	
 	if rotation_info["needs_rotation"]:
-		cost = abs(rotation_info["rotation_steps"])  # Use the actual rotation steps needed
-		#print("Setting rotation cost to: ", cost)
+		costs["time_units"] = abs(rotation_info["rotation_steps"])  
+		costs["stamina"] = abs(rotation_info["rotation_steps"])
+		rotation_direction = rotation_info["turn_direction"]
+		
 	else:
-		cost = 0
+		costs = {}
 		#print("No rotation needed, cost: ", cost)
 
 func _setup() -> void:
+	#if rotation_direction == "left":
+		#if owner.is_moving():
+			#owner.grid_object_animator.start_locomotion_animation(owner.get_stance(),Vector2(0.5,1))
+		#else:
+			#owner.grid_object_animator.start_locomotion_animation(owner.get_stance(),Vector2(0,1))
+	#elif rotation_direction == "right":
+		#if owner.is_moving():
+			#owner.grid_object_animator.start_locomotion_animation(owner.get_stance(),Vector2(0.5,-1))
+		#else: 
+			#owner.grid_object_animator.start_locomotion_animation(owner.get_stance(),Vector2(0,-1))
+
 	return
 
 func _execute() -> void:
@@ -61,11 +75,8 @@ func _execute() -> void:
 
 	# Tween *only* the Y-rotation
 	var tw = owner.create_tween()
-	tw.tween_property(owner, "rotation:y", target_yaw, 0.2)
+	tw.tween_property(owner, "rotation:y", target_yaw, 0.45)
 	await tw.finished
 
 func _action_complete() -> void:
-	if cost > 0:
-		#print("Rotate action complete, spending: ", cost, " TUs")
-		owner.try_spend_stat_value("TimeUnits", cost)
 	owner.grid_position_data.set_direction(target_direction, true)

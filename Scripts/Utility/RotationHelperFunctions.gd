@@ -73,11 +73,16 @@ static func get_direction_index(direction: int) -> int:
 	# Assuming Enums.facingDirection starts at 1
 	return direction - 1
 
-static func get_rotation_info(current_facing: int, from_cell: GridCell, to_cell: GridCell) -> Dictionary:
-	var result = {
+static func get_rotation_info(
+	current_facing: int,
+	from_cell: GridCell,
+	to_cell: GridCell
+) -> Dictionary:
+	var result := {
 		"needs_rotation": false,
 		"rotation_steps": 0,
-		"target_direction": Enums.facingDirection.NONE
+		"target_direction": Enums.facingDirection.NONE,
+		"turn_direction": "none" # "left" | "right" | "none"
 	}
 
 	var direction_info = get_direction_between_cells(from_cell, to_cell)
@@ -91,16 +96,23 @@ static func get_rotation_info(current_facing: int, from_cell: GridCell, to_cell:
 	if current_facing == target_direction:
 		return result
 
-	# Calculate minimal rotation steps
 	var current_index = get_direction_index(current_facing)
 	var target_index = get_direction_index(target_direction)
-	
-	# Calculate minimal rotation (can rotate clockwise or counter-clockwise)
+
+	# Minimal signed rotation in 8-direction space
 	var diff = (target_index - current_index + 8) % 8
 	if diff > 4:
-		diff -= 8  # Prefer counter-clockwise if it's fewer steps
-	
-	result.rotation_steps = abs(diff)  # Return absolute value for cost calculation
-	result.needs_rotation = true
+		diff -= 8 # choose the shorter counter-clockwise path
+
+	# diff sign encodes direction
+	if diff > 0:
+		result.turn_direction = "right" # clockwise
+	elif diff < 0:
+		result.turn_direction = "left" # counter-clockwise
+	else:
+		result.turn_direction = "none"
+
+	result.rotation_steps = abs(diff)
+	result.needs_rotation = result.rotation_steps > 0
 
 	return result

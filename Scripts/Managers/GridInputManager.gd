@@ -1,7 +1,6 @@
 extends Manager
 
 #region Variables
-var camera : Camera3D
 var gridSystem: GridSystem
 var currentGridCell : GridCell;
 var visual : Node3D
@@ -10,18 +9,17 @@ var visual : Node3D
 signal grid_cell_selected(grid_cell : GridCell)
 #region Functions
 func _ready() -> void:
-	camera = CameraController.instance;
 	gridSystem = GridSystem
 	visual = CSGBox3D.new()
 	add_child(visual)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if !GameManager.execution_completed:
 		return
 	var mp   = get_viewport().get_mouse_position()
-	var from = camera.project_ray_origin(mp)
-	var dir  = camera.project_ray_normal(mp)
+	var from = get_viewport().get_camera_3d().project_ray_origin(mp)
+	var dir  = get_viewport().get_camera_3d().project_ray_normal(mp)
 	var to   = from + dir * 1000.0  # lengthen as needed
 
 	var space = get_tree().root.get_viewport().world_3d.direct_space_state
@@ -64,7 +62,7 @@ func _process(delta: float) -> void:
 func _get_manager_name() -> String: return "GridInputManager"
 
 
-func _setup_conditions(): return
+func _setup_conditions() -> bool: return true
 
 
 func _setup(): 

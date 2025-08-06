@@ -84,6 +84,7 @@ func setup_grid():
 					var hits = spaceState.intersect_shape(qp)
 
 					if hits.size() > 0:
+						@warning_ignore("int_as_enum_without_cast")
 						cell_state |= (Enums.cellState.OBSTRUCTED) as Enums.cellState
 					else:
 						if raycastCheck:
@@ -105,11 +106,11 @@ func setup_grid():
 
 								if hitY >= cell_bottom_y and hitY <= cell_top_y:
 									position.y = hitY
-									cell_state |= Enums.cellState.WALKABLE
+									cell_state |= Enums.UnitStance.get(Enums.cellState.WALKABLE)
 								else:
-									cell_state |= Enums.cellState.AIR
+									cell_state |= Enums.UnitStance.get(Enums.cellState.AIR)
 							else:
-								cell_state |= Enums.cellState.AIR
+								cell_state |= Enums.UnitStance.get(Enums.cellState.AIR)
 						else:
 							print("Cell %d,%d,%d: Raycast disabled." % [x, z, layer])
 				else:
@@ -132,10 +133,13 @@ func setup_grid():
 
 							if hitY >= cell_bottom_y and hitY <= cell_top_y:
 								position.y = hitY
-								cell_state |= (Enums.cellState.WALKABLE) as Enums.cellState
+								@warning_ignore("int_as_enum_without_cast")
+								cell_state |= (Enums.cellState.WALKABLE) 
 							else:
+								@warning_ignore("int_as_enum_without_cast")
 								cell_state |= Enums.cellState.AIR
 						else:
+							@warning_ignore("int_as_enum_without_cast")
 							cell_state |= Enums.cellState.AIR
 					else:
 						print("Cell %d,%d,%d: Neither collider nor raycast check enabled." % [x, z, layer])

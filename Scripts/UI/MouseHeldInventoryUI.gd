@@ -7,10 +7,11 @@ func _ready() -> void:
 	for child in UtilityMethods.get_all_children(self, true):
 		if child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	super._ready()
 
 
 
-func _process(delta):
+func _process(_delta):
 	if not is_shown:
 		return
 	var mouse_pos = get_global_mouse_position() + Vector2(5,5)

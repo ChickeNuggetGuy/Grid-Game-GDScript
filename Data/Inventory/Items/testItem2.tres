@@ -9,6 +9,8 @@
 
 [sub_resource type="Resource" id="Resource_crkis"]
 script = ExtResource("2_gbhr5")
+attack_count = 3
+action_name = "Auto Shot"
 metadata/_custom_type_script = "uid://bkr8ehc1y044m"
 
 [sub_resource type="Resource" id="Resource_gbhr5"]

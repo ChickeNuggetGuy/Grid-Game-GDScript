@@ -2,16 +2,16 @@ extends BaseItemActionDefinition
 class_name ThrowActionDefinition
 
 
+
 func _init() -> void:
-	name = "Throw"
+	action_name = "Throw"
 	script_path = "res://Scripts/InventorySystem/ItemActions/ThrowAction.gd"
+	super._init()
 
 # factory method: builds a fresh Action instance:
 func can_execute(parameters : Dictionary) -> Dictionary:
 	
 	var temp_cost = 0
-
-	var target_direction = RotationHelperFunctions.get_direction_between_cells(parameters["start_grid_cell"], parameters["target_grid_cell"])
 	
 	var result = RotationHelperFunctions.get_rotation_info(parameters["unit"].grid_position_data.direction,
 			 parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])

@@ -9,5 +9,5 @@ func initialize(c : Callable, acion_name : String):
 	pressed.connect(on_button_preseed)
 
 func on_button_preseed():
-	print("Context button pressed")
+	ContextMenuUI.intance.hide_call()
 	callable.call()
