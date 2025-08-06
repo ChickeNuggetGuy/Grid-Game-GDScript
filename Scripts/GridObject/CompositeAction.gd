@@ -4,12 +4,13 @@ class_name CompositeAction
 var sub_actions: Array[Action] = []
 
 
-func _init(_name: String, actions: Array[Action]) -> void:
-	name = _name
-	sub_actions = actions
-	# compute total cost by summing each child's cost
-	for a in sub_actions:
-		cost += a.cost
+func _init(parameters : Dictionary) -> void:
+	action_name = parameters["action_name"]
+	if parameters.has("actions"):
+		sub_actions =  parameters["actions"]
+	else:
+		sub_actions = []
+	super._init(parameters)
 
 
 func _execute() -> void:

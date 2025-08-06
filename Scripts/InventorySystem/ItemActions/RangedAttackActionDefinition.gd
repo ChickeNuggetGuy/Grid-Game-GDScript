@@ -1,8 +1,10 @@
 extends BaseItemActionDefinition
 class_name RangedAttackActionDefinition
 
+@export var attack_count : int
 
 func _init() -> void:
+	action_name = "Ranged Attack"
 	script_path = "res://Scripts/InventorySystem/ItemActions/RangedAttackAction.gd"
 	super._init()
 	

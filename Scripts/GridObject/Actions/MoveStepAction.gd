@@ -1,14 +1,15 @@
 extends CompositeAction
 
 func _init(parameters : Dictionary) -> void:
-	name = "Move Step"
-	cost = 4 
+	action_name = "Move Step"
+	costs = {"time_units" : 4, "stamina" : 1 }
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
-	print("MoveStepAction created with base cost: ", cost)
+	#print("MoveStepAction created with base cost: ", parameters)
 
-func _setup():
+func _setup() -> void:
+	#owner.grid_object_animator.start_locomotion_animation(owner.get_stance(), Vector2(0.5,0))
 	return
 	
 func _execute() -> void:
@@ -38,7 +39,6 @@ func _execute() -> void:
 	await move_tween.finished
 
 func _action_complete() -> void:
-	#var success = owner.try_spend_stat_value("TimeUnits", cost)
 	#var remaining = owner.get_stat_by_name("TimeUnits").current_value
 	owner.grid_position_data.set_grid_cell(target_grid_cell)
 	owner.gridObject_moved.emit(owner, target_grid_cell)

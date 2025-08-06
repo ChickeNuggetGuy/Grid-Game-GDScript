@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ChangeStanceActionDefinition" load_steps=2 format=3 uid="uid://blp3bgrpyodfn"]
+
+[ext_resource type="Script" uid="uid://ddccg6i27foyv" path="res://Scripts/GridObject/Actions/ChangeStanceActionDefinition.gd" id="1_5hjl7"]
+
+[resource]
+script = ExtResource("1_5hjl7")
+target_stance = 2
+action_name = "Crouch"
+show_in_ui = true
+metadata/_custom_type_script = "uid://ddccg6i27foyv"

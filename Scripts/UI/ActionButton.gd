@@ -11,9 +11,8 @@ var action_defintition : BaseActionDefinition
 #endregion
 func action_setup(definition : BaseActionDefinition):
 	action_defintition = definition
-	text = action_defintition.name
+	text = action_defintition.action_name
 	pressed.connect(_button_pressed)
 	
 func _button_pressed():
-	print("Hello world!")
 	UnitActionManager._set_selected_action(action_defintition)

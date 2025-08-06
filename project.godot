@@ -27,6 +27,8 @@ UiManager="*res://Scripts/Managers/UIManager.gd"
 GridInputManager="*res://Scripts/Managers/GridInputManager.gd"
 UnitActionManager="*res://Scripts/Managers/UnitActionManager.gd"
 Pathfinder="*res://Scripts/Managers/Pathfinder.gd"
+PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
+TurnManager="*res://Scripts/Managers/TurnManager.gd"
 
 [debug_draw_3d]
 
@@ -34,7 +36,7 @@ settings/addon_root_folder="res://addons/debug_draw_3d"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GridShapePlugin/plugin.cfg")
+enabled=PackedStringArray("res://addons/GridShapePlugin/plugin.cfg", "res://addons/mixamo_animation_retargeter/plugin.cfg", "res://addons/mixamo_root_motion_remover/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/script-ide/plugin.cfg")
 
 [global_group]
 

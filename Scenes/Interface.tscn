@@ -24,7 +24,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="UnitDetailPanel" type="Control" parent="." node_paths=PackedStringArray("action_button_holder", "visual")]
+[node name="UnitDetailPanel" type="Control" parent="." node_paths=PackedStringArray("action_button_holder", "stat_progress_bars", "visual")]
 layout_mode = 1
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -35,6 +35,7 @@ grow_vertical = 0
 script = ExtResource("1_o0cgi")
 action_button_prefab = ExtResource("2_ga4cb")
 action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/Top - Action Buttons")
+stat_progress_bars = [NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar"), NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar2"), NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar3"), NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar4")]
 input_key = 85
 visual = NodePath("PanelContainer")
 ui_name = "UnitActionUI"
@@ -352,14 +353,15 @@ offset_bottom = 40.0
 mouse_filter = 2
 
 [node name="ContextMenuUI" type="Control" parent="." node_paths=PackedStringArray("context_button_holder", "visual")]
-custom_minimum_size = Vector2(125, 0)
+custom_minimum_size = Vector2(250, 0)
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("10_0vakw")
 context_button_scene = ExtResource("11_r7ian")
-context_button_holder = NodePath("Panel/VBoxContainer")
+context_button_holder = NodePath("Panel/ScrollContainer/VBoxContainer")
 start_hidden = true
+block_inputs = true
 visual = NodePath("Panel")
 is_persistent_window = false
 metadata/_custom_type_script = "uid://7pg2k3prf8d4"
@@ -372,10 +374,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel"]
+[node name="ScrollContainer" type="ScrollContainer" parent="ContextMenuUI/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

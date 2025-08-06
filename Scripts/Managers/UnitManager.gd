@@ -5,11 +5,11 @@ extends Manager
 @export var spawnCounts : Vector2i = Vector2(2,2)
 @export var unitScene: PackedScene
 
-@export var selectedUnit : GridObject = null
+@export var selectedUnit : Unit = null
 #endregion
 
 #region Signals
-signal UnitSelected(newUnit : GridObject, oldUnit: GridObject);
+signal UnitSelected(newUnit : Unit, oldUnit: Unit);
 #endregion
 
 #region Functions
@@ -38,7 +38,7 @@ func _setup():
 
 	for key in Enums.unitTeam.keys():
 		if key != "None": 
-			var gridObjects: Array[GridObject] = []  # Replace GridObject with your actual class
+			var gridObjects: Array[GridObject] = []  # Replace Unit with your actual class
 			var unitTeam : UnitTeamHolder = UnitTeamHolder.new(gridObjects, Enums.unitTeam[key])
 			# Here, key is a string ("ALPHA"), so we use it to set the name.
 			unitTeam.name = key + " Team"  
@@ -67,7 +67,7 @@ func spawn_unit(team : Enums.unitTeam):
 		print("Could not find any valid grid cell. Returning prematurely")
 		return
 		
-	var spawneUnit : GridObject = unitScene.instantiate()
+	var spawneUnit : Unit = unitScene.instantiate()
 	spawneUnit.position = result["cell"].world_position
 	UnitTeams[team].gridObjects.append(spawneUnit)
 	UnitTeams[team].add_child(spawneUnit)
@@ -75,7 +75,7 @@ func spawn_unit(team : Enums.unitTeam):
 	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH)
 
 
-func set_selected_unit(gridObject: GridObject):
+func set_selected_unit(gridObject: Unit):
 	if selectedUnit == gridObject:
 		return
 	var oldUnit = selectedUnit
@@ -101,13 +101,16 @@ func set_selected_unit_next():
 
 
 func _unhandled_input(event):
+	if UiManager.blocking_input:
+		return
+	
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_C:
 			set_selected_unit_next()
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			if GridInputManager.currentGridCell != null:
-				var grid_object : GridObject = GridInputManager.currentGridCell.grid_object
+				var grid_object : Unit = GridInputManager.currentGridCell.grid_object
 				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].gridObjects.has(grid_object):
 					set_selected_unit(grid_object)
 #endregion

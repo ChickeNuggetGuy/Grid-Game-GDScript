@@ -1,14 +1,15 @@
 extends CompositeAction
 
 func _init(parameters : Dictionary) -> void:
-	name = "Move"
-	cost = 0
+	parameters["actiom_name"] = action_name
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
+	super._init(parameters)
 
 
 func _setup() -> void:
+	owner.set_motion(Enums.UnitStance.MOVING)
 	return
 
 
@@ -44,5 +45,6 @@ func _execute() -> void:
 
 
 func _action_complete() -> void:
+	owner.set_motion(Enums.UnitStance.STATIONARY)
 	owner.grid_position_data.set_grid_cell(target_grid_cell)
 	

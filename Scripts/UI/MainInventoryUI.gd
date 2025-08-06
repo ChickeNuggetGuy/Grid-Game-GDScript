@@ -17,7 +17,6 @@ func _setup():
 			var inventory_ui = child as InventoryGridUI
 			
 			inventory_ui_grids[inventory_ui.inventory_grid_type] = inventory_ui
-			print("Inventory UI of type: "+ str(inventory_ui.inventory_grid_type) + " detected, adding to dictionary")
 			#TODO:determine  if I should setup the children inventoryGridUI's now or at a seperate time
 			inventory_ui.setup_call()
 
@@ -40,6 +39,6 @@ func _hide():
 	super._hide()
 
 
-func UnitActionManager_action_started(action : BaseActionDefinition):
+func UnitActionManager_action_started(_action : BaseActionDefinition):
 	if is_shown:
 		hide()

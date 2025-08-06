@@ -70,7 +70,8 @@ func try_get_inventory_grid(inventory_type : Enums.inventoryType):
 	if !inventory_grids.keys().has(inventory_type):
 		return retval
 	
-	var inventory_instance =  inventory_grids[inventory_type].duplicate(true)
+	var inventory_instance : InventoryGrid =  inventory_grids[inventory_type].duplicate(true)
+	inventory_instance.initialize()
 	retval["success"] = true
 	retval["inventory_grid"] = inventory_instance
 	return retval

@@ -38,7 +38,7 @@ func _ensure_shape_exists_and_matches(): # No arguments needed now
 			notify_property_list_changed() # Notify Item changed
 	# No explicit resizing here; GridShape's own setters handle it.
 
-func _duplicate(for_resources: bool) -> Resource:
+func _duplicate() -> Resource:
 	var new_item = Item.new()
 
 	new_item.item_name = item_name
@@ -66,6 +66,6 @@ func get_context_items() -> Dictionary[String,Callable]:
 	
 	
 	for action in action_blueprints:
-		ret_value[action.name] = Callable.create(UnitActionManager, "try_execute_item_action").bind(action, self)
+		ret_value[action.action_name] = Callable.create(UnitActionManager, "try_execute_item_action").bind(action, self)
 	
 	return ret_value

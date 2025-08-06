@@ -17,7 +17,6 @@ func _setup_conditions():
 	return true
 
 func _setup():
-	print("HELP")
 	setup_completed.emit()
 
 func _execute_conditions() -> bool:
@@ -31,7 +30,7 @@ func _execute() -> void:
 	for x in range(map_size.x):
 		for y in range(map_size.y):
 			await generate_chunk(x, y)
-	print("GGGGGGGGGGGGGGGG")
+	
 	execution_completed.emit()
 
 func generate_height_map() -> void:
@@ -70,42 +69,56 @@ func generate_height_map() -> void:
 			var cd = ChunkData.new()
 			cd.chunk_coordinates = Vector2i(x, y)
 			if x == 0 and y == 0:
-				print("Setting chunk to ManMade!")
+				if debug_mode:
+					print("Setting chunk to ManMade!")
 				cd.chunk_type = ChunkData.ChunkType.MAN_MADE
 			else:
 				cd.chunk_type = ChunkData.ChunkType.PROCEDURAL
 			chunk_types[index] = cd
+
 
 func validate_heights_ignoring_locked(verts, validation_passes: int, max_difference: float) -> void:
 	var width = verts.size()
 	if width == 0:
 		return
 	var height = verts[0].size()
+	
 	for pass_num in range(validation_passes):
 		for y in range(height - 1):
 			for x in range(width - 1):
 				if locked_vertices[x][y]:
 					continue
+				
+				# Collect all four corner heights of the cell
 				var cell_heights = [
 					verts[x][y].y,
 					verts[x + 1][y].y,
 					verts[x][y + 1].y,
 					verts[x + 1][y + 1].y
 				]
+				
+				# Get unique heights in the cell
 				var unique_heights = []
 				for h in cell_heights:
 					if h not in unique_heights:
 						unique_heights.append(h)
+				
+				# If more than 2 unique heights, reduce to 2 most common
 				if unique_heights.size() > 2:
 					var counts = {}
 					for h in cell_heights:
 						counts[h] = counts.get(h, 0) + 1
+					
+					# Sort by frequency (most common first)
 					var sorted_keys = counts.keys()
-					sorted_keys.sort_custom(func(a, b):
+					sorted_keys.sort_custom(func(a, b): 
 						return counts[b] - counts[a]
 					)
+					
 					var replacement_height = sorted_keys[0]
 					var height_to_replace = sorted_keys[sorted_keys.size() - 1]
+					
+					# Replace the least common height with the most common one
 					for i in range(4):
 						if cell_heights[i] == height_to_replace:
 							match i:
@@ -117,9 +130,32 @@ func validate_heights_ignoring_locked(verts, validation_passes: int, max_differe
 									verts[x][y + 1].y = replacement_height
 								3:
 									verts[x + 1][y + 1].y = replacement_height
-				elif unique_heights.size() == 2 and verts[x][y].y == verts[x + 1][y + 1].y \
-				and verts[x + 1][y].y == verts[x][y + 1].y:
-					verts[x + 1][y + 1].y = verts[x][y].y
+				
+				# Check adjacent height differences and snap if needed
+				elif unique_heights.size() == 2:
+					var h1 = unique_heights[0]
+					var h2 = unique_heights[1]
+					var diff = abs(h1 - h2)
+					
+					if diff > max_difference:
+						# Determine which height to snap to (the "lower" one)
+						var snap_target = min(h1, h2)
+						var snap_source = max(h1, h2)
+						
+						# Snap all vertices with snap_source height to snap_target
+						# (within grid constraints)
+						for i in range(4):
+							if cell_heights[i] == snap_source:
+								match i:
+									0:
+										verts[x][y].y = snap_target
+									1:
+										verts[x + 1][y].y = snap_target
+									2:
+										verts[x][y + 1].y = snap_target
+									3:
+										verts[x + 1][y + 1].y = snap_target
+
 
 func generate_chunk(x: int, y: int) -> void:
 	if x < 0 or x >= map_size.x or y < 0 or y >= map_size.y:
@@ -132,9 +168,11 @@ func generate_chunk(x: int, y: int) -> void:
 	var chunk_node = c_data.get_chunk_node()
 	if chunk_node == null:
 		if c_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
-			print("Loading new chunk node for %s, %s" % [x, y])
+			if debug_mode:
+				print("Loading new chunk node for %s, %s" % [x, y])
 			var prefab_path = get_chunk_prefab_path(c_data.get_chunk_go_index())
-			print("Loading ManMade chunk from: %s" % prefab_path)
+			if debug_mode:
+				print("Loading ManMade chunk from: %s" % prefab_path)
 			if not ResourceLoader.exists(prefab_path):
 				push_error("Chunk prefab not found: %s" % prefab_path)
 				c_data.chunk_type = ChunkData.ChunkType.PROCEDURAL
@@ -145,6 +183,7 @@ func generate_chunk(x: int, y: int) -> void:
 				var chunk_scene = load(prefab_path)
 				if chunk_scene:
 					chunk_node = chunk_scene.instantiate()
+					@warning_ignore("integer_division")
 					chunk_node.position = Vector3((x * chunk_size) + chunk_size, 0, (y * chunk_size) / 2 + chunk_size)
 					chunk_node.name = "Chunk_%s_%s" % [x, y]
 				else:
@@ -153,7 +192,8 @@ func generate_chunk(x: int, y: int) -> void:
 					chunk_node.name = "Chunk_%s_%s" % [x, y]
 					add_child(chunk_node)
 		else:
-			print("Creating new chunk node for %s, %s" % [x, y])
+			if debug_mode:
+				print("Creating new chunk node for %s, %s" % [x, y])
 			chunk_node = Node3D.new()
 			chunk_node.name = "Chunk_%s_%s" % [x, y]
 			add_child(chunk_node)
@@ -164,7 +204,8 @@ func generate_chunk(x: int, y: int) -> void:
 			chunk_node.add_child(chunk_component)
 			c_data.chunk = chunk_component
 	else:
-		print("Using existing chunk node for %s, %s" % [x, y])
+		if debug_mode:
+			print("Using existing chunk node for %s, %s" % [x, y])
 		if c_data.chunk == null:
 			var found_chunk = chunk_node.get_node_or_null("Chunk")
 			if found_chunk:
@@ -174,13 +215,17 @@ func generate_chunk(x: int, y: int) -> void:
 				chunk_node.add_child(c_data.chunk)
 	if c_data.chunk_type != ChunkData.ChunkType.MAN_MADE:
 		chunk_node.position = Vector3(x * chunk_size * cell_size.x, 0, y * chunk_size * cell_size.x)
-	print("Initializing chunk %s, %s" % [x, y])
+	if debug_mode:
+		print("Initializing chunk %s, %s" % [x, y])
 	c_data.chunk.initialize(x, y, chunk_size, terrain_heights, cell_size.x, c_data)
-	print("Initialized chunk %s, %s" % [x, y])
+	if debug_mode:
+		print("Initialized chunk %s, %s" % [x, y])
 	if c_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
-		print("Skipping mesh generation for ManMade chunk %s, %s" % [x, y])
+		if debug_mode:
+			print("Skipping mesh generation for ManMade chunk %s, %s" % [x, y])
 		return
-	print("Generating mesh for chunk %s, %s" % [x, y])
+	if debug_mode:
+		print("Generating mesh for chunk %s, %s" % [x, y])
 	await c_data.chunk.generate(color)
 
 func lock_manmade_edges() -> void:
@@ -203,7 +248,7 @@ func lock_manmade_edges() -> void:
 						ChunkData.ChunkType.MAN_MADE and left_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL) or
 						(current_chunk.chunk_type == ChunkData.ChunkType.PROCEDURAL and left_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE))
 					if boundary_between:
-						var manmade_chunk_data = left_chunk if left_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE else current_chunk
+						#var manmade_chunk_data = left_chunk if left_chunk.chunk_type == ChunkData.ChunkType.MAN_MADE else current_chunk
 						var manmade_height = 1.0
 						var v = terrain_heights[x][y]
 						v.y = manmade_height
@@ -224,7 +269,7 @@ func lock_manmade_edges() -> void:
 						terrain_heights[x][y] = v
 						locked_vertices[x][y] = true
 
-func get_manmade_chunk_height(global_x: int, global_y: int, manmade_chunk_data) -> float:
+func get_manmade_chunk_height(global_x: int, global_y: int, _manmade_chunk_data) -> float:
 	var world = get_viewport().get_world_3d()
 	var space_state = world.direct_space_state
 	var origin = Vector3(global_x * cell_size.x, 500.0, global_y * cell_size.x)
@@ -248,8 +293,10 @@ func get_chunk_from_vertex_index(vertex_x: int, vertex_y: int):
 		vertex_y = 0
 	elif vertex_y >= map_size.y * chunk_size:
 		vertex_y = map_size.y * chunk_size - 1
-	var chunk_x = vertex_x / chunk_size
-	var chunk_y = vertex_y / chunk_size
+	@warning_ignore("integer_division")
+	var chunk_x : int = vertex_x / chunk_size
+	@warning_ignore("integer_division")
+	var chunk_y  : int = vertex_y / chunk_size
 	if chunk_x < 0 or chunk_x >= map_size.x:
 		return null
 	if chunk_y < 0 or chunk_y >= map_size.y:

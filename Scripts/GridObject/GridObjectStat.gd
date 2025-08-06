@@ -1,6 +1,7 @@
 extends Node
 class_name GridObjectStat
 
+signal min_value_reached()
 #region Variables
 var parent_gridobject : GridObject
 @export var stat_name : String
@@ -36,7 +37,9 @@ func _remove_value(value_to_remove : int):
 
 func try_remove_value(value_to_remove : int) -> bool:
 	if current_value - value_to_remove <= min_max_values.x:
-		return false
+		current_value = min_max_values.x
+		min_value_reached.emit()
+		return true
 	
 	_remove_value(value_to_remove)
 	return true

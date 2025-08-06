@@ -34,7 +34,12 @@ signal item_removed(item_removed : Item, new_inventory : InventoryGrid)
 func _init():
 	inventory_name = "New Inventory"
 	use_item_size = true
+	
 	_items = []
+	
+	if shape != null:
+		initialize()
+
 	if Engine.is_editor_hint():
 		call_deferred("_editor_post_load_setup")
 
@@ -57,7 +62,7 @@ func _ensure_shape_exists_and_matches():
 		if Engine.is_editor_hint():
 			notify_property_list_changed()
 
-func _duplicate(for_resources: bool) -> Resource:
+func _duplicate() -> Resource:
 	var new_grid = InventoryGrid.new()
 
 	new_grid.inventory_name = inventory_name
@@ -115,8 +120,7 @@ func can_place_item_at(item: Item, position: Vector2i) -> bool:
 		return false
 
 	# Defensive check for _items array state
-	if _items.is_empty() or \
-	   position.y < 0 or position.y >= _items.size() or \
+	if position.y < 0 or position.y >= _items.size() or \
 	   (not _items[position.y] is Array) or _items[position.y].is_empty() or \
 	   position.x < 0 or position.x >= _items[position.y].size():
 		push_error("InventoryGrid: _items array not properly initialized or out of bounds for position %s in can_place_item_at. Reinitializing." % str(position))

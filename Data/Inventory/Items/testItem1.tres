@@ -9,10 +9,13 @@
 
 [sub_resource type="Resource" id="Resource_cxw6v"]
 script = ExtResource("3_tbkrc")
+attack_count = 3
+action_name = "Auto Shot"
 metadata/_custom_type_script = "uid://bkr8ehc1y044m"
 
 [sub_resource type="Resource" id="Resource_tbkrc"]
 script = ExtResource("2_ol21n")
+action_name = "Throw Action"
 metadata/_custom_type_script = "uid://bj86rurumq14y"
 
 [sub_resource type="Resource" id="Resource_iqtct"]

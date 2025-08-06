@@ -43,7 +43,7 @@ func _setup():
 	
 	if inventory_grid == null or inventory_grid.shape == null:
 		return
-
+		
 	if inventory_slot_holder is GridContainer:
 		inventory_slot_holder.columns = inventory_grid.shape.grid_width
 	
@@ -51,6 +51,7 @@ func _setup():
 
 
 func _set_current_inventory_grid(new_grid: InventoryGrid):
+	
 	if inventory_grid == new_grid:
 		return
 
@@ -164,9 +165,12 @@ func update_slot(slot : InventorySlotUI):
 		slot.icon = null
 
 
-func unit_manager_unit_selected(new_Unit : GridObject,old_unit : GridObject):
+func unit_manager_unit_selected(_new_Unit : GridObject, _old_unit : GridObject):
 	_setup()
 
+
+func inventory_grid_inventory_changed():
+	draw_inventory()
 
 func inventory_slot_pressed(grid_coords : Vector2i, is_left_click : bool):
 	
@@ -193,11 +197,11 @@ func item_try_transfer(grid_coords : Vector2i):
 	var mouse_held_item = mouse_held_inventory.has_item_at(Vector2i(0,0))
 	
 	if item != null:
-		if inventory_grid.try_transfer_item(inventory_grid, mouse_held_inventory, item):
+		if InventoryGrid.try_transfer_item(inventory_grid, mouse_held_inventory, item):
 			MainInventoryUI.intance.mouse_held_inventory_ui.position = inventory_slots[grid_coords].global_position
 			MainInventoryUI.intance.mouse_held_inventory_ui.show_call()
 	elif mouse_held_item != null:
-		if inventory_grid.try_transfer_item_at( mouse_held_inventory ,inventory_grid, mouse_held_item, grid_coords):
+		if InventoryGrid.try_transfer_item_at( mouse_held_inventory ,inventory_grid, mouse_held_item, grid_coords):
 			MainInventoryUI.intance.mouse_held_inventory_ui.position =  Vector2i(-10,-10)
 			MainInventoryUI.intance.mouse_held_inventory_ui.hide_call()
 

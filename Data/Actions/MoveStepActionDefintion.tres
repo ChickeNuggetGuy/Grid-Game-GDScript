@@ -4,5 +4,7 @@
 
 [resource]
 script = ExtResource("1_ec3s2")
-script_path = "res://Scripts/GridObject/Actions/MoveStepAction.gd"
+script_path = "res://Scripts/GridObject/Actions/RotateAction.gd"
+action_name = "Move Step"
+cost = 4
 metadata/_custom_type_script = "uid://cy7d6drefeg4t"
