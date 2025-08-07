@@ -10,19 +10,24 @@ var action_buttons : Array = []
 #endregion
 #region Functions
 
-func _ready() -> void:
-	super._ready()
-	print("EEEEE")
+func _setup() -> void:
+	super._setup()
 	UnitManager.connect("UnitSelected", unitManager_unit_selected)
-
-
+	UnitActionManager.connect("action_execution_finished", UnitActionManager_action_execution_finished)
+	
+	var selected_unit = UnitManager.selectedUnit
+	update_stat_bars(selected_unit)
+	update_action_buttons(selected_unit)
 
 func unitManager_unit_selected(selectedUnit : Unit, _old_unit : Unit):
 	print("Working!")
 	update_action_buttons(selectedUnit)
 	update_stat_bars(selectedUnit)
-	
 
+
+func UnitActionManager_action_execution_finished(_current_action : BaseActionDefinition,
+	execution_paramaters : Dictionary):
+	update_stat_bars(UnitManager.selectedUnit)
 
 
 func update_stat_bars(unit : Unit):

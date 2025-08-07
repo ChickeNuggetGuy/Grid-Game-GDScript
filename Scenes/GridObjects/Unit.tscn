@@ -1,14 +1,16 @@
-[gd_scene load_steps=38 format=4 uid="uid://hhe7ab2xbje0"]
+[gd_scene load_steps=40 format=4 uid="uid://hhe7ab2xbje0"]
 
 [ext_resource type="Script" uid="uid://bu7ki2ekfvc8v" path="res://Scripts/GridObject/Unit.gd" id="1_33ww8"]
-[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/BaseActionDefinition.gd" id="2_45onm"]
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/BaseActionDefinition.gd" id="2_45onm"]
 [ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveActionDefintion.gd" id="4_r2bin"]
 [ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStepActionDefintion.gd" id="5_3ea33"]
 [ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionDefinition.gd" id="6_e636m"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="7_7mmco"]
-[ext_resource type="Script" uid="uid://caqcyrpsjdjhb" path="res://Scripts/GridObject/GridObjectAnimation.gd" id="8_jq84y"]
+[ext_resource type="Script" uid="uid://caqcyrpsjdjhb" path="res://Scripts/GridObject/GridObjectComponents/GridObjectAnimation.gd" id="8_jq84y"]
 [ext_resource type="Script" uid="uid://d13d5i7vfxem3" path="res://Scripts/GridObject/GridObjectStat.gd" id="8_uv3na"]
+[ext_resource type="Script" uid="uid://dla7ye6ylllyd" path="res://Scripts/GridObject/GridObjectComponents/GridObjetSightArea.gd" id="9_7mmco"]
 [ext_resource type="AnimationLibrary" uid="uid://dg1sgsvuh088q" path="res://Data/Unit.res" id="9_jq84y"]
+[ext_resource type="Script" uid="uid://cd41g8c45qgxd" path="res://Scripts/GridObject/GridObjectComponents/GridObjectWorldTarget.gd" id="11_r2bin"]
 
 [sub_resource type="Resource" id="Resource_lwuqk"]
 script = ExtResource("4_r2bin")
@@ -26,7 +28,7 @@ script = ExtResource("6_e636m")
 action_name = "Rotate"
 metadata/_custom_type_script = "uid://ov18vmu15p05"
 
-[sub_resource type="Resource" id="Resource_r2bin"]
+[sub_resource type="Resource" id="Resource_jq84y"]
 resource_local_to_scene = true
 script = ExtResource("7_7mmco")
 grid_width = 1
@@ -307,15 +309,16 @@ states/walking/position = Vector2(657.5, 92.875)
 transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_vnaax"), "idle", "walking", SubResource("AnimationNodeStateMachineTransition_jpqeb"), "walking", "idle", SubResource("AnimationNodeStateMachineTransition_0dq7h")]
 graph_offset = Vector2(30, 22)
 
-[node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "stat_holder", "grid_object_animator")]
+[node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
 script = ExtResource("1_33ww8")
+_stance = 1
 _action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat")])
 visual = NodePath("StaticBody3D")
 stat_holder = NodePath("Stats")
-inventory_grid_types = Array[int]([2, 4, 6])
-grid_object_animator = NodePath("GridObjectAnimation")
-grid_height = 4
-grid_shape = SubResource("Resource_r2bin")
+inventory_grid_types = Array[int]([1, 2, 4, 6])
+grid_object_animator = NodePath("GridObjectComponents/GridObjectAnimation")
+grid_shape = SubResource("Resource_jq84y")
+grid_object_component_holder = NodePath("GridObjectComponents")
 metadata/_custom_type_script = "uid://bu7ki2ekfvc8v"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
@@ -349,16 +352,9 @@ metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
 [node name="Bravery" type="Node" parent="Stats"]
 script = ExtResource("8_uv3na")
-stat_name = "Bravery"
+stat_name = "bravery"
 current_value = 50
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
-
-[node name="GridObjectAnimation" type="Node" parent="." node_paths=PackedStringArray("animation_player_holder", "parent_grid_object")]
-script = ExtResource("8_jq84y")
-animation_player_holder = NodePath("../SK_Character_Dummy_Male_02")
-locomotion_State_playback_path = "parameters/Locomotion/playback"
-parent_grid_object = NodePath("..")
-metadata/_custom_type_script = "uid://caqcyrpsjdjhb"
 
 [node name="SK_Character_Dummy_Male_02" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
@@ -771,3 +767,36 @@ libraries = {
 tree_root = SubResource("AnimationNodeStateMachine_4rhxl")
 advance_expression_base_node = NodePath("../..")
 anim_player = NodePath("../AnimationPlayer")
+
+[node name="GridObjectComponents" type="Node" parent="."]
+
+[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents"]
+script = ExtResource("9_7mmco")
+metadata/_custom_type_script = "uid://dla7ye6ylllyd"
+
+[node name="GridObjectAnimation" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("animation_player_holder", "animation_tree", "parent_grid_object")]
+script = ExtResource("8_jq84y")
+animation_player_holder = NodePath("../../SK_Character_Dummy_Male_02")
+animation_tree = NodePath("../../SK_Character_Dummy_Male_02/AnimationTree")
+locomotion_State_playback_path = "parameters/Locomotion/playback"
+parent_grid_object = NodePath("../..")
+metadata/_custom_type_script = "uid://caqcyrpsjdjhb"
+
+[node name="GridObjectWorldTarget" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("targets", "parent_grid_object")]
+script = ExtResource("11_r2bin")
+targets = {
+"action_camera_position": NodePath("../../action_camera_position"),
+"fire_position": NodePath("../../fire_position"),
+"target_position": NodePath("../../target_position")
+}
+parent_grid_object = NodePath("../..")
+metadata/_custom_type_script = "uid://cd41g8c45qgxd"
+
+[node name="fire_position" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.8771856, -0.35317683)
+
+[node name="target_position" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 1.1569839, -0.07811797)
+
+[node name="action_camera_position" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0.47130597, 1.7167535, -0.07811797)

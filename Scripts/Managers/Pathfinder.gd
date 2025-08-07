@@ -163,10 +163,6 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 	var end = end_pos
 	var cell_size = GridSystem.gridCellSize
 
-	# Validate start and end points
-	if not _is_cell_walkable(start):
-		print("Start point is not walkable: ", start.gridCoordinates)
-		return ret_val
 	
 	if start.grid_cell_state & Enums.cellState.OBSTRUCTED or \
 	   end.grid_cell_state & Enums.cellState.OBSTRUCTED:
@@ -231,8 +227,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 				break
 			
 			# For arc paths, we want AIR or WALKABLE cells
-			if not (grid_cell.grid_cell_state & Enums.cellState.AIR or 
-					grid_cell.grid_cell_state & Enums.cellState.WALKABLE):
+			if  grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
 				print("Invalid cell state for arc path at: ", grid_cell.gridCoordinates, " State: ", grid_cell.grid_cell_state)
 				path_valid = false
 				break

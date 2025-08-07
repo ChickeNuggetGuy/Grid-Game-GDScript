@@ -177,6 +177,8 @@ func _place_item_at(item: Item, position: Vector2i) -> void:
 		if position.y >= 0 and position.y < shape.grid_height and \
 		   position.x >= 0 and position.x < shape.grid_width:
 			_items[position.y][position.x] = item
+	
+	item.current_inventory_grid = self
 	emit_signal("inventory_changed")
 	emit_signal("item_added", item)
 
@@ -205,8 +207,14 @@ func remove_item(item_to_remove: Item) -> Item:
 	return removed_item
 
 static func try_transfer_item(from_grid: InventoryGrid, to_grid: InventoryGrid, item_to_transfer: Item) -> bool:
-	if item_to_transfer == null or not from_grid.has_item(item_to_transfer) or not to_grid.can_place_item(item_to_transfer):
-		print("parameters given were null")
+	if item_to_transfer == null:
+		print("item given asnull")
+	
+	if not from_grid.has_item(item_to_transfer):
+		print("from inventory does not have item")
+	
+	if not to_grid.can_place_item(item_to_transfer):
+		print("to inventory does not have item")
 		return false
 
 	var removed_item = from_grid.remove_item(item_to_transfer)

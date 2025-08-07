@@ -35,10 +35,10 @@ func restore_original_state():
 func get_original_state() -> Enums.cellState:
 	return original_grid_cell_state
 
-func hasGridObject() -> bool:
+func has_grid_object() -> bool:
 	return grid_object != null
 
-func hasSpecificGridObject(gridObjectToCheck) -> bool:
+func has_specific_gridObject(gridObjectToCheck) -> bool:
 	return grid_object == gridObjectToCheck
 
 func _to_string() -> String:

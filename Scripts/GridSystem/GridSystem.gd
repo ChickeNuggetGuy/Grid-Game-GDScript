@@ -319,6 +319,84 @@ func try_get_grid_cell_of_state_below(grid_coords: Vector3, wanted_cell_state: E
 	return ret_val
 
 
+
+func try_get_cells_in_cone(
+	origin_cell: GridCell,
+	forward_direction: Vector3,
+	max_distance: float,
+	fov_horizontal_degrees: float,
+	cell_state_filter: Enums.cellState = Enums.cellState.NONE
+) -> Dictionary:
+	var found_cells: Array[GridCell] = []
+	var ret_val = {"success": false, "cells": found_cells}
+
+	if origin_cell == null:
+		printerr("try_get_cells_in_cone: origin_cell cannot be null.")
+		return ret_val
+	
+	
+	var search_radius_world = max_distance
+	
+	var search_radius_cells = ceil(search_radius_world / gridCellSize.x) + 1
+
+	var origin_coords: Vector3i = origin_cell.gridCoordinates
+	var normalized_forward = forward_direction.normalized()
+
+	# Iterate in a cube-shaped area around the origin cell
+	for y in range(
+		-search_radius_cells, search_radius_cells + 1
+	):
+		for x in range(
+			-search_radius_cells, search_radius_cells + 1
+		):
+			for z in range(
+				-search_radius_cells, search_radius_cells + 1
+			):
+				var offset = Vector3i(x, y, z)
+				var test_coords = origin_coords + offset
+				var candidate_cell: GridCell = get_grid_cell(test_coords)
+
+				
+				if candidate_cell == null or candidate_cell == origin_cell:
+					continue
+				
+				var distance_sq = origin_cell.world_position.distance_squared_to(
+					candidate_cell.world_position
+				)
+				if distance_sq > max_distance * max_distance:
+					continue
+
+				var direction_to_cell = (
+					candidate_cell.world_position - origin_cell.world_position
+				).normalized()
+				# angle_to gives the angle between two vectors in radians.
+				var angle_rad = normalized_forward.angle_to(direction_to_cell)
+				var angle_deg = rad_to_deg(angle_rad)
+
+				# Check if the angle is within half of the total FOV
+				if angle_deg > fov_horizontal_degrees / 2.0:
+					continue
+
+				if cell_state_filter != Enums.cellState.NONE:
+					if not (
+						candidate_cell.grid_cell_state & cell_state_filter
+					):
+						continue
+				
+				# If all checks pass, add the cell to results
+				found_cells.append(candidate_cell)
+
+				#DebugDraw3D.draw_box(candidate_cell.world_position, Quaternion.IDENTITY,
+				 		#Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.MAGENTA, true, 5)
+
+
+	if not found_cells.is_empty():
+		ret_val["success"] = true
+
+	return ret_val
+
+
+
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.
 func get_max_height() -> int:
 	var max_height := 0

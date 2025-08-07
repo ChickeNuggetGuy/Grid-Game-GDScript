@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://c8ylwvjtychxr"]
+[gd_scene load_steps=17 format=3 uid="uid://c8ylwvjtychxr"]
 
 [ext_resource type="Script" uid="uid://d222p848qf3w4" path="res://Scripts/UI/UnitActionUI.gd" id="1_o0cgi"]
 [ext_resource type="PackedScene" uid="uid://ccej7wk8dhb5y" path="res://Scenes/UI/action_button.tscn" id="2_ga4cb"]
@@ -6,8 +6,10 @@
 [ext_resource type="Script" uid="uid://cyrbxh22vfj6b" path="res://Scripts/UI/StatProgressBar.gd" id="4_odcd3"]
 [ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="4_wi8ec"]
 [ext_resource type="Script" uid="uid://d0wjd6ik205n2" path="res://Scripts/UI/MainInventoryUI.gd" id="6_v4j0p"]
+[ext_resource type="Script" uid="uid://bs7hvkesombq3" path="res://Scripts/UI/QuickTargetUI.gd" id="7_7wbmf"]
 [ext_resource type="Script" uid="uid://ngmp1p2lmuk1" path="res://Scripts/UI/InventoryGridUI.gd" id="7_xn8c0"]
 [ext_resource type="Script" uid="uid://dx5eic3uowker" path="res://Scripts/UI/MouseHeldInventoryUI.gd" id="8_laqcf"]
+[ext_resource type="PackedScene" uid="uid://depe88mv4kasb" path="res://Scenes/UI/quick_target_button.tscn" id="8_tc1k7"]
 [ext_resource type="Script" uid="uid://e3rapksgaklp" path="res://Scripts/InventorySystem/InventoryGridHolder.gd" id="8_v4j0p"]
 [ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/ContextMenuUI.gd" id="10_0vakw"]
 [ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="11_r7ian"]
@@ -116,7 +118,7 @@ layout_mode = 2
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "TimeUnits"
+stat_name = "time_units"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="ProgressBar3" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars"]
@@ -125,7 +127,7 @@ layout_mode = 2
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "Stamina"
+stat_name = "stamina"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="ProgressBar4" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars"]
@@ -134,7 +136,7 @@ layout_mode = 2
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "Bravery"
+stat_name = "bravery"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="EquipmentUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" node_paths=PackedStringArray("visual")]
@@ -211,18 +213,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="QuickSelectButtons" type="Control" parent="UnitDetailPanel" node_paths=PackedStringArray("visual")]
+[node name="QuickSelectButtons" type="Control" parent="UnitDetailPanel" node_paths=PackedStringArray("quick_target_button_holder", "quick_target_button_holder_enemy", "visual")]
 layout_mode = 1
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 9.0
+offset_right = 69.0
 grow_horizontal = 0
 grow_vertical = 2
-script = ExtResource("4_wi8ec")
+script = ExtResource("7_7wbmf")
+quick_target_button_holder = NodePath("HBoxContainer/ScrollContainer - player/VBoxContainer")
+quick_target_button_holder_enemy = NodePath("HBoxContainer/ScrollContainer - enemies/VBoxContainer")
+quick_target_button_scene = ExtResource("8_tc1k7")
 visual = NodePath("HBoxContainer")
 ui_name = "QuickSelect"
-metadata/_custom_type_script = "uid://djnfglh5vj3vy"
+metadata/_custom_type_script = "uid://bs7hvkesombq3"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/QuickSelectButtons"]
 layout_mode = 1
@@ -232,16 +237,26 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
+[node name="ScrollContainer - enemies" type="ScrollContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer/ScrollContainer - enemies"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+size_flags_horizontal = 6
 
 [node name="VSeparator" type="VSeparator" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
 layout_mode = 2
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
+[node name="ScrollContainer - player" type="ScrollContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer/ScrollContainer - player"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+size_flags_horizontal = 6
 
 [node name="InventoryGrids" type="Control" parent="." node_paths=PackedStringArray("inventory_grids_holder", "mouse_held_inventory_ui", "visual")]
 layout_mode = 1
@@ -359,11 +374,11 @@ mouse_filter = 2
 [node name="ContextMenuUI" type="Control" parent="." node_paths=PackedStringArray("context_button_holder", "visual")]
 custom_minimum_size = Vector2(250, 0)
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 250.0
+offset_bottom = 100.0
 script = ExtResource("10_0vakw")
 context_button_scene = ExtResource("11_r7ian")
-context_button_holder = NodePath("Panel/ScrollContainer/VBoxContainer")
+context_button_holder = NodePath("Panel/VBoxContainer")
 start_hidden = true
 block_inputs = true
 visual = NodePath("Panel")
@@ -378,16 +393,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="ContextMenuUI/Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel/ScrollContainer"]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel"]
+layout_mode = 0
+offset_right = 250.0
+offset_bottom = 40.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 

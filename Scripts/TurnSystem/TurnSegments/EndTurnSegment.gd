@@ -2,5 +2,5 @@ extends TurnSegment
 class_name EndTuenSegment
 
 
-func execute(parent_turn : TurnData):
+func execute(_parent_turn : TurnData):
 	TurnManager.end_turn()

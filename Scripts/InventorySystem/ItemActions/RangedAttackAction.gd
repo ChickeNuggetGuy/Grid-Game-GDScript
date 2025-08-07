@@ -21,9 +21,24 @@ func _setup():
 
 func _execute() -> void:
 	
-	var dir_dictionary = RotationHelperFunctions.get_direction_between_cells(
-		start_grid_cell,
-		target_grid_cell
+	
+	var from_positon :Vector3 = start_grid_cell.world_position
+	var owner_results = owner.try_get_grid_object_component_by_type("GridObjectWorldTarget")
+	if owner_results["success"] == true:
+		from_positon = owner_results["grid_object_component"].targets["fire_position"].global_position
+		
+		
+	var target_position :Vector3 = target_grid_cell.world_position
+	if target_grid_cell.has_grid_object():
+		var results = target_grid_cell.grid_object.try_get_grid_object_component_by_type("GridObjectWorldTarget")
+		if results["success"] == true:
+			target_position = results["grid_object_component"].targets["target_position"].global_position
+		
+		
+		
+	var dir_dictionary = RotationHelperFunctions.get_direction_between_positons(
+		from_positon,
+		target_position
 	)
 	
 	if dir_dictionary["direction"] != owner.grid_position_data.direction:
@@ -39,36 +54,41 @@ func _execute() -> void:
 	await super._execute()
 	
 	for  i in range(attack_count):
-		var calculation_results  = calculate_direction_with_variance( Vector2i(5,5), owner.get_tree().root.world_3d.direct_space_state)
+		var calculation_results  = calculate_direction_with_variance(from_positon, target_position, Vector2i(5,5), owner.get_tree().root.world_3d.direct_space_state)
 		
 		var ranged_visual = CSGSphere3D.new()
 		ranged_visual.radius = 0.5
 		owner.get_tree().root.add_child(ranged_visual)
-		ranged_visual.position =  start_grid_cell.world_position + Vector3(0, 0.5, 0)
+		ranged_visual.position =  from_positon
 
 		var ranged_tween = owner.create_tween()
 		ranged_tween.tween_property(ranged_visual, "position", calculation_results["hit_position"], 0.2)
 		await ranged_tween.finished
 		
 		ranged_visual.queue_free() 
-		if calculation_results["grid_cell"] != null:
-			if calculation_results["grid_cell"].hasGridObject() and calculation_results["grid_cell"] != owner:
-				print("TEST")
-				var health_stat = calculation_results["grid_cell"] .grid_object.get_stat_by_name("Health")  
-				if health_stat != null:
-					health_stat.try_remove_value(100)
-					print("damaged unit for 10 health. new health is " + str(health_stat.current_value))
+		if calculation_results["hit_result"]:
+			print(calculation_results["hit_result"].collider)
+		var hit_grid_object :GridObject = null
+		if calculation_results["grid_object"] != null and calculation_results["grid_object"] != owner:
+			hit_grid_object = calculation_results["grid_object"]
+		else: if calculation_results["grid_cell"] != null:
+			if calculation_results["grid_cell"].has_grid_object() and calculation_results["grid_cell"].grid_object != owner:
+				hit_grid_object = calculation_results["grid_cell"].grid_object
+		
+		if hit_grid_object != null:
+			var health_stat = calculation_results["grid_cell"] .grid_object.get_stat_by_name("Health")  
+			if health_stat != null:
+				health_stat.try_remove_value(100)
+				print("damaged unit for 10 health. new health is " + str(health_stat.current_value))
 		
 		await owner.get_tree().create_timer(0.8).timeout
 	return
 
 
-func calculate_direction_with_variance(
-	variance: Vector2,
-	space_state: PhysicsDirectSpaceState3D
+func calculate_direction_with_variance(	from_positon : Vector3, to_positon : Vector3, variance : Vector2,	space_state: PhysicsDirectSpaceState3D
 ) -> Dictionary:
 	# Calculate base direction vector
-	var base_direction := (target_grid_cell.world_position + Vector3(0, 0.5, 0) - start_grid_cell.world_position + Vector3(0, 0.5, 0)).normalized()
+	var base_direction := (to_positon - from_positon).normalized()
 	
 	# Convert variance from degrees to radians
 	var h_variance_rad := deg_to_rad(variance.x)
@@ -96,7 +116,7 @@ func calculate_direction_with_variance(
 	
 	# Perform raycast to find hit position
 	var ray_params := PhysicsRayQueryParameters3D.new()
-	ray_params.from =  start_grid_cell.world_position + Vector3(0, 0.5, 0)
+	ray_params.from =  from_positon + Vector3(0, 0.5, 0)
 	ray_params.to = ray_params.from  + (new_direction * 1000 ) # Arbitrary long distance
 	ray_params.collide_with_bodies = true
 	ray_params.collide_with_areas = true
@@ -105,22 +125,28 @@ func calculate_direction_with_variance(
 	
 	var hit_position: Vector3
 	var grid_cell: GridCell
+	var grid_object: GridObject = null
 	
 	if not hit_result.is_empty():
 		
-		DebugDraw3D.draw_line(start_grid_cell.world_position + Vector3(0, 0.5, 0) ,hit_result.position,Color.GREEN,4 )
+		DebugDraw3D.draw_line(from_positon+ Vector3(0, 0.5, 0) ,hit_result.position,Color.GREEN,4 )
 		# Hit something
 		hit_position = hit_result.position
-		# Convert to grid coordinates (assuming integer grid positions)
-		var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(hit_position)
-		
-		if get_grid_cell_result["success"]:
-			grid_cell = get_grid_cell_result["grid_cell"]
+
+		if hit_result.collider.get_parent_node_3d() is GridObject:
+			grid_object = hit_result.collider.get_parent_node_3d()  as GridObject
+			grid_cell = grid_object.grid_position_data.grid_cell
 		else:
-			grid_cell = null
+			# Convert to grid coordinates (assuming integer grid positions)
+			var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(hit_position)
+			
+			if get_grid_cell_result["success"]:
+				grid_cell = get_grid_cell_result["grid_cell"]
+			else:
+				grid_cell = null
 		
 	else:
-		DebugDraw3D.draw_ray(start_grid_cell.world_position + Vector3(0, 0.5, 0) ,new_direction, 100,Color.RED,4 )
+		DebugDraw3D.draw_ray(from_positon + Vector3(0, 0.5, 0) ,new_direction, 100,Color.RED,4 )
 		# No hit - set to maximum distance point
 		hit_position = ray_params.from  + new_direction * 1000
 		var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(hit_position)
@@ -135,7 +161,8 @@ func calculate_direction_with_variance(
 		"new_direction": new_direction,
 		"hit_position": hit_position,
 		"grid_cell": grid_cell,
-		"hit_result": hit_result
+		"hit_result": hit_result,
+		"grid_object" : grid_object
 	}
 
 func _action_complete():

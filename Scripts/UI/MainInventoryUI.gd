@@ -39,6 +39,6 @@ func _hide():
 	super._hide()
 
 
-func UnitActionManager_action_started(_action : BaseActionDefinition):
+func UnitActionManager_action_started(_action : BaseActionDefinition, execution_parameters : Dictionary):
 	if is_shown:
 		hide()

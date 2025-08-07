@@ -61,8 +61,59 @@ static func get_direction_between_cells(from_cell: GridCell, to_cell: GridCell) 
 		_: # Fallback for any unexpected case (shouldn't happen with sign values)
 			result.direction = Enums.facingDirection.NONE
 			result.rotation_steps = 0
-
+	
+	
 	return result
+
+
+static func get_direction_between_positons(from_pos: Vector3, to_pos: Vector3) -> Dictionary:
+	var result = {
+		"direction": Enums.facingDirection.NONE,
+		"rotation_steps": 0
+	}
+
+	var dx = to_pos.x - from_pos.x
+	var dz = -(to_pos.z - from_pos.z)  # flip so +dz = North
+	var sx = sign(dx) # sign() in GDScript returns -1, 0, or 1
+	var sz = sign(dz)
+
+	# Determine direction and rotation steps
+	match [sx, sz]:
+		[0, 0]: # Same cell or invalid
+			result.direction = Enums.facingDirection.NONE
+			result.rotation_steps = 0
+		[0, 1]: # North
+			result.direction = Enums.facingDirection.NORTH
+			result.rotation_steps = 0
+		[1, 1]: # Northeast
+			result.direction = Enums.facingDirection.NORTHEAST
+			result.rotation_steps = 1
+		[1, 0]: # East
+			result.direction = Enums.facingDirection.EAST
+			result.rotation_steps = 2
+		[1, -1]: # Southeast
+			result.direction = Enums.facingDirection.SOUTHEAST
+			result.rotation_steps = 3
+		[0, -1]: # South
+			result.direction = Enums.facingDirection.SOUTH
+			result.rotation_steps = 4
+		[-1, -1]: # Southwest
+			result.direction = Enums.facingDirection.SOUTHWEST
+			result.rotation_steps = 5
+		[-1, 0]: # West
+			result.direction = Enums.facingDirection.WEST
+			result.rotation_steps = 6
+		[-1, 1]: # Northwest
+			result.direction = Enums.facingDirection.NORTHWEST
+			result.rotation_steps = 7
+		_: # Fallback for any unexpected case (shouldn't happen with sign values)
+			result.direction = Enums.facingDirection.NONE
+			result.rotation_steps = 0
+	
+	
+	return result
+
+
 static func get_yaw_for_direction(dir: int) -> float:
 	return YAW_MAP.get(dir, 0.0)
 
