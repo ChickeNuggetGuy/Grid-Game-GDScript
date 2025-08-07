@@ -6,6 +6,7 @@ class_name Item extends Resource
 @export var icon: Texture2D
 
 var parent_grid_object: GridObject
+var current_inventory_grid : InventoryGrid
 
 @export var shape: GridShape
 
@@ -26,6 +27,7 @@ func _post_initialize():
 	# Ensure shape is created and initialized based on its *own* loaded dimensions.
 	_ensure_shape_exists_and_matches()
 
+
 func _ensure_shape_exists_and_matches(): # No arguments needed now
 	if shape == null:
 		# Create new shape with default dimensions (3,3 from GridShape's @export defaults)
@@ -37,6 +39,7 @@ func _ensure_shape_exists_and_matches(): # No arguments needed now
 		if Engine.is_editor_hint():
 			notify_property_list_changed() # Notify Item changed
 	# No explicit resizing here; GridShape's own setters handle it.
+
 
 func _duplicate() -> Resource:
 	var new_item = Item.new()
@@ -66,6 +69,6 @@ func get_context_items() -> Dictionary[String,Callable]:
 	
 	
 	for action in action_blueprints:
-		ret_value[action.action_name] = Callable.create(UnitActionManager, "try_execute_item_action").bind(action, self)
+		ret_value[action.action_name] = Callable.create(UnitActionManager, "try_execute_item_action").bind(action, self,current_inventory_grid)
 	
 	return ret_value

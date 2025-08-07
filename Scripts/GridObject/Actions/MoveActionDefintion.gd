@@ -32,15 +32,15 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_val = {"success": false, "costs" : {"TimeUnits" : -1, "stamina" : -1}, "reason" : "N/A"}
+	var ret_val = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A"}
 	
-	var temp_cost = {"TimeUnits" : 0, "stamina" : 0}
+	var temp_costs = {"time_units" : 0, "stamina" : 0}
 	
 	# Check if path is possible first
 	if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
 		print("Path not possible!")
 		ret_val["success"] = false
-		ret_val["costs"]["TimeUnits"] = -1
+		ret_val["costs"]["time_units"] = -1
 		ret_val["costs"]["stamina"] = -1
 		ret_val["reason"] = "No path possible!"
 		return ret_val
@@ -50,7 +50,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")
 		ret_val["success"] = false
-		ret_val["costs"]["TimeUnits"] = -1
+		ret_val["costs"]["time_units"] = -1
 		ret_val["costs"]["stamina"] = -1
 		ret_val["reason"] = "No path found!"
 		return ret_val
@@ -79,36 +79,26 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		
 		if move_step_result["success"] == false:
 			ret_val["success"] = false
-			ret_val["costs"]["TimeUnits"] = -1
+			ret_val["costs"]["time_units"] = -1
 			ret_val["costs"]["stamina"] = -1
 			ret_val["reason"] = "move step failed: " + move_step_result["reason"]
 			return ret_val
 		else:
-			temp_cost = move_step_result["costs"]
-		#var result = RotationHelperFunctions.get_rotation_info(current_direction, current_gridCell, to_cell)
-		#
-		#if result["needs_rotation"]:
-			## Add rotation costs (using absolute value for steps)
-			#temp_cost += 1 * abs(result["rotation_steps"])
-		#
-		## Add movement costs
-		#temp_cost += 4
-		#
-		## Update for next iteration
-		#current_direction = result["target_direction"]
-		#current_gridCell = to_cell
+			for key in temp_costs.keys():
+				temp_costs[key] +=move_step_result["costs"][key]
 	
-	# Check if we have enough time units
-	if temp_cost["time_units"] > parameters["unit"].get_stat_by_name("time_units").current_value and \
-			temp_cost["stamina"] > parameters["unit"].get_stat_by_name("stamina").current_value:
-		print("Not enough time units! costs: ", temp_cost)
+	# Check if we have enough stats
+	var result = parameters["unit"].check_stat_values(temp_costs)
+	
+	if result["success"] == false:
 		ret_val["success"] = false
-		ret_val["costs"] = temp_cost
-		ret_val["reason"] = "Not enough time units!"
+		ret_val["costs"] = temp_costs
+		ret_val["reason"] =result["reason"]
 		return ret_val
+		
 	
-	print("Move action can be executed. costs: ", temp_cost)
+	print("Move action can be executed. costs: ", temp_costs)
 	ret_val["success"] = true
-	ret_val["costs"] = temp_cost
+	ret_val["costs"] = temp_costs
 	ret_val["reason"] = "success"
 	return ret_val

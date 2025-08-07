@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://depe88mv4kasb"]
+
+[ext_resource type="Script" uid="uid://ca1qt4e2ds8gi" path="res://Scripts/UI/QuickTargetButton.gd" id="1_4ikof"]
+
+[node name="QuickTargetButton" type="Button"]
+text = "1
+"
+script = ExtResource("1_4ikof")
+metadata/_custom_type_script = "uid://ca1qt4e2ds8gi"

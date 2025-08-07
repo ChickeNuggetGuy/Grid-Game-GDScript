@@ -39,6 +39,6 @@ func _execute() -> void:
 	await move_tween.finished
 
 func _action_complete() -> void:
-	#var remaining = owner.get_stat_by_name("TimeUnits").current_value
+	
 	owner.grid_position_data.set_grid_cell(target_grid_cell)
 	owner.gridObject_moved.emit(owner, target_grid_cell)

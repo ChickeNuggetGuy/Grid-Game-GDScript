@@ -1,4 +1,4 @@
-extends Node
+extends GridObjectComponent
 class_name GridObjectAnimation
 
 @export var animation_player_holder : Node
@@ -6,16 +6,15 @@ class_name GridObjectAnimation
 
 @export var locomotion_State_playback_path : String
 @export var animation_state_names : Array[String]
-@export var parent_grid_object : GridObject
 
-func _ready() -> void:
-	parent_grid_object = get_parent()
+func _setup() -> void:
 	animation_tree = animation_player_holder.find_child("AnimationTree")
 	#animation_tree.advance_expression_base_node = parent_grid_object.get_path()
 	UnitActionManager.connect("action_execution_finished",UnitActionManager_action_execution_finished)
 
 
-func UnitActionManager_action_execution_finished(_completed_action_definition : BaseActionDefinition):
+func UnitActionManager_action_execution_finished(_completed_action_definition : BaseActionDefinition, 
+		execution_parameters : Dictionary):
 	return #var playback = animation_tree.get(locomotion_State_playback_path) as AnimationNodeStateMachinePlayback
 
 func locomotion_change_stance(target_state : Enums.UnitStance):

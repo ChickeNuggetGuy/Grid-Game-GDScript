@@ -16,6 +16,9 @@ func execute(parent_turn : TurnData):
 	
 	for  grid_object in unit_team.gridObjects:
 		
+		if grid_object == null:
+			continue
+		
 		if grid_object is Unit:
 			var unit = grid_object as Unit
 			var unit_actions = unit.get_all_action_definitions()

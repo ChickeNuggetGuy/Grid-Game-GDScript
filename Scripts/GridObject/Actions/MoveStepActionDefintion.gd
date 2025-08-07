@@ -45,24 +45,22 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		ret_val["reason"] = "Not adjacent neighbor: " + str(parameters["start_grid_cell"].gridCoordinates) +" "+str(parameters["target_grid_cell"].gridCoordinates)
 		return ret_val
 	
-	var result = RotationHelperFunctions.get_rotation_info(parameters["unit"].grid_position_data.direction,
+	var totation_result = RotationHelperFunctions.get_rotation_info(parameters["unit"].grid_position_data.direction,
 			 parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
 		
-	if result["needs_rotation"] == true:
-		temp_cost["time_units"] += 1 * result["rotation_steps"]
-		temp_cost["stamina"] += 1 * result["rotation_steps"]
+	if totation_result["needs_rotation"] == true:
+		temp_cost["time_units"] += 1 * totation_result["rotation_steps"]
+		temp_cost["stamina"] += 1 * totation_result["rotation_steps"]
 	temp_cost["time_units"] += 4
 	
-		
-	if parameters["unit"].get_stat_by_name("time_units").current_value < temp_cost["time_units"]:
-		ret_val["success"] = false
-		ret_val["costs"] = temp_cost
-		ret_val["reason"] = "Not enough Time Units!"
+	var result = parameters["unit"].check_stat_values(temp_cost)
 	
-	if parameters["unit"].get_stat_by_name("stamina").current_value < temp_cost["stamina"]:
+	if result["success"] == false:
 		ret_val["success"] = false
 		ret_val["costs"] = temp_cost
-		ret_val["reason"] = "Not enough Time Units!"
+		ret_val["reason"] =result["reason"]
+		return ret_val
+		
 			
 	ret_val["success"] = true
 	ret_val["costs"] = temp_cost

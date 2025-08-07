@@ -72,7 +72,7 @@ func spawn_unit(team : Enums.unitTeam):
 	UnitTeams[team].gridObjects.append(spawneUnit)
 	UnitTeams[team].add_child(spawneUnit)
 	
-	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH)
+	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH, team)
 
 
 func set_selected_unit(gridObject: Unit):

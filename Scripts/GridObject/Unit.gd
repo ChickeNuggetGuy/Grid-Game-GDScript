@@ -46,6 +46,7 @@ func get_action_node_by_index(i: int) -> BaseActionDefinition:
 	else:
 		return a
 
+
 func try_get_action_definition_by_type(type_to_find: String) -> Dictionary:
 	var retval : Dictionary = {"success": false, "action_definition" : null}
 

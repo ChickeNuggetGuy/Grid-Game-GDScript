@@ -1,4 +1,4 @@
-extends PhantomCamera3D
+extends Camera3D
 class_name CameraController
 
 static var instance: CameraController
@@ -9,6 +9,9 @@ static var instance: CameraController
 @export var rotation_speed: float = 2.0
 @export var min_transposer_height: float = 0 
 
+@export var phantom_cameras : Dictionary[String, PhantomCamera3D]
+
+var current_camera : PhantomCamera3D
 func _init() -> void:
 	instance = self
 
@@ -17,6 +20,9 @@ func _ready() -> void:
 
 func setup() -> void:
 	UnitManager.connect("UnitSelected", _unitmanager_unitselected)
+	
+	UnitActionManager.connect("action_execution_started", UnitActionManager_action_execution_started)
+	UnitActionManager.connect("action_execution_finished", UnitActionManager_action_execution_finished)
 
 func _exit_tree() -> void:
 	# Optional: disconnect if you want to clean up manually
@@ -94,6 +100,8 @@ func _transposer_height(delta: float) -> void:
 			transposer.position.y = max(new_y, min_transposer_height)
 
 func _camera_zoom(delta: float) -> void:
+	
+	var main_camera  = phantom_cameras["main"]
 	var zoom_dir := 0
 	if Input.is_action_just_pressed("Camera_Scroll_Up"):
 		zoom_dir -= 1
@@ -105,8 +113,8 @@ func _camera_zoom(delta: float) -> void:
 		var change = zoom_dir * zoom_speed * delta
 		
 		# Apply changes with proper clamping
-		follow_offset.z = clampf(follow_offset.z + change, 0, 20)
-		follow_offset.y = clampf(follow_offset.y + change, transposer.position.y, 20)
+		main_camera.follow_offset.z = clampf(main_camera.follow_offset.z + change, 0, 20)
+		main_camera.follow_offset.y = clampf(main_camera.follow_offset.y + change, transposer.position.y, 20)
 
 func _transform_rotation(delta: float) -> void:
 	var rot_dir := 0
@@ -120,3 +128,53 @@ func _transform_rotation(delta: float) -> void:
 
 #func _on_unit_manager_selected_unit() -> void:
 	#quick_switch_target(UnitManager.instance.selected_unit)
+
+
+func UnitActionManager_action_execution_started(action_started : BaseActionDefinition, execution_parameters : Dictionary):
+	
+	if action_started is RangedAttackActionDefinition:
+		switch_active_camera("ranged_camera", execution_parameters["target_grid_cell"].world_position)
+
+func UnitActionManager_action_execution_finished(action_finished : BaseActionDefinition, execution_parameters : Dictionary):
+	
+	if action_finished is RangedAttackActionDefinition:
+		switch_active_camera("main", execution_parameters["target_grid_cell"].world_position)
+
+func switch_active_camera(camera_key, target_position : Vector3):
+	
+	if not phantom_cameras.has(camera_key):
+		return
+	
+	if current_camera == phantom_cameras[camera_key]:
+		return
+	
+	if camera_key == "main" :
+		current_camera.priority = 0
+		current_camera = phantom_cameras[camera_key]
+		
+		phantom_cameras[camera_key].follow_target = transposer
+		phantom_cameras[camera_key].look_at_target = transposer
+	else:
+		
+		var phantom_camera = phantom_cameras[camera_key]
+		var selected_unit = UnitManager.selectedUnit
+		
+		var result = selected_unit.try_get_grid_object_component_by_type("GridObjectWorldTarget")
+		
+		if result["success"] == false:
+			return
+
+		var target_component : GridObjectWorldTarget = result["grid_object_component"]
+		var camera_position = target_component.targets["action_camera_position"]
+		
+		var look_at_node = Node3D.new()
+		get_tree().root.add_child(look_at_node)
+		look_at_node.global_position = target_position
+		phantom_camera.look_at_target = look_at_node
+		phantom_camera.follow_offset = Vector3(0,0,0)
+		phantom_camera.follow_target = camera_position
+		
+		
+		phantom_cameras[camera_key].priority = 10
+		current_camera = phantom_cameras[camera_key]
+	
