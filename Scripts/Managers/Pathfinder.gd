@@ -13,45 +13,63 @@ static func _create_neighbor_offsets() -> Array:
 @onready var NEIGHBOR_OFFSETS = _create_neighbor_offsets()
 @onready var _heap = preload("res://Scripts/Utility/MinHeap.gd").new()
 
-func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool=false) -> Array:
+func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false) -> Array:
 	return _find_path_internal(start, goal, adjacent_is_valid)
 
-func find_path_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool=false) -> Array:
+func find_path_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool = false) -> Array:
 	var dict = GridSystem.grid_cells
 	if not dict.has(start_coords) or not dict.has(goal_coords):
 		return []
 	return find_path(dict[start_coords], dict[goal_coords], adjacent_is_valid)
 
-func is_path_possible(start: GridCell, goal: GridCell, adjacent_is_valid: bool=false) -> bool:
+func is_path_possible(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false) -> bool:
 	return find_path(start, goal, adjacent_is_valid).size() > 0
 
-func is_path_possible_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool=false) -> bool:
+func is_path_possible_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool = false) -> bool:
 	return find_path_coords(start_coords, goal_coords, adjacent_is_valid).size() > 0
 
 func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Array:
 	var path := []
 	if start == null or goal == null:
 		return path
+	
 	var dict = GridSystem.grid_cells
-	if not adjacent and not goal.grid_cell_state & Enums.cellState.WALKABLE:
+	
+	# Validate start position
+	#if not _is_cell_walkable(start):
+		#print("Start position is not walkable")
+		#return path
+	
+	# For non-adjacent pathfinding, goal must be walkable
+	if not adjacent and not _is_cell_walkable(goal):
+		print("Goal position is not walkable")
 		return path
-	if start == goal and goal.grid_cell_state & Enums.cellState.WALKABLE:
+	
+	# If start equals goal and goal is walkable
+	if start == goal and _is_cell_walkable(goal):
 		return [start]
 
 	var targets := []
 	if adjacent:
+		# Find walkable neighbors of the goal
 		var gk = goal.gridCoordinates
 		for off in NEIGHBOR_OFFSETS:
 			var nk = gk + off
-			if dict.has(nk) and dict[nk].walkable:
-				targets.append(dict[nk])
+			if dict.has(nk):
+				var neighbor_cell = dict[nk]
+				if _is_cell_walkable(neighbor_cell):
+					targets.append(neighbor_cell)
+		
 		if targets.is_empty():
+			print("No walkable neighbors found around goal")
 			return path
+		
 		if start in targets:
 			return [start]
 	else:
 		targets.append(goal)
 
+	# A* Algorithm
 	var closed_set := {}
 	var g_score := {}
 	var f_score := {}
@@ -65,7 +83,10 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 	while not _heap.is_empty():
 		var rec = _heap.pop()
 		var current: GridCell = rec.cell
+		
+		# Check if we've reached any target
 		if current in targets:
+			# Reconstruct path
 			while current:
 				path.insert(0, current)
 				current = came_from.get(current, null)
@@ -74,14 +95,23 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 		closed_set[current] = true
 		var ckey = current.gridCoordinates
 
+		# Check all neighbors
 		for off in NEIGHBOR_OFFSETS:
 			var nk = ckey + off
 			if not dict.has(nk):
 				continue
+			
 			var neighbor = dict[nk]
+			
+			# Skip if already processed
 			if closed_set.has(neighbor):
 				continue
-
+			
+			# Skip if not walkable (this was missing!)
+			if not _is_cell_walkable(neighbor):
+				continue
+			
+			# Check if this path to neighbor is better
 			var tentative_g = g_score[current] + _cost(current, neighbor)
 			if not g_score.has(neighbor) or tentative_g < g_score[neighbor]:
 				came_from[neighbor] = current
@@ -89,7 +119,15 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 				var h = _min_heuristic(neighbor, targets)
 				f_score[neighbor] = tentative_g + h
 				_heap.push({"cell": neighbor, "f": f_score[neighbor]})
+	
+	print("No path found from ", start.gridCoordinates, " to ", goal.gridCoordinates)
 	return []  # no path found
+
+# Helper function to check if a cell is walkable
+func _is_cell_walkable(cell: GridCell) -> bool:
+	if cell == null:
+		return false
+	return cell.grid_cell_state & Enums.cellState.WALKABLE
 
 func _min_heuristic(a: GridCell, targets: Array) -> float:
 	var best = INF
@@ -104,9 +142,19 @@ func _cost(a: GridCell, b: GridCell) -> float:
 	var dx = a.gridCoordinates.x - b.gridCoordinates.x
 	var dz = a.gridCoordinates.z - b.gridCoordinates.z
 	var dl = a.gridCoordinates.y - b.gridCoordinates.y
-	return Vector3(dx, dl, dz).length()
-
-
+	
+	# Different costs for different movement types
+	var base_cost = Vector3(dx, dl, dz).length()
+	
+	# Add extra cost for vertical movement
+	if dl != 0:
+		base_cost *= 1.2  # 20% penalty for vertical movement
+	
+	# Add extra cost for diagonal movement
+	if abs(dx) + abs(dz) == 2:  # Diagonal movement
+		base_cost *= 1.1  # 10% penalty for diagonal movement
+	
+	return base_cost
 
 func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: int = 3) -> Dictionary:
 	var ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
@@ -116,35 +164,40 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 	var cell_size = GridSystem.gridCellSize
 
 	# Validate start and end points
-	if start.grid_cell_state & Enums.cellState.OBSTRUCTED \
-			or end.grid_cell_state & Enums.cellState.OBSTRUCTED:
+	if not _is_cell_walkable(start):
+		print("Start point is not walkable: ", start.gridCoordinates)
+		return ret_val
+	
+	if start.grid_cell_state & Enums.cellState.OBSTRUCTED or \
+	   end.grid_cell_state & Enums.cellState.OBSTRUCTED:
 		print("Start or end point is obstructed.")
 		return ret_val
 
 	# Calculate the direction and distance
 	var direction = end.world_position - start.world_position
 	var distance = direction.length()
+	
+	if distance < 0.1:  # Too close
+		ret_val["success"] = true
+		ret_val["grid_cell_path"] = [start]
+		ret_val["vector3_path"] = [start.world_position]
+		return ret_val
 
 	# Try different arc heights
 	for attempt in range(attempts):
 		# Calculate arc height with variation for each attempt
-		# Base height with variation factor (0.1 to 0.3 for first 3 attempts)
-		var height_factor = 0.5 + (attempt * 0.2)
+		var height_factor = 0.3 + (attempt * 0.2)  # Start lower, go higher
 		var arc_height = distance * height_factor
 		
 		print("Attempt ", attempt + 1, " with arc height: ", arc_height)
 
-		# Number of points to sample along the arc
-		var num_points = int(distance / (cell_size.y * 0.5)) + 1
-
-		# Keep track of the last added grid cell to avoid duplicates
-		var last_grid_cell: GridCell = null
+		# Adaptive number of points based on distance and cell size
+		var num_points = max(10, int(distance / min(cell_size.x, cell_size.y) * 2))
 		
 		# Reset return value for this attempt
 		ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
 		var path_valid = true
-		
-		# Store positions for the smooth path
+		var last_grid_cell: GridCell = null
 		var smooth_path = []
 
 		for i in range(num_points + 1):
@@ -163,7 +216,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 			smooth_path.append(arc_pos)
 
 			# Convert world position to grid coordinates
-			var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(arc_pos)
+			var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(arc_pos, true)  # Use nearest
 			if not get_grid_cell_result["success"]:
 				print("Failed to get grid cell at position: ", arc_pos)
 				path_valid = false
@@ -171,11 +224,18 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 			
 			var grid_cell: GridCell = get_grid_cell_result["grid_cell"]
 
-			# Validate if the cell is air
+			# More comprehensive validation
 			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
-				print("Obstacle detected at: ", grid_cell)
+				print("Obstacle detected at: ", grid_cell.gridCoordinates)
 				path_valid = false
-				break # Break inner loop to try a different height
+				break
+			
+			# For arc paths, we want AIR or WALKABLE cells
+			if not (grid_cell.grid_cell_state & Enums.cellState.AIR or 
+					grid_cell.grid_cell_state & Enums.cellState.WALKABLE):
+				print("Invalid cell state for arc path at: ", grid_cell.gridCoordinates, " State: ", grid_cell.grid_cell_state)
+				path_valid = false
+				break
 
 			# Only add the grid cell if it's different from the last one
 			if last_grid_cell == null or not _are_grid_cells_equal(last_grid_cell, grid_cell):
@@ -183,17 +243,18 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 				last_grid_cell = grid_cell
 
 		# If path is valid, return it with both paths
-		if path_valid:
+		if path_valid and ret_val["grid_cell_path"].size() > 0:
 			ret_val["success"] = true
 			ret_val["vector3_path"] = smooth_path
+			print("Arc path found with ", ret_val["grid_cell_path"].size(), " cells")
 			return ret_val
 
 	# If all attempts failed
-	print("All ", attempts, " attempts failed to find a valid path")
-	ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
-	return ret_val
+	print("All ", attempts, " attempts failed to find a valid arc path")
+	return {"success": false, "grid_cell_path": [], "vector3_path": []}
 
 # Helper function to compare grid cells
 func _are_grid_cells_equal(cell1: GridCell, cell2: GridCell) -> bool:
-	# Compare grid cells based on their world positions
-	return cell1.world_position == cell2.world_position
+	if cell1 == null or cell2 == null:
+		return cell1 == cell2
+	return cell1.gridCoordinates == cell2.gridCoordinates

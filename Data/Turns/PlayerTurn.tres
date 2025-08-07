@@ -16,7 +16,9 @@ metadata/_custom_type_script = "uid://d152u74oby2ve"
 
 [resource]
 script = ExtResource("1_e1fvw")
-team = 2
+team = 1
 turn_name = "Player Turn"
 turn_segments = Array[ExtResource("2_3nrmx")]([SubResource("Resource_r2xrp"), SubResource("Resource_t86fl")])
+repeatable = true
+turn_priority = 1
 metadata/_custom_type_script = "uid://k2mchnt8k1fd"

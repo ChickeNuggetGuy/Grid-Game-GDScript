@@ -64,105 +64,164 @@ func setup_grid():
 	for layer in range(gridSize.y):
 		for x in range(gridSize.x):
 			for z in range(gridSize.z):
-				var cell_state: Enums.cellState = Enums.cellState.NONE
 				var position = Vector3(
 					x * gridCellSize.x + (gridCellSize.x * 0.5),
 					layer * gridCellSize.y + (gridCellSize.y * 0.5),
 					z * gridCellSize.x + (gridCellSize.x * 0.5)
 				)
 
-				# Collider check
-				if colliderCheck:
-					var box = BoxShape3D.new()
-					box.size = colliderSize
-					var qp = PhysicsShapeQueryParameters3D.new()
-					qp.shape = box
-					qp.transform = Transform3D(Basis.IDENTITY, position + collideroffset)
-					qp.collide_with_bodies = true
-					qp.collide_with_areas = true
-					qp.collision_mask = PhysicsLayer.TERRAIN
-					var hits = spaceState.intersect_shape(qp)
-
-					if hits.size() > 0:
-						@warning_ignore("int_as_enum_without_cast")
-						cell_state |= (Enums.cellState.OBSTRUCTED) as Enums.cellState
-					else:
-						if raycastCheck:
-							var rayStart = position + raycastOffset
-							var rayEnd = position + raycastOffset - Vector3(0, raycastLength, 0)
-							var rq = PhysicsRayQueryParameters3D.new()
-							rq.from = rayStart
-							rq.to = rayEnd
-							rq.collide_with_bodies = true
-							rq.collide_with_areas = true
-							rq.hit_from_inside = true
-							rq.collision_mask = PhysicsLayer.TERRAIN
-							var r = spaceState.intersect_ray(rq)
-
-							if r:
-								var hitY = r.position.y
-								var cell_bottom_y = float(layer) * gridCellSize.y
-								var cell_top_y = float(layer + 1) * gridCellSize.y
-
-								if hitY >= cell_bottom_y and hitY <= cell_top_y:
-									position.y = hitY
-									cell_state |= Enums.UnitStance.get(Enums.cellState.WALKABLE)
-								else:
-									cell_state |= Enums.UnitStance.get(Enums.cellState.AIR)
-							else:
-								cell_state |= Enums.UnitStance.get(Enums.cellState.AIR)
-						else:
-							print("Cell %d,%d,%d: Raycast disabled." % [x, z, layer])
-				else:
-					if raycastCheck:
-						var rayStart = position + raycastOffset
-						var rayEnd = position + raycastOffset - Vector3(0, raycastLength, 0)
-						var rq = PhysicsRayQueryParameters3D.new()
-						rq.from = rayStart
-						rq.to = rayEnd
-						rq.collide_with_bodies = true
-						rq.collide_with_areas = true
-						rq.hit_from_inside = true
-						rq.collision_mask = PhysicsLayer.TERRAIN
-						var r = spaceState.intersect_ray(rq)
-
-						if r:
-							var hitY = r.position.y
-							var cell_bottom_y = float(layer) * gridCellSize.y
-							var cell_top_y = float(layer + 1) * gridCellSize.y
-
-							if hitY >= cell_bottom_y and hitY <= cell_top_y:
-								position.y = hitY
-								@warning_ignore("int_as_enum_without_cast")
-								cell_state |= (Enums.cellState.WALKABLE) 
-							else:
-								@warning_ignore("int_as_enum_without_cast")
-								cell_state |= Enums.cellState.AIR
-						else:
-							@warning_ignore("int_as_enum_without_cast")
-							cell_state |= Enums.cellState.AIR
-					else:
-						print("Cell %d,%d,%d: Neither collider nor raycast check enabled." % [x, z, layer])
+				var cell_state = determine_cell_state(spaceState, position, layer)
 
 				# Debug visualization
-				if cell_state & Enums.cellState.WALKABLE:
-					DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.LIME_GREEN, true, 500)
-				elif  cell_state & Enums.cellState.GROUND:
-					DebugDraw3D.draw_box(position, Quaternion.IDENTITY, Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.RED, true, 500)
+				visualize_cell(position, cell_state)
 
-				# Update or create grid cell
+				# Create/update grid cell
 				var coords = Vector3i(x, layer, z)
-				if not grid_cells.has(coords) || grid_cells[coords] == null:
-					var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
-					var ground_inventory_grid = result["inventory_grid"]
-					var cell = GridCell.new(x, layer, z, position, cell_state, ground_inventory_grid, self)
-					grid_cells[coords] = cell
-				else:
-					grid_cells[coords].grid_cell_state = cell_state
-					grid_cells[coords].worldPosition = position
+				create_or_update_cell(coords, position, cell_state)
 
-	print(grid_cells.size())
+	print("Grid setup complete: ", grid_cells.size(), " cells")
 
+func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
+	# Multi-point collision detection for better hill detection
+	if colliderCheck and is_position_obstructed(spaceState, position):
+		return Enums.cellState.OBSTRUCTED
+	
+	# Enhanced raycast check
+	if raycastCheck:
+		return perform_enhanced_raycast_check(spaceState, position, layer)
+	
+	return Enums.cellState.NONE
+
+func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vector3) -> bool:
+	var box = BoxShape3D.new()
+	box.size = colliderSize
+	
+	# Test multiple points within the cell for better hill detection
+	var test_points = [
+		position + collideroffset,  # Center
+		position + collideroffset + Vector3(gridCellSize.x * 0.25, 0, gridCellSize.x * 0.25),  # Corner
+		position + collideroffset + Vector3(-gridCellSize.x * 0.25, 0, gridCellSize.x * 0.25), # Corner
+		position + collideroffset + Vector3(gridCellSize.x * 0.25, 0, -gridCellSize.x * 0.25), # Corner
+		position + collideroffset + Vector3(-gridCellSize.x * 0.25, 0, -gridCellSize.x * 0.25) # Corner
+	]
+	
+	for test_point in test_points:
+		var qp = PhysicsShapeQueryParameters3D.new()
+		qp.shape = box
+		qp.transform = Transform3D(Basis.IDENTITY, test_point)
+		qp.collide_with_bodies = true
+		qp.collide_with_areas = true
+		qp.collision_mask = PhysicsLayer.TERRAIN
+		
+		var hits = spaceState.intersect_shape(qp)
+		if hits.size() > 0:
+			return true
+	
+	return false
+
+func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
+	# Cast multiple rays for better terrain detection
+	var ray_offsets = [
+		Vector3(0, 0, 0),  # Center
+		Vector3(gridCellSize.x * 0.25, 0, gridCellSize.x * 0.25),   # Corners
+		Vector3(-gridCellSize.x * 0.25, 0, gridCellSize.x * 0.25),
+		Vector3(gridCellSize.x * 0.25, 0, -gridCellSize.x * 0.25),
+		Vector3(-gridCellSize.x * 0.25, 0, -gridCellSize.x * 0.25)
+	]
+	
+	var walkable_hits = 0
+	var total_rays = ray_offsets.size()
+	var adjusted_position = position
+	
+	for offset in ray_offsets:
+		var rayStart = position + offset + raycastOffset
+		var rayEnd = rayStart - Vector3(0, raycastLength, 0)
+		
+		var rq = PhysicsRayQueryParameters3D.new()
+		rq.from = rayStart
+		rq.to = rayEnd
+		rq.collide_with_bodies = true
+		rq.collide_with_areas = true
+		rq.hit_from_inside = true
+		rq.collision_mask = PhysicsLayer.TERRAIN
+		
+		var r = spaceState.intersect_ray(rq)
+		
+		if r:
+			var hitY = r.position.y
+			var cell_bottom_y = float(layer) * gridCellSize.y
+			var cell_top_y = float(layer + 1) * gridCellSize.y
+			
+			if hitY >= cell_bottom_y and hitY < cell_top_y:
+				walkable_hits += 1
+				# Use the center ray for position adjustment
+				if offset == Vector3.ZERO:
+					adjusted_position.y = hitY
+	
+	# Determine state based on hit ratio
+	var walkable_ratio = float(walkable_hits) / float(total_rays)
+	
+	if walkable_ratio >= 0.6:  # At least 60% of rays hit walkable ground
+		position.y = adjusted_position.y  # This might need to be handled differently
+		return Enums.cellState.WALKABLE
+	elif walkable_ratio > 0:
+		return Enums.cellState.GROUND  # Partially walkable, maybe stairs/slopes
+	else:
+		return Enums.cellState.AIR
+
+func visualize_cell(position: Vector3, cell_state: Enums.cellState):
+	var color = Color.WHITE
+	match cell_state:
+		Enums.cellState.WALKABLE:
+			color = Color.LIME_GREEN
+		Enums.cellState.GROUND:
+			color = Color.YELLOW
+		Enums.cellState.OBSTRUCTED:
+			color = Color.RED
+		Enums.cellState.AIR:
+			color = Color.CYAN
+		_:
+			color = Color.GRAY
+	
+	DebugDraw3D.draw_box(position, Quaternion.IDENTITY, 
+		Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), color, true, 2)
+
+func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enums.cellState):
+	if not grid_cells.has(coords) || grid_cells[coords] == null:
+		var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
+		var ground_inventory_grid = result["inventory_grid"]
+		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, ground_inventory_grid, self)
+		grid_cells[coords] = cell
+	else:
+		grid_cells[coords].grid_cell_state = cell_state
+		grid_cells[coords].worldPosition = position
+# Helper function to handle raycast logic cleanly
+func perform_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
+	var rayStart = position + raycastOffset
+	var rayEnd = position + raycastOffset - Vector3(0, raycastLength, 0)
+	var rq = PhysicsRayQueryParameters3D.new()
+	rq.from = rayStart
+	rq.to = rayEnd
+	rq.collide_with_bodies = true
+	rq.collide_with_areas = true
+	rq.hit_from_inside = true
+	rq.collision_mask = PhysicsLayer.TERRAIN
+	var r = spaceState.intersect_ray(rq)
+
+	if r:
+		var hitY = r.position.y
+		var cell_bottom_y = float(layer) * gridCellSize.y
+		var cell_top_y = float(layer + 1) * gridCellSize.y
+
+		# Check if the hit is strictly within the cell's vertical bounds
+		if hitY >= cell_bottom_y and hitY < cell_top_y:
+			# Update position to ground level
+			position.y = hitY
+			return Enums.cellState.WALKABLE
+		else:
+			return Enums.cellState.AIR
+	else:
+		return Enums.cellState.AIR
 
 
 func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
@@ -312,6 +371,36 @@ func try_get_randomGrid_cell() -> Dictionary:
 	return {"success": true,"cell":cell}
 
 
+func try_get_neighbors_in_radius(starting_grid_cell : GridCell, radius_3d : Vector2i, grid_cell_state_filter : Enums.cellState = Enums.cellState.NONE) -> Dictionary:
+	var grid_cell_array: Array[GridCell] = []
+	var ret_value = {"success" : false, "grid_cell_array" : grid_cell_array}
+	
+	if starting_grid_cell == null:
+		return ret_value
+	
+	for y in range(-radius_3d.y, radius_3d.y + 1):
+		for x in range(-radius_3d.x, radius_3d.x + 1):
+			for z in range(-radius_3d.x, radius_3d.x + 1):
+				var offset : Vector3i = Vector3i(x, y, z)
+				var test_grid_cell : GridCell = get_grid_cell(starting_grid_cell.gridCoordinates + offset)
+				
+				if test_grid_cell == null:
+					continue
+				
+				if grid_cell_state_filter != Enums.cellState.NONE and (test_grid_cell.grid_cell_state & grid_cell_state_filter) != grid_cell_state_filter:
+					continue
+				
+				DebugDraw3D.draw_box(test_grid_cell.world_position,Quaternion.IDENTITY, 
+						Vector3(gridCellSize.x, gridCellSize.y,gridCellSize.x,),Color.REBECCA_PURPLE, true,10)
+				ret_value["grid_cell_array"].append(test_grid_cell)
+	
+	
+	ret_value["success"] = ret_value["grid_cell_array"].size() > 0
+	
+	return ret_value
+
+
+
 func is_gridcell_walkable(cell: GridCell) -> bool:
 	return cell.grid_cell_state & Enums.cellState.WALKABLE
 
@@ -329,4 +418,7 @@ func  try_get_random_walkable_cell() -> Dictionary:
 	#return filteredArray[randomIndex]
 
 
+func get_distance_between_grid_cells(from_grid_cell : GridCell, to_grid_cell : GridCell) -> float:
+	return from_grid_cell.world_position.distance_to(to_grid_cell.world_position)
+	
 #endregion

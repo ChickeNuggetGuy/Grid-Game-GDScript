@@ -6,4 +6,4 @@ func _init() -> void:
 	return
 
 
-@abstract func execute()
+@abstract func execute(parent_turn : TurnData)

@@ -44,28 +44,32 @@ func set_grid_cell(target_grid_cell: GridCell):
 		print("gridcell is null, returning")
 		return
 
-	# Clear previous grid cell references
+	# Clear previous grid cell references and restore original states
 	for cell in grid_cells:
-		cell.set_gridobject(null, cell.grid_cell_state | Enums.cellState.WALKABLE)
+		cell.restore_original_state()
+	
 	grid_cells.clear()
-
-	var new_state = target_grid_cell.grid_cell_state & ~Enums.cellState.WALKABLE
 
 	# Add the base cell
 	grid_cells.append(target_grid_cell)
-	target_grid_cell.set_gridobject(parent_gridobject, new_state as Enums.cellState)
+	var new_state = target_grid_cell.grid_cell_state & ~Enums.cellState.WALKABLE
+	target_grid_cell.set_gridobject(parent_gridobject, new_state)
 
 	# Add additional cells based on shape and height
 	for y in range(grid_height):
 		for x in range(grid_shape.grid_width):
 			for z in range(grid_shape.grid_height):
+				if x == 0 and y == 0 and z == 0:
+					continue
+					
 				var offset = Vector3i(x, y, z)
-				var cell_pos = Vector3i(target_grid_cell.gridCoordinates.x, target_grid_cell.gridCoordinates.y, target_grid_cell.gridCoordinates.z) + offset
+				var cell_pos = target_grid_cell.gridCoordinates + offset
 				var temp_grid_cell = GridSystem.get_grid_cell(cell_pos)
 
 				if temp_grid_cell != null and not grid_cells.has(temp_grid_cell):
 					grid_cells.append(temp_grid_cell)
-					temp_grid_cell.set_gridobject(parent_gridobject, new_state as Enums.cellState)
+					var temp_new_state = temp_grid_cell.grid_cell_state & ~Enums.cellState.WALKABLE
+					temp_grid_cell.set_gridobject(parent_gridobject, temp_new_state)
 
 	grid_position_data_updated.emit(target_grid_cell)
 

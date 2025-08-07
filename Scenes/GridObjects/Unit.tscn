@@ -1,15 +1,30 @@
-[gd_scene load_steps=36 format=4 uid="uid://hhe7ab2xbje0"]
+[gd_scene load_steps=38 format=4 uid="uid://hhe7ab2xbje0"]
 
 [ext_resource type="Script" uid="uid://bu7ki2ekfvc8v" path="res://Scripts/GridObject/Unit.gd" id="1_33ww8"]
 [ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/BaseActionDefinition.gd" id="2_45onm"]
-[ext_resource type="Resource" uid="uid://jp0obfln5ywx" path="res://Data/Actions/MoveAction.tres" id="3_45onm"]
-[ext_resource type="Resource" uid="uid://byxgdeudo6lav" path="res://Data/Actions/RotateActionResource.tres" id="4_m8ecf"]
-[ext_resource type="Resource" uid="uid://6xp5tqgsle6p" path="res://Data/Actions/MoveStepActionDefintion.tres" id="5_uv3na"]
-[ext_resource type="Resource" uid="uid://blp3bgrpyodfn" path="res://Data/Actions/CrouchStance.tres" id="6_jq84y"]
+[ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveActionDefintion.gd" id="4_r2bin"]
+[ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStepActionDefintion.gd" id="5_3ea33"]
+[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionDefinition.gd" id="6_e636m"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="7_7mmco"]
 [ext_resource type="Script" uid="uid://caqcyrpsjdjhb" path="res://Scripts/GridObject/GridObjectAnimation.gd" id="8_jq84y"]
 [ext_resource type="Script" uid="uid://d13d5i7vfxem3" path="res://Scripts/GridObject/GridObjectStat.gd" id="8_uv3na"]
 [ext_resource type="AnimationLibrary" uid="uid://dg1sgsvuh088q" path="res://Data/Unit.res" id="9_jq84y"]
+
+[sub_resource type="Resource" id="Resource_lwuqk"]
+script = ExtResource("4_r2bin")
+action_name = "Move"
+show_in_ui = true
+metadata/_custom_type_script = "uid://kvwmhrhi3w7q"
+
+[sub_resource type="Resource" id="Resource_oew58"]
+script = ExtResource("5_3ea33")
+action_name = "Move step"
+metadata/_custom_type_script = "uid://cy7d6drefeg4t"
+
+[sub_resource type="Resource" id="Resource_knkat"]
+script = ExtResource("6_e636m")
+action_name = "Rotate"
+metadata/_custom_type_script = "uid://ov18vmu15p05"
 
 [sub_resource type="Resource" id="Resource_r2bin"]
 resource_local_to_scene = true
@@ -294,7 +309,7 @@ graph_offset = Vector2(30, 22)
 
 [node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "stat_holder", "grid_object_animator")]
 script = ExtResource("1_33ww8")
-action_library = Array[ExtResource("2_45onm")]([ExtResource("3_45onm"), ExtResource("4_m8ecf"), ExtResource("5_uv3na"), ExtResource("6_jq84y")])
+_action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat")])
 visual = NodePath("StaticBody3D")
 stat_holder = NodePath("Stats")
 inventory_grid_types = Array[int]([2, 4, 6])

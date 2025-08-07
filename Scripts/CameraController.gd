@@ -7,33 +7,28 @@ static var instance: CameraController
 @export var move_speed: float = 10.0
 @export var zoom_speed: float = 50.0
 @export var rotation_speed: float = 2.0
+@export var min_transposer_height: float = 0 
 
 func _init() -> void:
-		instance = self
-
+	instance = self
 
 func _ready() -> void:
 	call_deferred("setup")
 
-
 func setup() -> void:
 	UnitManager.connect("UnitSelected", _unitmanager_unitselected)
-
 
 func _exit_tree() -> void:
 	# Optional: disconnect if you want to clean up manually
 	UnitManager.instance.disconnect("SelectedUnitChanged", self,
 	 "_on_unit_manager_selected_unit")
 
-
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
 	quick_switch_target(newUnit)
-
 
 func quick_switch_target(target: Node3D) -> void:
 	if target:
 		transposer.position = target.position
-
 
 func _physics_process(delta: float) -> void:
 	#if UiManager.blocking_input:
@@ -57,9 +52,7 @@ func _transposer_movement(delta: float) -> void:
 
 	transposer.position += move_dir * move_speed
 
-
 func _transposer_height(delta: float) -> void:
-	var target_height_above_ground = 0
 	var spaceState = get_tree().root.world_3d.direct_space_state
 	
 	# Cast ray from above the transposer to detect ground
@@ -71,15 +64,16 @@ func _transposer_height(delta: float) -> void:
 	rqDown.to = rayStart + (Vector3.DOWN * rayLength)
 	rqDown.collide_with_bodies = true
 	rqDown.collide_with_areas = false
-	rqDown.collision_mask = PhysicsLayersUtility.TERRAIN # Use exported variable
+	rqDown.collision_mask = PhysicsLayersUtility.TERRAIN
 
 	var rDown = spaceState.intersect_ray(rqDown)
 
 	if rDown:
 		var target_y_position = rDown.position.y 
 		var current_y_position = transposer.position.y
-		# Move directly toward target with smoothing
-		transposer.position.y = lerp(current_y_position, target_y_position, min(delta * 5.0, 1.0))
+		# Move directly toward target with smoothing, but respect minimum height
+		var desired_height = max(target_y_position, min_transposer_height)
+		transposer.position.y = lerp(current_y_position, desired_height, min(delta * 5.0, 1.0))
 	else:
 		# Cast ray upward to check if transposer is under terrain
 		var rqUp = PhysicsRayQueryParameters3D.new()
@@ -93,13 +87,11 @@ func _transposer_height(delta: float) -> void:
 		
 		if rUp:
 			# If upward raycast hits terrain, move transposer up quickly
-			transposer.position.y += delta * 20.0  # Fast upward movement
+			transposer.position.y += delta * 20.0
 		else:
-			# Gradually move down (gravity effect) when no terrain is detected
-			# This helps when transposer gets stuck above terrain
-			transposer.position.y -= delta * 2.0
-
-
+			# Gradually move down but never below minimum height
+			var new_y = transposer.position.y - delta * 2.0
+			transposer.position.y = max(new_y, min_transposer_height)
 
 func _camera_zoom(delta: float) -> void:
 	var zoom_dir := 0
@@ -115,8 +107,6 @@ func _camera_zoom(delta: float) -> void:
 		# Apply changes with proper clamping
 		follow_offset.z = clampf(follow_offset.z + change, 0, 20)
 		follow_offset.y = clampf(follow_offset.y + change, transposer.position.y, 20)
-
-
 
 func _transform_rotation(delta: float) -> void:
 	var rot_dir := 0

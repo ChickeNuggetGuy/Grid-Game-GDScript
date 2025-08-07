@@ -3,6 +3,17 @@ class_name ChangeStanceActionDefinition
 
 @export var target_stance : Enums.UnitStance
 
+
+func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
+	return []
+
+
+func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
+	var ret_value : Dictionary[GridCell, float]= {null : -1}
+	return ret_value
+
+
+
 func _init() -> void:
 	script_path = "res://Scripts/GridObject/Actions/ChanageStanceAction.gd"
 	super._init()

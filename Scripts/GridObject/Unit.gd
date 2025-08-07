@@ -3,7 +3,7 @@ class_name Unit
 
 @warning_ignore("int_as_enum_without_cast")
 @export var _stance : Enums.UnitStance = (Enums.UnitStance.NORMAL | Enums.UnitStance.STATIONARY)
-@export var action_library: Array[BaseActionDefinition] = []
+@export var _action_library: Array[BaseActionDefinition] = []
 var action_queue : Array[Action]
 
 #region Stance Functions
@@ -23,6 +23,7 @@ func set_motion(flag: int) -> void:
 	@warning_ignore("int_as_enum_without_cast")
 	_stance = (_stance & ~MOTION_MASK) | flag
 
+
 func toggle_stance(state):
 	_stance = _stance ^ state
 	
@@ -38,7 +39,7 @@ func is_moving() -> bool:
 #endregion
 
 func get_action_node_by_index(i: int) -> BaseActionDefinition:
-	var a = action_library[i]
+	var a = _action_library[i]
 	if a == null:
 		print("Action not found at index")
 		return null
@@ -57,7 +58,7 @@ func try_get_action_definition_by_type(type_to_find: String) -> Dictionary:
 			break
 
 	# Assuming action_library is an Array of ActionNode objects (or whatever base class they extend)
-	for action_def in action_library:
+	for action_def in _action_library:
 		# 1. Check if it's a built-in engine class
 		if action_def.is_class(type_to_find):
 			retval["success"] = true
@@ -74,3 +75,25 @@ func try_get_action_definition_by_type(type_to_find: String) -> Dictionary:
 	# If the loop finishes, the action node was not found
 	print("Action not found: " + type_to_find)
 	return retval
+
+
+func get_all_action_definitions() -> Dictionary:
+	
+	var ret_values = {"action_definitions": [], 
+			"item_action_definitions" : []}
+	
+	ret_values["action_definitions"] = _action_library
+	
+	for  key in inventory_grids.keys():
+		var inventory_grid : InventoryGrid = inventory_grids[key] as InventoryGrid
+		if inventory_grid.equipment_inventory == true and inventory_grid.item_count != 0:
+			var items = inventory_grid.try_get_item_array()
+			
+			if items.size() != 0:
+				for item in items:
+					var typed_item = item as Item
+					ret_values["item_action_definitions"].append_array(typed_item.action_blueprints)
+			
+	
+	return ret_values
+	
