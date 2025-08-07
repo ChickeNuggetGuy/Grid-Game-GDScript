@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://c8ylwvjtychxr"]
+[gd_scene load_steps=15 format=3 uid="uid://c8ylwvjtychxr"]
 
 [ext_resource type="Script" uid="uid://d222p848qf3w4" path="res://Scripts/UI/UnitActionUI.gd" id="1_o0cgi"]
 [ext_resource type="PackedScene" uid="uid://ccej7wk8dhb5y" path="res://Scenes/UI/action_button.tscn" id="2_ga4cb"]
@@ -11,9 +11,13 @@
 [ext_resource type="Script" uid="uid://e3rapksgaklp" path="res://Scripts/InventorySystem/InventoryGridHolder.gd" id="8_v4j0p"]
 [ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/ContextMenuUI.gd" id="10_0vakw"]
 [ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="11_r7ian"]
+[ext_resource type="Script" uid="uid://d26a3o4ljalyy" path="res://Scripts/UI/TurnUI.gd" id="12_rtqjj"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ga4cb"]
 font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_r7ian"]
+font_size = 14
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -386,3 +390,48 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="UIWindow" type="Control" parent="." node_paths=PackedStringArray("turn_label", "end_turn_button", "visual")]
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -177.0
+offset_top = 25.0
+offset_right = -27.0
+offset_bottom = 95.0
+grow_horizontal = 0
+script = ExtResource("12_rtqjj")
+turn_label = NodePath("Panel/VBoxContainer/Label")
+end_turn_button = NodePath("Panel/VBoxContainer/Button")
+visual = NodePath("Panel")
+ui_name = "TurnUI"
+metadata/_custom_type_script = "uid://d26a3o4ljalyy"
+
+[node name="Panel" type="Panel" parent="UIWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIWindow/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="UIWindow/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+text = "Current Turn: Player"
+label_settings = SubResource("LabelSettings_r7ian")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="Button" type="Button" parent="UIWindow/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "End Turn"

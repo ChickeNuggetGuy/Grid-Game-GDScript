@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TurnData" load_steps=5 format=3 uid="uid://dy60cj0p332xu"]
+
+[ext_resource type="Script" uid="uid://ctmcjcgj0u7od" path="res://Scripts/TurnSystem/TurnData.gd" id="1_obsut"]
+[ext_resource type="Script" uid="uid://btg5hvyvxirc4" path="res://Scripts/TurnSystem/TurnSegment.gd" id="2_d8fgu"]
+[ext_resource type="Script" uid="uid://d152u74oby2ve" path="res://Scripts/TurnSystem/TurnSegments/TestPrintTurnSegment.gd" id="3_d8fgu"]
+
+[sub_resource type="Resource" id="Resource_8d3d6"]
+script = ExtResource("3_d8fgu")
+print_string = "Setup Turn Started"
+metadata/_custom_type_script = "uid://d152u74oby2ve"
+
+[resource]
+script = ExtResource("1_obsut")
+turn_name = "Setup"
+turn_segments = Array[ExtResource("2_d8fgu")]([SubResource("Resource_8d3d6")])
+metadata/_custom_type_script = "uid://ctmcjcgj0u7od"

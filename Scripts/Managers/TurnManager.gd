@@ -3,6 +3,9 @@ extends Manager
 var turns : Array[TurnData]
 var current_turn : TurnData
 var is_busy = false
+
+signal  turn_changed(current_turn : TurnData)
+
 func _get_manager_name() -> String: return "Turn Manager"
 
 
@@ -49,7 +52,8 @@ func execute_current_turn():
 	print(current_turn.turn_name)
 	current_turn.execute_turn_segments()
 	
-	current_turn.connect("turn_execution_finished",current_turn_turn_execution_finished)
+	if not current_turn.is_connected("turn_execution_finished", current_turn_turn_execution_finished):
+		current_turn.connect("turn_execution_finished",current_turn_turn_execution_finished)
 
 func current_turn_turn_execution_finished():
 	end_turn()
@@ -63,28 +67,38 @@ func end_turn():
 	if current_turn == null:
 		push_error("Turn end function called when current turn is null!")
 		return
+	
+	if current_turn.is_connected("turn_execution_finished", current_turn_turn_execution_finished):
+		current_turn.disconnect("turn_execution_finished", current_turn_turn_execution_finished)
 	current_turn = get_next_turn(current_turn)
+	turn_changed.emit(current_turn)
+	execute_manager_flow()
 	is_busy = true
 	
 
-func get_next_turn(turn : TurnData) -> TurnData:
-	if not turns.has(turn):
-		push_error("Turn is not is turns array")
-		return
+
+func get_next_turn(currentTurn : TurnData) -> TurnData:
+	var current_index = turns.find(currentTurn)
 	
-	var turn_index = turns.find(turn)
-	if turn_index == -1:
-		push_error("Turn was not found in turns array")
-		return
+	# If current turn not found in array, return empty dictionary
+	if current_index == -1:
+		return null
 	
-	var next_turn = turns.get(turn_index + 1)
+	var array_size = turns.size()
 	
-	if next_turn == null:
-		#at the end of the turns array, cycle the list to the first index
-		next_turn = turns[0]
+	# If array is empty, return empty dictionary
+	if array_size == 0:
+		return null
 	
-	if next_turn == null:
-		push_error("There was an error finding next turn!")
-		return
-	else:
-		return next_turn
+	# Loop through the array starting from next position
+	for i in range(array_size):
+		# Calculate next index with wrapping (handles out of bounds automatically)
+		var check_index = (current_index + 1 + i) % array_size
+		var turn = turns[check_index]
+		
+		# Validate that turn is an object and has repeatable property
+		if turn != null and turn.repeatable:
+			return turn
+	
+	# If no valid turn found, return empty dictionary
+	return null

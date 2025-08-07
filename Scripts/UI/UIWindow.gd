@@ -23,8 +23,12 @@ func show_call():
 func _show():
 	if block_inputs and UnitActionManager.is_busy:
 		return
-	visual.show()
-	visual.set_process(true)
+	
+	if visual != null:
+		visual.show()
+		visual.set_process(true)
+	else:
+		push_warning("Visual for UI Window is null!")
 	is_shown = true
 	if block_inputs:
 		UiManager.try_block_input(self)
@@ -35,7 +39,7 @@ func hide_call():
 
 func _hide():
 	if visual == null:
-		printerr("UI Visual is null")
+		push_warning("Visual for UI Window is null!")
 	else:
 		visual.hide()
 		visual.set_process(false)

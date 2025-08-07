@@ -8,7 +8,13 @@ func _init() -> void:
 	script_path = "res://Scripts/GridObject/Actions/RotateAction.gd"
 	super._init()
 
+func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
+	return []
 
+
+func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
+	var ret_value : Dictionary[GridCell, float] = {starting_grid_cell : -1}
+	return ret_value
 
 func can_execute(parameters : Dictionary) -> Dictionary:
 	var ret_val = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A"}

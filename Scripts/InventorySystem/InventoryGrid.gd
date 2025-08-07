@@ -8,7 +8,8 @@ extends Resource
 @export var shape: GridShape 
 
 var _items: Array[Array] = []
-@export var use_item_size: bool = true
+@export var use_item_size : bool = true
+@export var equipment_inventory : bool = false
 
 @export var item_count: int:
 	get:
@@ -260,3 +261,19 @@ func has_item_at(position: Vector2i) -> Item:
 	   position.x < 0 or position.x >= _items[0].size():
 		return null
 	return _items[position.y][position.x]
+
+
+func try_get_item_array() -> Array[Item]:
+	if _items == null or _items.is_empty() or shape == null:
+		return []
+	else:
+		var unique_items: Array[Item] = []
+		for y in range(shape.grid_height):
+			for x in range(shape.grid_width):
+				var item: Item = _items[y][x]
+				if item == null:
+					continue
+				if not unique_items.has(item):
+					unique_items.append(item)
+		return unique_items
+			

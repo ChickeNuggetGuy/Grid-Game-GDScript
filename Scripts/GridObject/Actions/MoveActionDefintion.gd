@@ -8,6 +8,28 @@ func _init() -> void:
 	super._init()
 
 
+func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
+	var walkable_empty_filter = Enums.cellState.WALKABLE
+	var result = GridSystem.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+	
+	if result["success"] == false:
+		push_error(" no grid cells found that satisfy the current filter")
+	
+	return result["grid_cell_array"]
+
+
+func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
+	var ret_value : Dictionary[GridCell, float]= {}
+	
+	var grid_system : GridSystem = GridSystem
+	for grid_cell in get_valid_grid_cells(starting_grid_cell):
+		var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
+		var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
+		ret_value[grid_cell] = normalized_distance
+	
+	return ret_value
+
+
 
 func can_execute(parameters : Dictionary) -> Dictionary:
 	var ret_val = {"success": false, "costs" : {"TimeUnits" : -1, "stamina" : -1}, "reason" : "N/A"}

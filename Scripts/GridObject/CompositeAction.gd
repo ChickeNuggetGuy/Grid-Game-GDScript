@@ -5,6 +5,7 @@ var sub_actions: Array[Action] = []
 
 
 func _init(parameters : Dictionary) -> void:
+	super._init(parameters)
 	action_name = parameters["action_name"]
 	if parameters.has("actions"):
 		sub_actions =  parameters["actions"]

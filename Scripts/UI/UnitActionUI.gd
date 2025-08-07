@@ -40,10 +40,14 @@ func update_action_buttons(unit : Unit):
 		for child in action_button_holder.get_children(false):
 			child.queue_free()
 	
-	if unit.action_library == null or unit.action_library.size() == 0:
+	var unit_actions = unit.get_all_action_definitions()
+	if unit_actions["action_definitions"]== null or unit_actions["action_definitions"].size() == 0:
 		return
 	
-	for action in unit.action_library:
+	var unit_action_array : Array[BaseActionDefinition] = unit_actions["action_definitions"]
+	unit_action_array.append_array(unit_actions["item_action_definitions"])
+	
+	for action in unit_action_array:
 		if not action.show_in_ui:
 			continue
 		instantiate_action_button(action)

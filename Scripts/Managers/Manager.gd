@@ -42,7 +42,6 @@ func setup_manager_flow():
 
 # Orchestrates the manager's execution phase.
 func execute_manager_flow():
-	print("%s: Starting execution flow..." % _get_manager_name())
 
 	if not _execute_conditions():
 		push_warning("%s: Execution conditions not met. Skipping execution." % _get_manager_name())

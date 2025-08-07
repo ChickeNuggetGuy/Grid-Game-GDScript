@@ -10,6 +10,7 @@ var target_grid_cell: GridCell = null
 
 
 func _init(parameters : Dictionary) -> void:
+	parameters["action_name"] = action_name
 	owner  = parameters["unit"]
 	start_grid_cell = parameters["start_grid_cell"]
 	target_grid_cell = parameters["target_grid_cell"]
