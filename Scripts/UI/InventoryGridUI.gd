@@ -10,11 +10,11 @@ var inventory_slots : Dictionary[Vector2i, Control] = {}
 
 func _init() -> void:
 	#start_hidden = true
-	UnitManager.connect("UnitSelected",unit_manager_unit_selected)
+	UnitManager.Instance.connect("UnitSelected",unit_manager_unit_selected)
 
 
 func _setup():
-	var selected_unit : GridObject = UnitManager.selectedUnit
+	var selected_unit : GridObject = UnitManager.Instance.selectedUnit
 	if selected_unit == null:
 		_set_current_inventory_grid(null)
 		return
@@ -87,7 +87,7 @@ func draw_inventory():
 		return
 	
 	if inventory_grid_type == Enums.inventoryType.GROUND:
-		var selected_unit = UnitManager.selectedUnit
+		var selected_unit = UnitManager.Instance.selectedUnit
 		var current_grid_cell : GridCell = selected_unit.grid_position_data.grid_cell
 		
 		if selected_unit == null or current_grid_cell == null or current_grid_cell.inventory_grid == null:
@@ -128,9 +128,9 @@ func instantiate_inventory_slot_ui(grid_coords : Vector2i):
 		return
 
 	if inventory_grid.shape.get_grid_shape_cell(grid_coords.x, grid_coords.y):
-		instantiated_slot = InventoryManager.inventory_slot_prefab.instantiate()
+		instantiated_slot = InventoryManager.Instance.inventory_slot_prefab.instantiate()
 	else:
-		instantiated_slot = InventoryManager.inactive_inventory_slot_prefab.instantiate()
+		instantiated_slot = InventoryManager.Instance.inactive_inventory_slot_prefab.instantiate()
 	
 	if instantiated_slot != null and instantiated_slot is InventorySlotUI:
 		instantiated_slot._setup(self, grid_coords, null)
@@ -227,14 +227,14 @@ func try_execute_item_action(grid_coords : Vector2i):
 	
 	
 	#MainInventoryUI.intance.hide_call()
-	UiManager.blocking_input = true
-	var selected_grid_cell: GridCell = await GridInputManager.grid_cell_selected
+	UIManager.Instance.blocking_input = true
+	var selected_grid_cell: GridCell = await GridInputManager.Instance.grid_cell_selected
 	
 	if selected_grid_cell == null:
 		print("selected_grid_cell is null")
 		return
 	
-	await UnitActionManager.try_execute_item_action(item_action, item, inventory_grid)
+	await UnitActionManager.Instance.try_execute_item_action(item_action, item, inventory_grid)
 	
 	#MainInventoryUI.intance.show_call()
 

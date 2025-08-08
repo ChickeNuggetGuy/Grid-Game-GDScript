@@ -1,5 +1,6 @@
 extends CompositeAction
 
+
 func _init(parameters : Dictionary) -> void:
 	parameters["actiom_name"] = action_name
 	owner = parameters["unit"]
@@ -16,7 +17,7 @@ func _setup() -> void:
 
 func _execute() -> void:
 	
-	var path = Pathfinder.find_path(
+	var path = Pathfinder.Instance.find_path(
 	owner.grid_position_data.grid_cell,
 	target_grid_cell
 	)

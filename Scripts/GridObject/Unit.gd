@@ -1,7 +1,7 @@
 extends GridObject
 class_name Unit
 
-@warning_ignore("int_as_enum_without_cast")
+@warning_ignore("int_as_enum_without_cast", "int_as_enum_without_match")
 @export var _stance : Enums.UnitStance = (Enums.UnitStance.NORMAL | Enums.UnitStance.STATIONARY)
 @export var _action_library: Array[BaseActionDefinition] = []
 var action_queue : Array[Action]

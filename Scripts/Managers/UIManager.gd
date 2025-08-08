@@ -1,10 +1,18 @@
 extends Manager
+class_name UIManager
+
+static  var Instance : UIManager
 
 var ui_holder : Control
 var currentCellUI : Label
 var ui_windows : Dictionary[String, UIWindow] ={}
 var blocking_input : bool = false
 var blocking_window : UIElement = null
+
+
+func _init() -> void:
+	Instance = self
+
 
 
 func _get_manager_name() -> String: return "UI Manager"
@@ -27,7 +35,7 @@ func _setup() -> void:
 	ui_holder.add_child(currentCellUI)
 	currentCellUI.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	
-	UnitActionManager.connect("selected_action_changed",unitActionManager_action_selected )
+	UnitActionManager.Instance.connect("selected_action_changed",unitActionManager_action_selected )
 
 
 func _execute_conditions() -> bool: return true
@@ -42,7 +50,7 @@ func _execute():
 
 
 func try_block_input(windw : UIWindow) -> bool:
-	if UnitActionManager.is_busy:
+	if UnitActionManager.Instance.is_busy:
 		return false
 	
 	blocking_window = windw

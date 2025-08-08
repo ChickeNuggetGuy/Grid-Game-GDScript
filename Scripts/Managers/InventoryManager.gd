@@ -1,12 +1,20 @@
 extends Manager
+class_name InventoryManager
 
+static var Instance : InventoryManager
 var inventory_items : Dictionary[String, Item] = {}
 
 var inventory_grids : Dictionary[Enums.inventoryType, InventoryGrid] = {}
 
 var inventory_slot_prefab : PackedScene
 var inactive_inventory_slot_prefab : PackedScene
+
+
 #region Functions
+func _init() -> void:
+	Instance = self
+
+
 func _get_manager_name() -> String:return "InventoryManager"
 
 

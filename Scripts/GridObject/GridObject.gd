@@ -74,7 +74,7 @@ func grid_object_dealth():
 func setup_inventory_grids():
 	for inventory_type in inventory_grid_types:
 		
-		var result = InventoryManager.try_get_inventory_grid(inventory_type)
+		var result = InventoryManager.Instance.try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
 
@@ -177,7 +177,7 @@ func try_get_grid_object_component_by_type(type_to_find : String) -> Dictionary:
 func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_B:
-			if UnitManager.selectedUnit == self:
-				print(grid_position_data.grid_cell.inventory_grid.try_add_item(InventoryManager.get_random_item()))
+			if UnitManager.Instance.selectedUnit == self:
+				print(grid_position_data.grid_cell.inventory_grid.try_add_item(InventoryManager.Instance.get_random_item()))
 
 #endregion

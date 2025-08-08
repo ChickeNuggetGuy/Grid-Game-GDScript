@@ -1,8 +1,11 @@
-# GameManager.gd
 extends Manager
+class_name GameManager
 
+static var Instance : GameManager
+
+func _init() -> void:
+	Instance = self
 #region Functions
-
 func _get_manager_name() -> String:
 	return "GameManager"
 
@@ -17,8 +20,7 @@ func _execute_conditions() -> bool:return true
 
 func _execute():
 	print("GameManager: Starting _execute() - Orchestrating other managers...")
-	var manager_group_name = "Managers"
-	var manager_nodes = get_tree().get_nodes_in_group(manager_group_name)
+	var manager_nodes = get_children()
 
 
 	for node in manager_nodes:

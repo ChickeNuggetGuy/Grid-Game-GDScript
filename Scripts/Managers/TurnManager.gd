@@ -1,10 +1,19 @@
 extends Manager
+class_name TurnManager
+
+static var Instance : TurnManager
 
 var turns : Array[TurnData]
 var current_turn : TurnData
 var is_busy = false
 
 signal  turn_changed(current_turn : TurnData)
+
+
+func _init() -> void:
+	Instance = self
+
+
 
 func _get_manager_name() -> String: return "Turn Manager"
 

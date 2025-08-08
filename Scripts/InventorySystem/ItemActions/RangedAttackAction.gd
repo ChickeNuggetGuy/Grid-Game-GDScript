@@ -129,7 +129,7 @@ func calculate_direction_with_variance(	from_positon : Vector3, to_positon : Vec
 	
 	if not hit_result.is_empty():
 		
-		DebugDraw3D.draw_line(from_positon+ Vector3(0, 0.5, 0) ,hit_result.position,Color.GREEN,4 )
+		#DebugDraw3D.draw_line(from_positon+ Vector3(0, 0.5, 0) ,hit_result.position,Color.GREEN,4 )
 		# Hit something
 		hit_position = hit_result.position
 
@@ -138,7 +138,7 @@ func calculate_direction_with_variance(	from_positon : Vector3, to_positon : Vec
 			grid_cell = grid_object.grid_position_data.grid_cell
 		else:
 			# Convert to grid coordinates (assuming integer grid positions)
-			var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(hit_position)
+			var get_grid_cell_result = GridSystem.Instance.try_get_gridCell_from_world_position(hit_position)
 			
 			if get_grid_cell_result["success"]:
 				grid_cell = get_grid_cell_result["grid_cell"]
@@ -146,10 +146,10 @@ func calculate_direction_with_variance(	from_positon : Vector3, to_positon : Vec
 				grid_cell = null
 		
 	else:
-		DebugDraw3D.draw_ray(from_positon + Vector3(0, 0.5, 0) ,new_direction, 100,Color.RED,4 )
+		#DebugDraw3D.draw_ray(from_positon + Vector3(0, 0.5, 0) ,new_direction, 100,Color.RED,4 )
 		# No hit - set to maximum distance point
 		hit_position = ray_params.from  + new_direction * 1000
-		var get_grid_cell_result = GridSystem.try_get_gridCell_from_world_position(hit_position)
+		var get_grid_cell_result = GridSystem.Instance.try_get_gridCell_from_world_position(hit_position)
 		
 		if get_grid_cell_result["success"]:
 			grid_cell = get_grid_cell_result["grid_cell"]

@@ -1,6 +1,7 @@
 extends Manager
-
+class_name UnitManager
 #region Variables
+static  var Instance : UnitManager
 @export var UnitTeams : Dictionary[Enums.unitTeam, UnitTeamHolder]
 @export var spawnCounts : Vector2i = Vector2(2,2)
 @export var unitScene: PackedScene
@@ -13,6 +14,8 @@ signal UnitSelected(newUnit : Unit, oldUnit: Unit);
 #endregion
 
 #region Functions
+func _init() -> void:
+	Instance = self
 func _get_manager_name() -> String: return "UnitManager"
 
 
@@ -22,29 +25,18 @@ func _setup_conditions(): return true
 func _setup():
 	
 	unitScene = load("Scenes/GridObjects/Unit.tscn")
-	UnitTeams = {}
+	#UnitTeams = {}
 	#Register any existing Unit Teams!
 	var children = get_children()
 	for child in children:
+		print(child.name)
 		if child is UnitTeamHolder:
 			var team : UnitTeamHolder = child
 			
 			UnitTeams.get_or_add(team.team,)
-			UnitTeams[team.team] = child
+			UnitTeams[team.team] = team
 	setup_completed.emit()
 	
-# Assuming Enums.unit_team is defined like:
-# enum unit_team { ALPHA, BETA, GAMMA }
-
-	for key in Enums.unitTeam.keys():
-		if key != "None": 
-			var gridObjects: Array[GridObject] = []  # Replace Unit with your actual class
-			var unitTeam : UnitTeamHolder = UnitTeamHolder.new(gridObjects, Enums.unitTeam[key])
-			# Here, key is a string ("ALPHA"), so we use it to set the name.
-			unitTeam.name = key + " Team"  
-			add_child(unitTeam)
-			# You can choose to use the key string as the dictionary key:
-			UnitTeams[Enums.unitTeam[key]] = unitTeam
 
 
 func _execute_conditions() -> bool: return true
@@ -61,7 +53,7 @@ func _execute():
 
 
 func spawn_unit(team : Enums.unitTeam):
-	var result = GridSystem.try_get_random_walkable_cell()
+	var result = GridSystem.Instance.try_get_random_walkable_cell()
 	
 	if result["success"] == false || result["cell"] == null:
 		print("Could not find any valid grid cell. Returning prematurely")
@@ -69,8 +61,10 @@ func spawn_unit(team : Enums.unitTeam):
 		
 	var spawneUnit : Unit = unitScene.instantiate()
 	spawneUnit.position = result["cell"].world_position
-	UnitTeams[team].gridObjects.append(spawneUnit)
-	UnitTeams[team].add_child(spawneUnit)
+	
+	var team_holder : UnitTeamHolder = UnitTeams[team]
+	team_holder.gridObjects.append(spawneUnit)
+	team_holder.add_child(spawneUnit)
 	
 	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH, team)
 
@@ -85,7 +79,7 @@ func set_selected_unit(gridObject: Unit):
 
 func set_selected_unit_next():
 	if selectedUnit == null:
-		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].gridObjects[0])
+		return
 	else:
 		var currentIndex : int = UnitTeams[Enums.unitTeam.PLAYER].gridObjects.find(selectedUnit)
 		var nextIndex = 0
@@ -101,7 +95,7 @@ func set_selected_unit_next():
 
 
 func _unhandled_input(event):
-	if UiManager.blocking_input:
+	if UIManager.Instance.blocking_input:
 		return
 	
 	if event is InputEventKey:
@@ -109,8 +103,8 @@ func _unhandled_input(event):
 			set_selected_unit_next()
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			if GridInputManager.currentGridCell != null:
-				var grid_object : Unit = GridInputManager.currentGridCell.grid_object
+			if GridInputManager.Instance.currentGridCell != null:
+				var grid_object : Unit = GridInputManager.Instance.currentGridCell.grid_object
 				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].gridObjects.has(grid_object):
 					set_selected_unit(grid_object)
 #endregion

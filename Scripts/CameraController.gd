@@ -19,15 +19,15 @@ func _ready() -> void:
 	call_deferred("setup")
 
 func setup() -> void:
-	UnitManager.connect("UnitSelected", _unitmanager_unitselected)
+	UnitManager.Instance.connect("UnitSelected", _unitmanager_unitselected)
 	
-	UnitActionManager.connect("action_execution_started", UnitActionManager_action_execution_started)
-	UnitActionManager.connect("action_execution_finished", UnitActionManager_action_execution_finished)
+	UnitActionManager.Instance.connect("action_execution_started", UnitActionManager_action_execution_started)
+	UnitActionManager.Instance.connect("action_execution_finished", UnitActionManager_action_execution_finished)
 
 func _exit_tree() -> void:
 	# Optional: disconnect if you want to clean up manually
-	UnitManager.instance.disconnect("SelectedUnitChanged", self,
-	 "_on_unit_manager_selected_unit")
+	UnitManager.Instance.disconnect("SelectedUnitChanged",Callable.create(self,
+	 "_on_unit_manager_selected_unit"))
 
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
 	quick_switch_target(newUnit)
@@ -157,7 +157,7 @@ func switch_active_camera(camera_key, target_position : Vector3):
 	else:
 		
 		var phantom_camera = phantom_cameras[camera_key]
-		var selected_unit = UnitManager.selectedUnit
+		var selected_unit = UnitManager.Instance.selectedUnit
 		
 		var result = selected_unit.try_get_grid_object_component_by_type("GridObjectWorldTarget")
 		
