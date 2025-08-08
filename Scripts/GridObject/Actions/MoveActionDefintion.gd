@@ -10,18 +10,23 @@ func _init() -> void:
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.WALKABLE
-	var result = GridSystem.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
-	
+	var result = GridSystem.Instance.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	
+	var grid_cells : Array[GridCell] = result["grid_cell_array"] 
+	for i in range(grid_cells.size() - 1, -1, -1):
+		if not Pathfinder.Instance.is_path_possible(starting_grid_cell, grid_cells[i]):
+			grid_cells.remove_at(i)
+			
 	return result["grid_cell_array"]
 
 
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
 	var ret_value : Dictionary[GridCell, float]= {}
 	
-	var grid_system : GridSystem = GridSystem
+	var grid_system : GridSystem = GridSystem.Instance
 	for grid_cell in get_valid_grid_cells(starting_grid_cell):
 		var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
 		var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
@@ -37,7 +42,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	var temp_costs = {"time_units" : 0, "stamina" : 0}
 	
 	# Check if path is possible first
-	if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
+	if not Pathfinder.Instance.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
 		print("Path not possible!")
 		ret_val["success"] = false
 		ret_val["costs"]["time_units"] = -1
@@ -45,7 +50,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		ret_val["reason"] = "No path possible!"
 		return ret_val
 	
-	var path = Pathfinder.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
+	var path = Pathfinder.Instance.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
 	
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")
@@ -93,7 +98,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	if result["success"] == false:
 		ret_val["success"] = false
 		ret_val["costs"] = temp_costs
-		ret_val["reason"] =result["reason"]
+		ret_val["reason"] = result["reason"]
 		return ret_val
 		
 	

@@ -1,21 +1,29 @@
 extends Manager
-
+class_name GridInputManager
 #region Variables
 var gridSystem: GridSystem
 var currentGridCell : GridCell;
 var visual : Node3D
+
+static var Instance : GridInputManager
+
 #endregion
 
 signal grid_cell_selected(grid_cell : GridCell)
 #region Functions
+func _init() -> void:
+	Instance = self
+
+
+
 func _ready() -> void:
-	gridSystem = GridSystem
+	gridSystem = GridSystem.Instance
 	visual = CSGBox3D.new()
 	add_child(visual)
 
 
 func _process(_delta: float) -> void:
-	if !GameManager.execution_completed:
+	if !GameManager.Instance.execution_completed:
 		return
 	var mp   = get_viewport().get_mouse_position()
 	var from = get_viewport().get_camera_3d().project_ray_origin(mp)

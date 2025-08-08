@@ -10,14 +10,14 @@ class_name GridObjectAnimation
 func _setup() -> void:
 	animation_tree = animation_player_holder.find_child("AnimationTree")
 	#animation_tree.advance_expression_base_node = parent_grid_object.get_path()
-	UnitActionManager.connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	UnitActionManager.Instance.connect("action_execution_finished",UnitActionManager_action_execution_finished)
 
 
 func UnitActionManager_action_execution_finished(_completed_action_definition : BaseActionDefinition, 
-		execution_parameters : Dictionary):
+		_execution_parameters : Dictionary):
 	return #var playback = animation_tree.get(locomotion_State_playback_path) as AnimationNodeStateMachinePlayback
 
-func locomotion_change_stance(target_state : Enums.UnitStance):
+func locomotion_change_stance(_target_state : Enums.UnitStance):
 	return
 	#var playback = animation_tree.get(locomotion_State_playback_path) as AnimationNodeStateMachinePlayback
 	#playback.travel("Idle")
@@ -28,7 +28,7 @@ func locomotion_change_stance(target_state : Enums.UnitStance):
 		#Enums.UnitStance.CROUCHED:
 			#animation_tree.set("parameters/Locomotion/Idle/blend_position",0) 
 
-func start_locomotion_animation(target_stance : Enums.UnitStance, blend_position : Vector2):
+func start_locomotion_animation(_target_stance : Enums.UnitStance, _blend_position : Vector2):
 	return#var playback = animation_tree.get(locomotion_State_playback_path) as AnimationNodeStateMachinePlayback
 	#
 	#if target_stance & Enums.UnitStance.NORMAL:

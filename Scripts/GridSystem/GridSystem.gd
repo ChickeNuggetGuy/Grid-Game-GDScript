@@ -1,8 +1,9 @@
 @tool
 
 extends Manager
-
+class_name GridSystem
 #region Varibles
+static var Instance : GridSystem
 var grid_cells: Dictionary[Vector3i,GridCell]
 @export var gridSize: Vector3i = Vector3i(20,15,20)
 @export var gridCellSize: Vector2 = Vector2(1,0.5)
@@ -22,6 +23,8 @@ var grid_cells: Dictionary[Vector3i,GridCell]
 #endregion
 
 #region
+func _init() -> void:
+	Instance = self
 func _get_manager_name() -> String: return "GridSystem"
 
 func _setup_conditions(): return true
@@ -188,7 +191,7 @@ func visualize_cell(position: Vector3, cell_state: Enums.cellState):
 
 func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enums.cellState):
 	if not grid_cells.has(coords) || grid_cells[coords] == null:
-		var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
+		var result = InventoryManager.Instance.try_get_inventory_grid(Enums.inventoryType.GROUND)
 		var ground_inventory_grid = result["inventory_grid"]
 		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, ground_inventory_grid, self)
 		grid_cells[coords] = cell
@@ -386,8 +389,8 @@ func try_get_cells_in_cone(
 				# If all checks pass, add the cell to results
 				found_cells.append(candidate_cell)
 
-				#DebugDraw3D.draw_box(candidate_cell.world_position, Quaternion.IDENTITY,
-				 		#Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.MAGENTA, true, 5)
+				DebugDraw3D.draw_box(candidate_cell.world_position, Quaternion.IDENTITY,
+				 		Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.MAGENTA, true, 5)
 
 
 	if not found_cells.is_empty():

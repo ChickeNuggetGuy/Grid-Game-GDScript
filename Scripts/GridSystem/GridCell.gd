@@ -50,7 +50,7 @@ func inventory_grid_item_added(item_added: Item):
 		return
 	
 	if grid_cell_state & Enums.cellState.AIR:
-		var result = GridSystem.try_get_grid_cell_of_state_below(gridCoordinates, Enums.cellState.GROUND)
+		var result = GridSystem.Instance.try_get_grid_cell_of_state_below(gridCoordinates, Enums.cellState.GROUND)
 		if result["success"]:
 			InventoryGrid.try_transfer_item(inventory_grid, result["grid_cell"].inventory_grid, item_added)
 			print("Item was in air at " + self.to_string() + " and was moved to " + result["grid_cell"].to_string())

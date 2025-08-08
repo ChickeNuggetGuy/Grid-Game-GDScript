@@ -12,10 +12,10 @@ var action_buttons : Array = []
 
 func _setup() -> void:
 	super._setup()
-	UnitManager.connect("UnitSelected", unitManager_unit_selected)
-	UnitActionManager.connect("action_execution_finished", UnitActionManager_action_execution_finished)
+	UnitManager.Instance.connect("UnitSelected", unitManager_unit_selected)
+	UnitActionManager.Instance.connect("action_execution_finished", UnitActionManager_action_execution_finished)
 	
-	var selected_unit = UnitManager.selectedUnit
+	var selected_unit = UnitManager.Instance.selectedUnit
 	update_stat_bars(selected_unit)
 	update_action_buttons(selected_unit)
 
@@ -27,7 +27,7 @@ func unitManager_unit_selected(selectedUnit : Unit, _old_unit : Unit):
 
 func UnitActionManager_action_execution_finished(_current_action : BaseActionDefinition,
 	execution_paramaters : Dictionary):
-	update_stat_bars(UnitManager.selectedUnit)
+	update_stat_bars(UnitManager.Instance.selectedUnit)
 
 
 func update_stat_bars(unit : Unit):

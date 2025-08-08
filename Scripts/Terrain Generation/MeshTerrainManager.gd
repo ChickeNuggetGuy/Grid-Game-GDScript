@@ -1,5 +1,8 @@
 extends Manager
+class_name MeshTerrainManager
 
+
+static var Instance : MeshTerrainManager
 @export var map_size: Vector2i = Vector2i(2, 2)
 @export var chunk_size: int = 16
 @export var cell_size: Vector2 = Vector2(1.0, 1.0)
@@ -10,6 +13,8 @@ extends Manager
 var terrain_heights = []
 var locked_vertices = []
 
+func _init() -> void:
+	Instance = self
 func _get_manager_name() -> String:
 	return "Mesh Terrain"
 

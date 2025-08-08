@@ -12,7 +12,7 @@ func _init() -> void:
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.GROUND | Enums.cellState.EMPTY
-	var result = GridSystem.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+	var result = GridSystem.Instance.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
 	
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
@@ -23,7 +23,7 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
 	var ret_value = {}
 	
-	var grid_system : GridSystem = GridSystem
+	var grid_system : GridSystem = GridSystem.Instance
 	for grid_cell in get_valid_grid_cells(starting_grid_cell):
 		var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
 		var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
@@ -43,7 +43,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		temp_cost += 1 * result["rotation_steps"]
 	temp_cost += 8
 	
-	var calc_arc_result = Pathfinder.try_calculate_arc_path(parameters["start_grid_cell"], parameters["target_grid_cell"])
+	var calc_arc_result = Pathfinder.Instance.try_calculate_arc_path(parameters["start_grid_cell"], parameters["target_grid_cell"])
 		
 	if  calc_arc_result["success"]:
 		var previous_vector :Vector3 = calc_arc_result["vector3_path"][0]
