@@ -234,7 +234,10 @@ func try_execute_item_action(grid_coords : Vector2i):
 		print("selected_grid_cell is null")
 		return
 	
-	await UnitActionManager.Instance.try_execute_item_action(item_action, item, inventory_grid)
+	await UnitActionManager.Instance.try_execute_item_action(item_action,
+			GridInputManager.Instance.currentGridCell,
+			UnitManager.Instance.selectedUnit,
+			 item, inventory_grid)
 	
 	#MainInventoryUI.intance.show_call()
 

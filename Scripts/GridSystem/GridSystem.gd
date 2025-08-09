@@ -389,8 +389,8 @@ func try_get_cells_in_cone(
 				# If all checks pass, add the cell to results
 				found_cells.append(candidate_cell)
 
-				DebugDraw3D.draw_box(candidate_cell.world_position, Quaternion.IDENTITY,
-				 		Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.MAGENTA, true, 5)
+				#DebugDraw3D.draw_box(candidate_cell.world_position, Quaternion.IDENTITY,
+				 		#Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.MAGENTA, true, 5)
 
 
 	if not found_cells.is_empty():
@@ -471,8 +471,8 @@ func try_get_neighbors_in_radius(starting_grid_cell : GridCell, radius_3d : Vect
 				if grid_cell_state_filter != Enums.cellState.NONE and (test_grid_cell.grid_cell_state & grid_cell_state_filter) != grid_cell_state_filter:
 					continue
 				
-				DebugDraw3D.draw_box(test_grid_cell.world_position,Quaternion.IDENTITY, 
-						Vector3(gridCellSize.x, gridCellSize.y,gridCellSize.x,),Color.REBECCA_PURPLE, true,10)
+				#DebugDraw3D.draw_box(test_grid_cell.world_position,Quaternion.IDENTITY, 
+						#Vector3(gridCellSize.x, gridCellSize.y,gridCellSize.x,),Color.REBECCA_PURPLE, true,10)
 				ret_value["grid_cell_array"].append(test_grid_cell)
 	
 	

@@ -50,7 +50,7 @@ func update_action_buttons(unit : Unit):
 		return
 	
 	var unit_action_array : Array[BaseActionDefinition] = unit_actions["action_definitions"]
-	unit_action_array.append_array(unit_actions["item_action_definitions"])
+	unit_action_array.append_array(unit_actions["item_action_definitions"].keys())
 	
 	for action in unit_action_array:
 		if not action.show_in_ui:

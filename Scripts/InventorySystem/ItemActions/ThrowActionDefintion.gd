@@ -21,13 +21,13 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 
 
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
-	var ret_value = {}
-	
-	var grid_system : GridSystem = GridSystem.Instance
-	for grid_cell in get_valid_grid_cells(starting_grid_cell):
-		var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
-		var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
-		ret_value[grid_cell] = normalized_distance
+	var ret_value : Dictionary[GridCell, float] = {starting_grid_cell : -1}
+	#
+	#var grid_system : GridSystem = GridSystem.Instance
+	#for grid_cell in get_valid_grid_cells(starting_grid_cell):
+		#var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
+		#var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
+		#ret_value[grid_cell] = normalized_distance
 	
 	return ret_value
 

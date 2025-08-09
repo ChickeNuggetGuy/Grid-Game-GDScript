@@ -133,22 +133,25 @@ func try_execute_action(grid_cell: GridCell, unit: Unit, action_to_execute: Base
 	}
 	await _execute_action_internal(action_to_execute, params)
 
-func try_execute_item_action(action_to_execute: BaseItemActionDefinition, item: Item, starting_inventory: InventoryGrid) -> Dictionary:
+func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
+		target_grid_cell : GridCell,
+		unit : Unit,
+		item: Item,
+		starting_inventory: InventoryGrid) -> Dictionary:
 	UIManager.Instance.hide_non_persitent_windows()
 	UIManager.Instance.try_block_input(null)
 	set_is_busy(true)
 
 	var ret_val = {"success": false, "Reasoning": "N/A"}
-	var selected_unit = UnitManager.Instance.selectedUnit
-	var current_grid_cell = await GridInputManager.Instance.grid_cell_selected
 
-	if not current_grid_cell:
+
+	if not target_grid_cell:
 		ret_val["Reasoning"] = "Current grid cell is null!"
 		print_debug(ret_val["Reasoning"])
 		set_is_busy(false)
 		return ret_val
 
-	if not selected_unit:
+	if not unit:
 		ret_val["Reasoning"] = "Selected unit is null!"
 		print_debug(ret_val["Reasoning"])
 		set_is_busy(false)
@@ -167,9 +170,9 @@ func try_execute_item_action(action_to_execute: BaseItemActionDefinition, item: 
 		return ret_val
 
 	var params = {
-		"unit": selected_unit,
-		"start_grid_cell": selected_unit.grid_position_data.grid_cell,
-		"target_grid_cell": current_grid_cell,
+		"unit": unit,
+		"start_grid_cell": unit.grid_position_data.grid_cell,
+		"target_grid_cell": target_grid_cell,
 		"item": item,
 		"action_definition": action_to_execute,
 		"starting_inventory": starting_inventory
@@ -193,7 +196,7 @@ func _execute_action_internal(action_def: BaseActionDefinition, params: Dictiona
 	action_execution_started.emit(action_def, params)
 
 	# Async safety
-	action_def.instantiate(params).execute_call()
+	await action_def.instantiate(params).execute_call()
 	if not is_instance_valid(self):
 		return
 

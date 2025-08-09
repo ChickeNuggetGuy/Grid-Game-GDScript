@@ -10,6 +10,11 @@ var action_queue : Array[Action]
 const POSTURE_MASK := Enums.UnitStance.NORMAL | Enums.UnitStance.CROUCHED
 const MOTION_MASK := Enums.UnitStance.STATIONARY | Enums.UnitStance.MOVING
 
+
+func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam):
+	
+	super._setup(gridCell,direction, unit_team)
+	inventory_grids[Enums.inventoryType.RIGHTHAND].try_add_item(InventoryManager.Instance.get_random_item())
 func set_stance(flag: int) -> void:
 	# Ensure flag is one of the posture flags
 	assert((flag & POSTURE_MASK) != 0 and (flag & ~POSTURE_MASK) == 0)
@@ -29,6 +34,7 @@ func toggle_stance(state):
 	
 func get_stance() -> Enums.UnitStance:
 	return _stance
+
 
 func is_crouched() -> bool:
 	return (_stance & Enums.UnitStance.CROUCHED) != 0
@@ -81,8 +87,8 @@ func try_get_action_definition_by_type(type_to_find: String) -> Dictionary:
 func get_all_action_definitions() -> Dictionary:
 	
 	var ret_values = {"action_definitions": [], 
-			"item_action_definitions" : []}
-	
+			"item_action_definitions" : {}}
+	var test : Dictionary
 	ret_values["action_definitions"] = _action_library
 	
 	for  key in inventory_grids.keys():
@@ -93,7 +99,9 @@ func get_all_action_definitions() -> Dictionary:
 			if items.size() != 0:
 				for item in items:
 					var typed_item = item as Item
-					ret_values["item_action_definitions"].append_array(typed_item.action_blueprints)
+					
+					for definition in typed_item.action_blueprints:
+						ret_values["item_action_definitions"][definition] = typed_item
 			
 	
 	return ret_values

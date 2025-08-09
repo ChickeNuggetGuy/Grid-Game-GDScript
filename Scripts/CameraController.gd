@@ -45,6 +45,14 @@ func _physics_process(delta: float) -> void:
 	#_transform_rotation(delta)
 	_transposer_height(delta)
 
+func _unhandled_input(event):
+	if UIManager.Instance.blocking_input:
+		return
+	
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_F:
+			quick_switch_target(UnitManager.Instance.selectedUnit)
+
 func _transposer_movement(delta: float) -> void:
 	var move_dir := Vector3.ZERO
 	if Input.is_action_pressed("Camera_Right"):
@@ -133,14 +141,14 @@ func _transform_rotation(delta: float) -> void:
 func UnitActionManager_action_execution_started(action_started : BaseActionDefinition, execution_parameters : Dictionary):
 	
 	if action_started is RangedAttackActionDefinition:
-		switch_active_camera("ranged_camera", execution_parameters["target_grid_cell"].world_position)
+		switch_active_camera("ranged_camera", execution_parameters["unit"], execution_parameters["target_grid_cell"].world_position)
 
 func UnitActionManager_action_execution_finished(action_finished : BaseActionDefinition, execution_parameters : Dictionary):
 	
 	if action_finished is RangedAttackActionDefinition:
-		switch_active_camera("main", execution_parameters["target_grid_cell"].world_position)
+		switch_active_camera("main",execution_parameters["unit"], execution_parameters["target_grid_cell"].world_position)
 
-func switch_active_camera(camera_key, target_position : Vector3):
+func switch_active_camera(camera_key,unit : Unit, target_position : Vector3):
 	
 	if not phantom_cameras.has(camera_key):
 		return
@@ -157,9 +165,8 @@ func switch_active_camera(camera_key, target_position : Vector3):
 	else:
 		
 		var phantom_camera = phantom_cameras[camera_key]
-		var selected_unit = UnitManager.Instance.selectedUnit
 		
-		var result = selected_unit.try_get_grid_object_component_by_type("GridObjectWorldTarget")
+		var result = unit.try_get_grid_object_component_by_type("GridObjectWorldTarget")
 		
 		if result["success"] == false:
 			return

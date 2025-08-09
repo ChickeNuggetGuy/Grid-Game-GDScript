@@ -16,9 +16,9 @@ func _init(parameters : Dictionary) -> void:
 	target_grid_cell = parameters["target_grid_cell"]
 
 func execute_call() -> void:
-	_setup()
-	_execute()
-	_action_complete_call()
+	await _setup()
+	await _execute()
+	await _action_complete_call()
 	
 @abstract func _setup() -> void
 @abstract func _execute() -> void

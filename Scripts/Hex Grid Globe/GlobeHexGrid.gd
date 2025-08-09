@@ -1,3 +1,5 @@
+# gdscript
+@tool
 extends Node3D
 class_name GlobeHexGrid
 
@@ -53,7 +55,7 @@ var radius: float = _radius:
 @export_range(0.0, 1.0, 0.01)
 var cell_opacity: float = _cell_opacity:
 	set(value):
-		var v : float= clamp(value, 0.0, 1.0)
+		var v: float = clamp(value, 0.0, 1.0)
 		if is_equal_approx(v, _cell_opacity):
 			return
 		_cell_opacity = v
@@ -69,7 +71,7 @@ var texture_u_rotation_degrees: float = 0.0
 @export var texture_flip_v: bool = false
 @export var sample_bilinear: bool = true
 
-# New: control whether cells use lit shading
+# Cells shading mode (lit/unshaded)
 @export var shaded_cells: bool = _shaded_cells:
 	set(value):
 		if value == _shaded_cells:
@@ -82,15 +84,14 @@ var texture_u_rotation_degrees: float = 0.0
 	get:
 		return _shaded_cells
 
-# New: lift ratios (fraction of radius) for visual stacking
+# Lift ratios (fraction of radius) for visual stacking
 @export_range(0.0, 0.05, 0.0005)
 var cell_lift_ratio: float = 0.0005:
 	set(value):
-		var v :float = clamp(value, 0.0, 0.05)
+		var v: float = clamp(value, 0.0, 0.05)
 		if is_equal_approx(v, cell_lift_ratio):
 			return
 		cell_lift_ratio = v
-		# Rebuild only cell and hover meshes (geometry changes)
 		if is_inside_tree():
 			_build_cell_mesh()
 			_update_hover_mesh()
@@ -101,7 +102,7 @@ var cell_lift_ratio: float = 0.0005:
 @export_range(0.0, 0.05, 0.0005)
 var hover_lift_ratio: float = 0.005:
 	set(value):
-		var v :float= clamp(value, 0.0, 0.05)
+		var v: float = clamp(value, 0.0, 0.05)
 		if is_equal_approx(v, hover_lift_ratio):
 			return
 		hover_lift_ratio = v
@@ -110,7 +111,63 @@ var hover_lift_ratio: float = 0.005:
 		else:
 			call_deferred("_update_hover_mesh")
 
-# ------------------------------ Data -------------------------------------
+# --------------------------- Full-bake (Option B) -------------------------
+
+@export var auto_load_full_bake: bool = true
+
+@export_file("*.res", "*.tres")
+var full_bake_path: String = ""  # e.g. "res://globehex_bake/globe_s3.tres"
+
+@export var save_full_bake_now: bool = false:
+	set(value):
+		if value:
+			print(
+				"[GlobeHexGrid] Save requested. Path: ",
+				full_bake_path
+			)
+			if full_bake_path == "":
+				push_warning("Set full_bake_path before saving.")
+			else:
+				call_deferred("_save_full_bake", full_bake_path)
+		save_full_bake_now = false
+
+@export var load_full_bake_now: bool = false:
+	set(value):
+		if value:
+			print(
+				"[GlobeHexGrid] Load requested. Path: ",
+				full_bake_path
+			)
+			if full_bake_path == "":
+				push_warning("Set full_bake_path before loading.")
+			else:
+				call_deferred("_load_full_bake_deferred", full_bake_path)
+		load_full_bake_now = false
+
+# --------------------------------- Types ----------------------------------
+
+# (Assumes external definitions exist)
+# class Cell:
+#   var id: int
+#   var center_unit: Vector3
+#   var polygon: PackedVector3Array
+#   var neighbors: PackedInt32Array
+#   var is_pentagon: bool
+#   var color: Color
+#
+# class HitResult:
+#   var success: bool = false
+#   var position: Vector3 = Vector3.ZERO
+#
+# class GlobeHexBaked:
+#   var subdivisions: int
+#   var cells_mesh: ArrayMesh
+#   var grid_mesh: ArrayMesh
+#   var centers: PackedVector3Array
+#   var neighbors: Array[PackedInt32Array]
+#   var polygons: Array[PackedVector3Array]
+
+# ------------------------------ Data --------------------------------------
 
 var _verts: PackedVector3Array = PackedVector3Array()
 var _faces: PackedInt32Array = PackedInt32Array()
@@ -131,17 +188,24 @@ var _cell_mat_transparent: ShaderMaterial = null
 var _grid_mat: ShaderMaterial = null
 var _hover_mat: ShaderMaterial = null
 
-# ------------------------------ Lifecycle --------------------------------
+# ------------------------------ Lifecycle ---------------------------------
 
 func _ready() -> void:
 	if camera_path == NodePath():
 		push_warning(
 			"Assign a Camera3D to camera_path for mouse picking to work."
 		)
+
+	if auto_load_full_bake and full_bake_path != "" and \
+			ResourceLoader.exists(full_bake_path):
+		if load_full_bake(full_bake_path):
+			set_process_unhandled_input(true)
+			return
+
 	_rebuild_all()
 	set_process_unhandled_input(true)
 
-# ------------------------------- Public API ------------------------------
+# ------------------------------- Public API -------------------------------
 
 func get_cell_count() -> int:
 	return _verts.size()
@@ -164,10 +228,29 @@ func get_cell_polygon_world(id: int) -> PackedVector3Array:
 func get_cell_neighbors(id: int) -> PackedInt32Array:
 	return _cells[id].neighbors
 
-func set_cell_color(id: int, color: Color) -> void:
+# Performance: optional rebuild toggle (defaults to old behavior: true)
+func set_cell_color(
+	id: int,
+	color: Color,
+	rebuild_now: bool = true
+) -> void:
 	if id < 0 or id >= _cells.size():
 		return
 	_cells[id].color = color
+	if rebuild_now:
+		_build_cell_mesh()
+		_refresh_cell_material_opacity_mode()
+
+# Batch color update to avoid repeated rebuilds
+func set_cell_colors_bulk(
+	ids: PackedInt32Array,
+	colors: PackedColorArray
+) -> void:
+	var n : int = min(ids.size(), colors.size())
+	for i in range(n):
+		var cid := ids[i]
+		if cid >= 0 and cid < _cells.size():
+			_cells[cid].color = colors[i]
 	_build_cell_mesh()
 	_refresh_cell_material_opacity_mode()
 
@@ -177,7 +260,7 @@ func set_all_cells_color(color: Color) -> void:
 	_build_cell_mesh()
 	_refresh_cell_material_opacity_mode()
 
-# Returns -1 if no hit on the sphere; otherwise the cell id
+# Returns -1 if no hit; otherwise the cell id
 func get_cell_at_mouse() -> int:
 	if not is_inside_tree():
 		return -1
@@ -192,26 +275,55 @@ func get_cell_at_mouse() -> int:
 	)
 	if not hit.success:
 		return -1
-	var p_unit: Vector3 = (hit.position - global_transform.origin).normalized()
-	return _find_cell_by_direction(p_unit)
 
-# ---------------------------- Input handling -----------------------------
+	# Convert world direction to local, unit-sphere dir
+	var p_unit_world: Vector3 = (
+		hit.position - global_transform.origin
+	).normalized()
+	var dir_unit_local: Vector3 = _world_dir_to_local_dir(p_unit_world)
+	return _find_cell_by_direction(dir_unit_local)
+
+# Map longitude/latitude (degrees) to a cell id.
+# - lon_deg: east-positive [-180, 180]
+# - lat_deg: north-positive [-90, 90]
+# - apply_texture_yaw: rotate direction around +Y by texture_u_rotation_degrees
+func get_cell_at_lon_lat(
+	lon_deg: float,
+	lat_deg: float,
+	apply_texture_yaw: bool = true
+) -> int:
+	var lon := deg_to_rad(lon_deg)
+	var lat := deg_to_rad(lat_deg)
+	var dir_local := _lon_lat_to_dir_local(lon, lat)
+
+	if apply_texture_yaw and not is_equal_approx(
+		texture_u_rotation_degrees, 0.0
+	):
+		var yaw := deg_to_rad(texture_u_rotation_degrees)
+		dir_local = Basis(Vector3.UP, yaw) * dir_local
+
+	return _find_cell_by_direction(dir_local.normalized())
+
+# ---------------------------- Input handling ------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var id: int = get_cell_at_mouse()
+		if id < 0 or id >= _cells.size() or _cells[id] == null:
+			id = -1
 		if id != _hovered_id:
 			_hovered_id = id
 			emit_signal("cell_hovered", _hovered_id)
 			_update_hover_mesh()
 	elif event is InputEventMouseButton and event.pressed:
 		var id2: int = get_cell_at_mouse()
-		if id2 != -1:
+		if id2 >= 0 and id2 < _cells.size() and _cells[id2] != null:
 			emit_signal("cell_clicked", id2, event.button_index)
 
-# ---------------------------- Build pipeline -----------------------------
+# ---------------------------- Build pipeline ------------------------------
 
 func _rebuild_all() -> void:
+	_reset_hover()
 	_build_icosphere(_subdivisions)
 	_build_adjacency()
 	_build_dual_cells()
@@ -441,9 +553,12 @@ func _order_faces_around_vertex(vid: int) -> PackedInt32Array:
 		out[i] = int(round(pairs[i].y))
 	return out
 
-# ------------------------------ Picking ----------------------------------
+# ------------------------------ Picking -----------------------------------
 
 func _find_cell_by_direction(dir_unit: Vector3) -> int:
+	if _verts.size() == 0:
+		return -1
+
 	var id: int = -1
 	if _last_id >= 0 and _last_id < _verts.size():
 		id = _last_id
@@ -457,21 +572,39 @@ func _find_cell_by_direction(dir_unit: Vector3) -> int:
 		_last_id = id
 		return id
 
+	var can_use_neighbors := _nbrs.size() == _verts.size()
+
 	var improved: bool = true
 	var iter: int = 0
 	while improved and iter < 64:
 		improved = false
+		if id < 0 or id >= _verts.size():
+			break
+
 		var best_id: int = id
 		var best_dot: float = dir_unit.dot(_verts[id])
-		for nb in _nbrs[id]:
-			var d: float = dir_unit.dot(_verts[nb])
-			if d > best_dot:
-				best_dot = d
-				best_id = nb
+
+		if can_use_neighbors:
+			var neigh: PackedInt32Array = _nbrs[id]
+			for nb in neigh:
+				if nb < 0 or nb >= _verts.size():
+					continue
+				var d: float = dir_unit.dot(_verts[nb])
+				if d > best_dot:
+					best_dot = d
+					best_id = nb
+		else:
+			for i in range(_verts.size()):
+				var d2: float = dir_unit.dot(_verts[i])
+				if d2 > best_dot:
+					best_dot = d2
+					best_id = i
+
 		if best_id != id:
 			id = best_id
 			improved = true
 		iter += 1
+
 	_last_id = id
 	return id
 
@@ -509,7 +642,7 @@ func _get_camera() -> Camera3D:
 		return n as Camera3D
 	return null
 
-# ------------------------------ Drawing ----------------------------------
+# ------------------------------- Drawing ----------------------------------
 
 func _ensure_draw_nodes_and_materials() -> void:
 	if _cell_mi == null:
@@ -528,17 +661,14 @@ func _ensure_draw_nodes_and_materials() -> void:
 		if Engine.is_editor_hint():
 			_hover_mi.owner = get_tree().edited_scene_root
 
-	# Create cell materials (opaque + transparent variants)
 	if _cell_mat_opaque == null or _cell_mat_transparent == null:
 		_recreate_cell_materials()
 
-	# Grid material (unshaded vertex color)
 	if _grid_mat == null:
 		_grid_mat = ShaderMaterial.new()
 		_grid_mat.shader = _make_vertex_color_unshaded_shader()
 		_grid_mi.material_override = _grid_mat
 
-	# Hover material (overlay)
 	if _hover_mat == null:
 		_hover_mat = ShaderMaterial.new()
 		_hover_mat.shader = _make_hover_overlay_shader()
@@ -555,17 +685,22 @@ func _recreate_cell_materials() -> void:
 	_cell_mat_transparent.shader = _make_cell_shader(true, _shaded_cells)
 	_cell_mat_transparent.set("shader_parameter/u_opacity", _cell_opacity)
 
-	# Set one now; final selection happens in _refresh_cell_material_opacity_mode
 	_cell_mi.material_override = _cell_mat_opaque
 
+# gdscript
 func _make_cell_shader(transparent: bool, shaded: bool) -> Shader:
 	var code := ""
 	code += "shader_type spatial;\n"
+
 	var rm := "cull_disabled"
 	if transparent:
-		rm += ", blend_mix, depth_draw_alpha_prepass"
+		# Godot 4: no depth_draw_alpha_prepass. Just use blend_mix.
+		# Keep a separate opaque material for u_opacity >= 0.999 to avoid
+		# transparency sorting artifacts (already handled in code).
+		rm += ", blend_mix"
 	if not shaded:
 		rm += ", unshaded"
+
 	code += "render_mode %s;\n" % rm
 	code += "uniform float u_opacity = 1.0;\n"
 	code += "void fragment() {\n"
@@ -573,6 +708,7 @@ func _make_cell_shader(transparent: bool, shaded: bool) -> Shader:
 	if transparent:
 		code += "    ALPHA = COLOR.a * u_opacity;\n"
 	code += "}\n"
+
 	var sh := Shader.new()
 	sh.code = code
 	return sh
@@ -616,12 +752,12 @@ func _refresh_cell_material_opacity_mode() -> void:
 
 func _any_cell_has_alpha_lt1() -> bool:
 	for i in range(_cells.size()):
-		if _cells[i].color.a < 0.999:
+		if _cells[i] != null and _cells[i].color.a < 0.999:
 			return true
 	return false
 
 func _apply_radius_scale() -> void:
-	# Geometry is authored at unit radius; scale the node instead of rebuilding.
+	# Geometry at unit radius; scale node instead of rebuilding.
 	scale = Vector3.ONE * _radius
 
 func _update_draws() -> void:
@@ -632,16 +768,15 @@ func _update_draws() -> void:
 			_grid_mi.mesh = null
 	_update_hover_mesh()
 
+# --------------------------- Mesh building (faster) ------------------------
+
 func _build_grid_mesh() -> void:
 	if not draw_grid or _grid_mi == null:
 		if _grid_mi != null:
 			_grid_mi.mesh = null
 		return
 
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_LINES)
-	st.set_color(grid_color)
-
+	# Collect border adjacency: each shared edge gives one grid line
 	var edge_to_faces: Dictionary = {}
 	for fi in range(0, _faces.size(), 3):
 		var a: int = _faces[fi]
@@ -651,19 +786,43 @@ func _build_grid_mesh() -> void:
 		_acc_edge(edge_to_faces, b, c, fi / 3)
 		_acc_edge(edge_to_faces, c, a, fi / 3)
 
+	# Count valid edges
 	var keys: Array = edge_to_faces.keys()
+	var line_count: int = 0
+	for k in keys:
+		var arr: PackedInt32Array = edge_to_faces[k]
+		if arr.size() == 2:
+			line_count += 1
+
+	# Build arrays
+	var verts := PackedVector3Array()
+	var colors := PackedColorArray()
+	verts.resize(line_count * 2)
+	colors.resize(line_count * 2)
+
+	var write: int = 0
 	for k in keys:
 		var arr: PackedInt32Array = edge_to_faces[k]
 		if arr.size() != 2:
 			continue
-		# Author at unit radius; node scale applies 'radius'
 		var p0: Vector3 = _face_centers[arr[0]]
 		var p1: Vector3 = _face_centers[arr[1]]
-		st.add_vertex(p0)
-		st.add_vertex(p1)
 
-	st.index()
-	_grid_mi.mesh = st.commit()
+		verts[write] = p0
+		colors[write] = grid_color
+		verts[write + 1] = p1
+		colors[write + 1] = grid_color
+		write += 2
+
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_COLOR] = colors
+
+	var am := ArrayMesh.new()
+	if line_count > 0:
+		am.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
+	_grid_mi.mesh = am
 
 func _acc_edge(dict: Dictionary, i: int, j: int, fidx: int) -> void:
 	var a: int = i
@@ -686,11 +845,32 @@ func _build_cell_mesh() -> void:
 			_cell_mi.mesh = null
 		return
 
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Count triangles: fan around center; triangles == sum of polygon edge counts
+	var tri_count := 0
+	for ci in range(_cells.size()):
+		var cell := _cells[ci]
+		if cell == null:
+			continue
+		tri_count += cell.polygon.size()
 
+	var v_count := tri_count * 3
+	if v_count <= 0:
+		_cell_mi.mesh = null
+		return
+
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var colors := PackedColorArray()
+	verts.resize(v_count)
+	normals.resize(v_count)
+	colors.resize(v_count)
+
+	var write := 0
 	for ci in range(_cells.size()):
 		var cell: Cell = _cells[ci]
+		if cell == null:
+			continue
+
 		var col: Color = cell.color
 		var cdir: Vector3 = cell.center_unit
 		var c0: Vector3 = cdir * (1.0 + cell_lift_ratio)
@@ -706,61 +886,93 @@ func _build_cell_mesh() -> void:
 			var a: Vector3 = adir * (1.0 + cell_lift_ratio)
 			var b: Vector3 = bdir * (1.0 + cell_lift_ratio)
 
-			# Center vertex
-			st.set_color(col)
-			st.set_normal(cdir) # sphere normal
-			st.add_vertex(c0)
+			# center vertex
+			verts[write] = c0
+			normals[write] = cdir
+			colors[write] = col
+			write += 1
 
-			# Edge A
-			st.set_color(col)
-			st.set_normal(adir)
-			st.add_vertex(a)
+			# edge a
+			verts[write] = a
+			normals[write] = adir
+			colors[write] = col
+			write += 1
 
-			# Edge B
-			st.set_color(col)
-			st.set_normal(bdir)
-			st.add_vertex(b)
+			# edge b
+			verts[write] = b
+			normals[write] = bdir
+			colors[write] = col
+			write += 1
 
-	st.index()
-	_cell_mi.mesh = st.commit()
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_COLOR] = colors
+
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_cell_mi.mesh = am
 
 func _update_hover_mesh() -> void:
 	if _hover_mi == null:
 		return
-	if (not draw_hover) or (_hovered_id == -1):
+	if (not draw_hover) or (_hovered_id < 0) or (_hovered_id >= _cells.size()):
 		_hover_mi.mesh = null
 		return
 
-	var cell: Cell = _cells[_hovered_id]
+	var cell := _cells[_hovered_id]
+	if cell == null:
+		_hover_mi.mesh = null
+		return
+
 	var poly: PackedVector3Array = cell.polygon
 	if poly.size() < 3:
 		_hover_mi.mesh = null
 		return
 
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st.set_color(hover_color)
+	var tri_count := poly.size()
+	var v_count := tri_count * 3
+	var verts := PackedVector3Array()
+	var colors := PackedColorArray()
+	verts.resize(v_count)
+	colors.resize(v_count)
 
 	var c0: Vector3 = cell.center_unit * (1.0 + hover_lift_ratio)
+	var write := 0
 	for i in range(poly.size()):
 		var j: int = (i + 1) % poly.size()
 		var a: Vector3 = poly[i] * (1.0 + hover_lift_ratio)
 		var b: Vector3 = poly[j] * (1.0 + hover_lift_ratio)
-		st.add_vertex(c0)
-		st.add_vertex(a)
-		st.add_vertex(b)
 
-	st.index()
-	_hover_mi.mesh = st.commit()
+		verts[write] = c0
+		colors[write] = hover_color
+		write += 1
 
-# -------------------------- Texture projection ---------------------------
+		verts[write] = a
+		colors[write] = hover_color
+		write += 1
+
+		verts[write] = b
+		colors[write] = hover_color
+		write += 1
+
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_COLOR] = colors
+
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_hover_mi.mesh = am
+
+# -------------------------- Texture projection ----------------------------
 
 func _update_cell_colors_from_texture() -> void:
 	if _cells.size() == 0:
 		return
 
 	if _earth_texture == null:
-		# Fallback gradient by latitude
 		for i in range(_cells.size()):
 			var d: Vector3 = _cells[i].center_unit
 			var t: float = (d.y * 0.5) + 0.5
@@ -845,3 +1057,151 @@ func _sample_image_bilinear(img: Image, u: float, v: float) -> Color:
 	var cx0: Color = c00.lerp(c10, tx)
 	var cx1: Color = c01.lerp(c11, tx)
 	return cx0.lerp(cx1, ty)
+
+# ----------------------------- Hover helpers ------------------------------
+
+func _reset_hover() -> void:
+	_hovered_id = -1
+	_last_id = -1
+	if _hover_mi != null:
+		_hover_mi.mesh = null
+
+# -------------------------- Full-bake (Option B) --------------------------
+
+func _save_full_bake(path: String) -> void:
+	path = _ensure_bake_path_with_extension(path)
+	print("[GlobeHexGrid] Saving full bake to: ", path)
+
+	_rebuild_all()
+
+	var data := GlobeHexBaked.new()
+	data.subdivisions = _subdivisions
+	data.cells_mesh = _cell_mi.mesh
+	data.grid_mesh = _grid_mi.mesh
+
+	var count := _cells.size()
+	data.centers = PackedVector3Array()
+	data.centers.resize(count)
+	data.neighbors = []
+	data.neighbors.resize(count)
+	data.polygons = []
+	data.polygons.resize(count)
+	for i in range(count):
+		data.centers[i] = _cells[i].center_unit
+		data.neighbors[i] = _cells[i].neighbors
+		data.polygons[i] = _cells[i].polygon
+
+	_ensure_dir_for_path(path)
+
+	var flags := ResourceSaver.FLAG_BUNDLE_RESOURCES
+	var err := ResourceSaver.save(data, path, flags)
+	if err != OK:
+		push_warning("Failed to save full bake: %s (err %d)" % [path, err])
+	else:
+		print("[GlobeHexGrid] Saved full bake to ", path)
+
+func _load_full_bake_deferred(path: String) -> void:
+	path = _ensure_bake_path_with_extension(path)
+	var ok := load_full_bake(path)
+	if ok:
+		print("[GlobeHexGrid] Loaded full bake OK: ", path)
+	else:
+		push_warning("Failed to load full bake: %s" % path)
+func _ensure_dir_for_path(path: String) -> void:
+	var dir_path := path.get_base_dir()
+	if dir_path == "":
+		return
+	var abs := ProjectSettings.globalize_path(dir_path)
+	if not DirAccess.dir_exists_absolute(abs):
+		var e := DirAccess.make_dir_recursive_absolute(abs)
+		if e != OK:
+			push_warning(
+				"Failed to create dir: %s (err %d)" % [abs, e]
+			)
+
+func load_full_bake(path: String) -> bool:
+	var data := ResourceLoader.load(path) as GlobeHexBaked
+	if data == null:
+		return false
+	_apply_bake(data)
+	return true
+
+func _apply_bake(data: GlobeHexBaked) -> void:
+	_reset_hover()
+	_ensure_draw_nodes_and_materials()
+
+	_cell_mi.mesh = data.cells_mesh
+	_grid_mi.mesh = data.grid_mesh
+
+	_cells.clear()
+	_cells.resize(data.centers.size())
+	_verts = data.centers
+	_nbrs = data.neighbors
+
+	_sanitize_neighbors()
+
+	_last_id = -1
+
+	for i in range(_cells.size()):
+		var cell := Cell.new()
+		cell.id = i
+		cell.center_unit = data.centers[i]
+		cell.neighbors = _nbrs[i]
+		cell.polygon = data.polygons[i]
+		cell.is_pentagon = cell.polygon.size() == 5
+		cell.color = default_cell_color
+		_cells[i] = cell
+
+	_refresh_cell_material_opacity_mode()
+	_apply_radius_scale()
+	_update_hover_mesh()
+
+	print(
+		"[GlobeHexGrid] Applied bake. cells=",
+		_cells.size(),
+		" verts=",
+		_verts.size(),
+		" nbrs=",
+		_nbrs.size()
+	)
+
+func _sanitize_neighbors() -> void:
+	var n := _verts.size()
+	if _nbrs.size() != n:
+		_nbrs.resize(n)
+	for i in range(n):
+		var in_list: PackedInt32Array = (
+			_nbrs[i] if i < _nbrs.size() and _nbrs[i] != null
+			else PackedInt32Array()
+		)
+		var out_list := PackedInt32Array()
+		for nb in in_list:
+			if nb >= 0 and nb < n and nb != i:
+				out_list.append(nb)
+		_nbrs[i] = out_list
+
+# --------------------------- Small math helpers ----------------------------
+
+# Convert world-space unit direction into node-local unit-sphere direction.
+func _world_dir_to_local_dir(dir_world: Vector3) -> Vector3:
+	var inv_rot := global_transform.basis.orthonormalized().inverse()
+	return (inv_rot * dir_world).normalized()
+
+# Local tangent-frame convention: z-forward, y-up.
+func _lon_lat_to_dir_local(lon: float, lat: float) -> Vector3:
+	var cos_lat := cos(lat)
+	return Vector3(
+		sin(lon) * cos_lat,
+		sin(lat),
+		cos(lon) * cos_lat
+	)
+func _ensure_bake_path_with_extension(path: String) -> String:
+	var p := path.strip_edges()
+	if p == "":
+		return p
+	var ext := p.get_extension().to_lower()
+	if ext == "":
+		return p + ".tres"
+	if ext != "tres" and ext != "res":
+		return p.get_basename() + ".tres"
+	return p

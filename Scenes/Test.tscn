@@ -1,25 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4vijadlguk1j"]
+[gd_scene load_steps=2 format=3 uid="uid://b4vijadlguk1j"]
 
-[ext_resource type="Script" uid="uid://do614w5346esu" path="res://Scripts/Hex Grid Globe/GlobeHexGrid.gd" id="1_ko2s7"]
-[ext_resource type="Texture2D" uid="uid://6tnc4lkt1v3f" path="res://Data/Turns/2_no_clouds_16k.jpg" id="2_gxb1y"]
 [ext_resource type="Script" uid="uid://c162lo8c68wbn" path="res://Scripts/Hex Grid Globe/GlobrCameraController.gd" id="3_0dy5s"]
 
 [node name="Node3D" type="Node3D"]
 
-[node name="GlobeHexGrid" type="Node3D" parent="."]
-script = ExtResource("1_ko2s7")
-_earth_texture = ExtResource("2_gxb1y")
-subdivisions = 8
-radius = 100.0
-camera_path = NodePath("../Camera3D")
-cell_opacity = 1.0
-shaded_cells = true
-cell_lift_ratio = 0.0
-metadata/_custom_type_script = "uid://do614w5346esu"
-
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 59.387657)
 script = ExtResource("3_0dy5s")
+globe_radius = 10.0
+rotate_button = 0
 invert_y = true
 metadata/_custom_type_script = "uid://c162lo8c68wbn"
 

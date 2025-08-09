@@ -69,6 +69,6 @@ func get_context_items() -> Dictionary[String,Callable]:
 	
 	
 	for action in action_blueprints:
-		ret_value[action.action_name] = Callable.create(UnitActionManager, "try_execute_item_action").bind(action, self,current_inventory_grid)
+		ret_value[action.action_name] = Callable.create(UnitActionManager.Instance, "try_execute_item_action").bind(action, self, current_inventory_grid)
 	
 	return ret_value

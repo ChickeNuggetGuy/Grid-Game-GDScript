@@ -16,4 +16,5 @@ inventory_name = "New Inventory"
 inventory_type = 6
 shape = SubResource("Resource_n0pf3")
 use_item_size = false
+equipment_inventory = true
 metadata/_custom_type_script = "uid://bvaar7mvf43va"

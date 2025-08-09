@@ -10,8 +10,13 @@ func _init() -> void:
 	
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.NONE
-	var result = GridSystem.Instance.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+	var result = GridSystem.Instance.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(10,5), walkable_empty_filter)
 	
+	var grid_cells : Array[GridCell] = result["grid_cell_array"] 
+	for i in range(grid_cells.size() - 1, -1, -1):
+		if not grid_cells[i].has_grid_object():
+			grid_cells.remove_at(i)
+			
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	
@@ -19,13 +24,17 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 
 
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
-	var ret_value = {}
+	var ret_value :  Dictionary[GridCell, float] = {}
 	
-	var grid_system : GridSystem = GridSystem.Instance
 	for grid_cell in get_valid_grid_cells(starting_grid_cell):
-		var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
-		var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
-		ret_value[grid_cell] = normalized_distance
+		
+		#if not grid_cell.has_grid_object():
+		ret_value[grid_cell] = 1 if grid_cell.has_grid_object() else 0
+		#else:
+			#ret_value[grid_cell] = 1
+		#var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
+		#var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
+		
 	
 	return ret_value
 

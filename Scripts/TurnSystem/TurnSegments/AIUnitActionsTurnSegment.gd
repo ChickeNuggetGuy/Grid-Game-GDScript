@@ -23,13 +23,23 @@ func execute(parent_turn : TurnData):
 				var unit = grid_object as Unit
 				var unit_actions = unit.get_all_action_definitions()
 				var unit_action_array : Array[BaseActionDefinition] = unit_actions["action_definitions"]
-				unit_action_array.append_array(unit_actions["item_action_definitions"])
+				unit_action_array.append_array(unit_actions["item_action_definitions"].keys())
 				
 				var best_action_results = determine_best_action(unit, unit_action_array)
 				
-				await UnitActionManager.Instance.try_execute_action(best_action_results["best_action_result"]["grid_cell"],
-						unit,
-						best_action_results["action"])
+				if best_action_results["action"] is BaseItemActionDefinition:
+					
+					var action_item = unit_actions["item_action_definitions"].get(best_action_results["action"])
+
+					await UnitActionManager.Instance.try_execute_item_action(best_action_results["action"],
+											best_action_results["best_action_result"]["grid_cell"],
+											unit,
+											action_item,
+											action_item.current_inventory_grid)
+				else:
+					await UnitActionManager.Instance.try_execute_action(best_action_results["best_action_result"]["grid_cell"],
+							unit,
+							best_action_results["action"])
 
 
 func determine_best_action(unit : Unit, action_array : Array[BaseActionDefinition]) -> Dictionary:
