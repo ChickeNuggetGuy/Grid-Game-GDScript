@@ -2,7 +2,6 @@ extends Manager
 class_name MeshTerrainManager
 
 
-static var Instance : MeshTerrainManager
 @export var map_size: Vector2i = Vector2i(2, 2)
 @export var chunk_size: int = 16
 @export var cell_size: Vector2 = Vector2(1.0, 1.0)
@@ -13,15 +12,21 @@ static var Instance : MeshTerrainManager
 var terrain_heights = []
 var locked_vertices = []
 
-func _init() -> void:
-	Instance = self
+
+
+func get_manager_data() -> Dictionary:
+	return {}
+
+
+
 func _get_manager_name() -> String:
-	return "Mesh Terrain"
+	return "MeshTerrainManager"
 
 func _setup_conditions():
 	return true
 
 func _setup():
+	map_size = Manager.get_instance("GameManager").passable_parameters["map_size"]
 	setup_completed.emit()
 
 func _execute_conditions() -> bool:
@@ -38,6 +43,14 @@ func _execute() -> void:
 	
 	execution_completed.emit()
 
+
+func on_scene_changed(_new_scene: Node):
+	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+		queue_free()
+
+func _on_exit_tree() -> void:
+	return
+
 func generate_height_map() -> void:
 	var width = (map_size.x * chunk_size * 2) + 1
 	var height = (map_size.y * chunk_size * 2) + 1
@@ -52,10 +65,10 @@ func generate_height_map() -> void:
 			locked_vertices[i].append(false)
 
 	var noise = FastNoiseLite.new()
-	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
+	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	noise.cellular_return_type = FastNoiseLite.RETURN_CELL_VALUE
 	noise.seed = randi()
-	noise.frequency = 1.0 / 10.0
+	noise.frequency = 1.0 / 50.0
 
 	for x in range(width):
 		for z in range(height):

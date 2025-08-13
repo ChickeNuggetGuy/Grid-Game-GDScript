@@ -44,13 +44,13 @@ func _execute() -> void:
 	await super._execute()
 	
 	var throw_visual = CSGSphere3D.new()
-	throw_visual.radius = 1
+	throw_visual.radius = .08
 	owner.get_tree().root.add_child(throw_visual)
 	throw_visual.position =  arc_path_results["vector3_path"][0]
 	for position in arc_path_results["vector3_path"]:
 		
 		var throw_tween = owner.create_tween()
-		throw_tween.tween_property(throw_visual, "position", position, 0.01)
+		throw_tween.tween_property(throw_visual, "position", position, 0.03)
 		await throw_tween.finished
 	
 	throw_visual.queue_free() 
@@ -58,7 +58,6 @@ func _execute() -> void:
 
 
 func _action_complete():
-	print("TESTING !@#")
 	var end_grid_cell : GridCell =arc_path_results["grid_cell_path"][ arc_path_results["grid_cell_path"].size() - 1]
 	InventoryGrid.try_transfer_item(starting_inventory, 
 			end_grid_cell.inventory_grid,item)

@@ -10,7 +10,7 @@ class_name GridObjectAnimation
 func _setup() -> void:
 	animation_tree = animation_player_holder.find_child("AnimationTree")
 	#animation_tree.advance_expression_base_node = parent_grid_object.get_path()
-	UnitActionManager.Instance.connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	Manager.get_instance("UnitActionManager").connect("action_execution_finished",UnitActionManager_action_execution_finished)
 
 
 func UnitActionManager_action_execution_finished(_completed_action_definition : BaseActionDefinition, 

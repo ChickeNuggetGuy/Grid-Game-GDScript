@@ -6,6 +6,7 @@ var grid_position_data : GridPositionData
 @export var visual :  StaticBody3D
 
 var team : Enums.unitTeam 
+@export var active : bool = true
 @export_category("Stats")
 @export var stat_holder: Node
 var stat_library: Array[GridObjectStat] = []
@@ -67,14 +68,17 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : 
 
 func grid_object_dealth():
 	print("Grid Object Died, Removing from tree")
-	self.queue_free()
+	active = false
+	#self.queue_free()
+	grid_position_data.set_grid_cell(null)
+	self.position = Vector3(-500, -500, -500)
 	return 
 
 
 func setup_inventory_grids():
 	for inventory_type in inventory_grid_types:
 		
-		var result = InventoryManager.Instance.try_get_inventory_grid(inventory_type)
+		var result = Manager.get_instance("InventoryManager").try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
 
@@ -177,7 +181,8 @@ func try_get_grid_object_component_by_type(type_to_find : String) -> Dictionary:
 func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_B:
-			if UnitManager.Instance.selectedUnit == self:
-				print(grid_position_data.grid_cell.inventory_grid.try_add_item(InventoryManager.Instance.get_random_item()))
+			if Manager.get_instance("UnitManager").selectedUnit == self:
+				print(grid_position_data.grid_cell.inventory_grid.try_add_item(
+					Manager.get_instance("InventoryManager").get_random_item()))
 
 #endregion

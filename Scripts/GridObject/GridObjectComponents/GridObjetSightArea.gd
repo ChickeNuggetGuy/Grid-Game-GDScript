@@ -6,7 +6,7 @@ class_name GridObjectSightArea
 
 var seen_gridObjects: Dictionary[Enums.unitTeam, Array] = {}
 func _setup():
-	UnitActionManager.Instance.connect("action_execution_finished", UnitActionManager_action_execution_finished)
+	Manager.get_instance("UnitActionManager").connect("action_execution_finished", UnitActionManager_action_execution_finished)
 	return
 
 
@@ -26,7 +26,7 @@ func update_sight_area():
 
 	var forward_dir = -parent_grid_object.global_transform.basis.z
 
-	var result = GridSystem.Instance.try_get_cells_in_cone(
+	var result = Manager.get_instance("GridSystem").try_get_cells_in_cone(
 		current_cell,
 		forward_dir,
 		sight_depth,

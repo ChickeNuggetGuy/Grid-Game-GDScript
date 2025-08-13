@@ -10,6 +10,11 @@ var is_busy = false
 signal  turn_changed(current_turn : TurnData)
 
 
+func get_manager_data() -> Dictionary:
+	return {}
+
+
+
 func _init() -> void:
 	Instance = self
 
@@ -50,6 +55,12 @@ func _execute():
 	return;
 
 
+func on_scene_changed(_new_scene: Node):
+	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+		queue_free()
+
+func _on_exit_tree() -> void:
+	return
 
 func execute_current_turn():
 	if current_turn == null and (turns == null or turns.size() < 1):

@@ -11,7 +11,7 @@ var inventory_ui_grids : Dictionary[Enums.inventoryType, InventoryGridUI] = {}
 
 func _setup():
 	intance = self
-	UnitActionManager.Instance.connect("action_execution_started",UnitActionManager_action_started)
+	Manager.get_instance("UnitActionManager").connect("action_execution_started",UnitActionManager_action_started)
 	for child in inventory_grids_holder.get_children():
 		if child is InventoryGridUI:
 			var inventory_ui = child as InventoryGridUI

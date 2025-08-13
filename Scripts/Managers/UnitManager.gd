@@ -1,9 +1,8 @@
 extends Manager
 class_name UnitManager
 #region Variables
-static  var Instance : UnitManager
 @export var UnitTeams : Dictionary[Enums.unitTeam, UnitTeamHolder]
-@export var spawnCounts : Vector2i = Vector2(2,2)
+@export var spawn_counts : Vector2i = Vector2(2,2)
 @export var unitScene: PackedScene
 
 @export var selectedUnit : Unit = null
@@ -14,12 +13,16 @@ signal UnitSelected(newUnit : Unit, oldUnit: Unit);
 #endregion
 
 #region Functions
-func _init() -> void:
-	Instance = self
 func _get_manager_name() -> String: return "UnitManager"
 
 
 func _setup_conditions(): return true
+
+
+func get_manager_data() -> Dictionary:
+	var ret_value = {}
+	return ret_value
+
 
 
 func _setup():
@@ -42,18 +45,28 @@ func _setup():
 func _execute_conditions() -> bool: return true
 
 func _execute():
-	for x in range(spawnCounts.x):
+	
+	spawn_counts = Manager.get_instance("GameManager").passable_parameters["spawn_counts"]
+	for x in range(spawn_counts.x):
 		spawn_unit(Enums.unitTeam.PLAYER)
 		
-	for y in range(spawnCounts.y):
+	for y in range(spawn_counts.y):
 		spawn_unit(Enums.unitTeam.ENEMY)
 	
 	set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].gridObjects[0])
 	execution_completed.emit()
 
 
+
+func on_scene_changed(_new_scene: Node):
+	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+		queue_free()
+
+func _on_exit_tree() -> void:
+	return
+
 func spawn_unit(team : Enums.unitTeam):
-	var result = GridSystem.Instance.try_get_random_walkable_cell()
+	var result = Manager.get_instance("GridSystem").try_get_random_walkable_cell()
 	
 	if result["success"] == false || result["cell"] == null:
 		print("Could not find any valid grid cell. Returning prematurely")
@@ -71,6 +84,9 @@ func spawn_unit(team : Enums.unitTeam):
 
 func set_selected_unit(gridObject: Unit):
 	if selectedUnit == gridObject:
+		return
+	
+	if not gridObject.active:
 		return
 	var oldUnit = selectedUnit
 	selectedUnit = gridObject
@@ -95,7 +111,7 @@ func set_selected_unit_next():
 
 
 func _unhandled_input(event):
-	if UIManager.Instance.blocking_input:
+	if Manager.get_instance("UIManager").blocking_input:
 		return
 	
 	if event is InputEventKey:
@@ -103,8 +119,8 @@ func _unhandled_input(event):
 			set_selected_unit_next()
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			if GridInputManager.Instance.currentGridCell != null:
-				var grid_object : Unit = GridInputManager.Instance.currentGridCell.grid_object
+			if Manager.get_instance("GridInputManager").currentGridCell != null:
+				var grid_object : Unit = Manager.get_instance("GridInputManager").currentGridCell.grid_object
 				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].gridObjects.has(grid_object):
 					set_selected_unit(grid_object)
 #endregion

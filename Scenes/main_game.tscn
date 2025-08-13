@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://djp7ngnurdxef"]
-
-[node name="MainGame" type="Node3D"]
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.8086065, 0.58834994, 0, -0.58834994, 0.8086065, 0, 0.9739627, 0)

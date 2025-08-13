@@ -202,6 +202,9 @@ func remove_item(item_to_remove: Item) -> Item:
 		for x in range(_items[y].size()):
 			if _items[y][x] == item_to_remove:
 				_items[y][x] = null
+	
+	
+	removed_item.current_inventory_grid = null
 	emit_signal("inventory_changed")
 	emit_signal("item_removed", item_to_remove, null)
 	return removed_item

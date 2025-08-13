@@ -1,0 +1,33 @@
+[gd_scene load_steps=3 format=3 uid="uid://djp7ngnurdxef"]
+
+[ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/GameManager.gd" id="1_vlnnf"]
+[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/UIManager.gd" id="2_6j7wo"]
+
+[node name="MainGame" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8086065, 0.58834994, 0, -0.58834994, 0.8086065, 0, 0.9739627, 0)
+
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("current_scene_node") groups=["Managers"]]
+script = ExtResource("1_vlnnf")
+scene_dictionary = Dictionary[String, String]({
+"BattleScene": "res://Scenes/GameScenes/BattleScene.tscn",
+"MainGame": "res://Scenes/GameScenes/main_game.tscn",
+"MainMenuScene": "res://Scenes/GameScenes/MainMenuScene.tscn"
+})
+current_scene_node = NodePath("../SceneContainer")
+current_scene_name = "MainMenuScene"
+passable_parameters = {
+"current_scene_name": "MainMenuScene",
+"current_scene_node": null,
+"map-size": Vector2i(0, 0),
+"map_size": Vector2i(0, 0),
+"spawn_counts": Vector2i(0, 0)
+}
+metadata/_custom_type_script = "uid://mg5g38d61gap"
+
+[node name="UIManager" type="Node" parent="GameManager" groups=["Managers"]]
+script = ExtResource("2_6j7wo")
+metadata/_custom_type_script = "uid://cq3ef3ssfwu7w"
+
+[node name="SceneContainer" type="Node" parent="."]

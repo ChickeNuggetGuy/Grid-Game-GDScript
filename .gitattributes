@@ -1,3 +1,19 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+default_bus_layout.tres filter=lfs diff=lfs merge=lfs -text
+Data filter=lfs diff=lfs merge=lfs -text
+icon.png filter=lfs diff=lfs merge=lfs -text
+project.godot filter=lfs diff=lfs merge=lfs -text
+Third-Party[[:space:]]Assets filter=lfs diff=lfs merge=lfs -text
+icon.svg.import filter=lfs diff=lfs merge=lfs -text
+LICENSE filter=lfs diff=lfs merge=lfs -text
+README.md filter=lfs diff=lfs merge=lfs -text
+Scenes filter=lfs diff=lfs merge=lfs -text
+examples_dd3d filter=lfs diff=lfs merge=lfs -text
+icon.png.import filter=lfs diff=lfs merge=lfs -text
+icon.svg filter=lfs diff=lfs merge=lfs -text
+addons filter=lfs diff=lfs merge=lfs -text
+Animations filter=lfs diff=lfs merge=lfs -text
+hex[[:space:]]globe filter=lfs diff=lfs merge=lfs -text
+Scripts filter=lfs diff=lfs merge=lfs -text
 hex[[:space:]]globe/.tres filter=lfs diff=lfs merge=lfs -text

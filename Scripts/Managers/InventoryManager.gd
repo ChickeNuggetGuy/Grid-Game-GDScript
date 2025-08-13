@@ -1,7 +1,6 @@
 extends Manager
 class_name InventoryManager
 
-static var Instance : InventoryManager
 var inventory_items : Dictionary[String, Item] = {}
 
 var inventory_grids : Dictionary[Enums.inventoryType, InventoryGrid] = {}
@@ -11,8 +10,10 @@ var inactive_inventory_slot_prefab : PackedScene
 
 
 #region Functions
-func _init() -> void:
-	Instance = self
+
+func get_manager_data() -> Dictionary:
+	return {}
+
 
 
 func _get_manager_name() -> String:return "InventoryManager"
@@ -45,10 +46,23 @@ func _execute():
 	for child in item_array:
 		if child is not Item:
 			continue
+		var typed_item = child as Item
+		typed_item._setup()
 		inventory_items[child.item_name] = child
 
 	
 	execution_completed.emit()
+
+
+func on_scene_changed(_new_scene: Node):
+	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+		queue_free()
+
+
+func _on_exit_tree() -> void:
+	return
+
+
 
 func try_gry_inventory_item(item_name : String) -> Dictionary:
 	var retval : Dictionary = {"success": false, "inventory_item" : null}

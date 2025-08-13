@@ -10,6 +10,9 @@ var action_script: Script
 @export var show_in_ui: bool = false
 @export_category("Core")
 @export var cost: int
+@export var multiple_exectutions : bool = true
+@export var extra_parameters : Dictionary
+
 
 @abstract func can_execute(parameters : Dictionary) -> Dictionary
 @abstract func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]

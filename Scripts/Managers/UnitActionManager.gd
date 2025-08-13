@@ -1,7 +1,6 @@
 extends Manager
 class_name UnitActionManager
 #region Variables
-static var Instance : UnitActionManager
 
 var selected_action: BaseActionDefinition
 var is_busy: bool = false
@@ -18,11 +17,15 @@ signal action_execution_finished(current_action_definition: BaseActionDefinition
 
 #region Setup
 
-func _init() -> void:
-	Instance = self
 
 
+func get_manager_data() -> Dictionary:
+	return {}
 
+
+func on_scene_changed(new_scene: Node):
+	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+		queue_free()
 
 func _get_manager_name() -> String:
 	return "UnitActionManager"
@@ -31,13 +34,11 @@ func _setup_conditions() -> bool:
 	return true
 
 func _setup() -> void:
-	# Example: connect to UnitManager if needed
-	# UnitManager.connect("UnitSelected", _unitmanager_unitselected)
 	setup_completed.emit()
 
-func _exit_tree() -> void:
-	if UnitManager.Instance.is_connected("SelectedUnitChanged", Callable(self, "_on_unit_manager_selected_unit")):
-		UnitManager.Instance.disconnect("SelectedUnitChanged",Callable(self, "_on_unit_manager_selected_unit"))
+func _on_exit_tree() -> void:
+	if Manager.get_instance("UnitManager").is_connected("SelectedUnitChanged", Callable(self, "_on_unit_manager_selected_unit")):
+		Manager.get_instance("UnitManager").disconnect("SelectedUnitChanged",Callable(self, "_on_unit_manager_selected_unit"))
 
 func _execute_conditions() -> bool:
 	return true
@@ -81,7 +82,7 @@ func set_is_busy(value: bool) -> void:
 
 #region Input Handling
 func _unhandled_input(event) -> void:
-	if is_busy or UIManager.Instance.blocking_input:
+	if is_busy or Manager.get_instance("UIManager").blocking_input:
 		return
 
 	if event is InputEventMouseButton and event.pressed:
@@ -92,18 +93,18 @@ func _unhandled_input(event) -> void:
 				_handle_right_click()
 
 func _handle_left_click() -> void:
-	var current_cell = GridInputManager.Instance.currentGridCell
+	var current_cell = Manager.get_instance("GridInputManager").currentGridCell
 	if current_cell:
 		try_execute_selected_action(current_cell)
 	else:
 		print_debug("Left click ignored: No grid cell selected.")
 
 func _handle_right_click() -> void:
-	var selected_unit = UnitManager.Instance.selectedUnit
+	var selected_unit = Manager.get_instance("UnitManager").selectedUnit
 	if not selected_unit:
 		return
 
-	var current_cell = GridInputManager.Instance.currentGridCell
+	var current_cell = Manager.get_instance("GridInputManager").currentGridCell
 	if not current_cell:
 		return
 
@@ -116,7 +117,7 @@ func _handle_right_click() -> void:
 
 #region Action Execution
 func try_execute_selected_action(grid_cell: GridCell) -> void:
-	var selected_unit: Unit = UnitManager.Instance.selectedUnit
+	var selected_unit: Unit = Manager.get_instance("UnitManager").selectedUnit
 	if not selected_unit or not selected_action:
 		return
 	try_execute_action(grid_cell, selected_unit, selected_action)
@@ -125,30 +126,40 @@ func try_execute_action(grid_cell: GridCell, unit: Unit, action_to_execute: Base
 	if not unit or not action_to_execute:
 		print_debug("Action execution failed: Missing unit or action.")
 		return
-
+	
+	
 	var params = {
 		"unit": unit,
 		"start_grid_cell": unit.grid_position_data.grid_cell,
-		"target_grid_cell": grid_cell
+		"target_grid_cell": grid_cell,
+		"action_definition": action_to_execute,
 	}
+	
+	if action_to_execute.extra_parameters != null and action_to_execute.extra_parameters.size() > 0:
+		for param_key in action_to_execute.extra_parameters.keys():
+			params[param_key] = action_to_execute.extra_parameters[param_key]
+		
+		
+
 	await _execute_action_internal(action_to_execute, params)
 
 func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
-		target_grid_cell : GridCell,
 		unit : Unit,
 		item: Item,
-		starting_inventory: InventoryGrid) -> Dictionary:
-	UIManager.Instance.hide_non_persitent_windows()
-	UIManager.Instance.try_block_input(null)
+		starting_inventory: InventoryGrid,
+		target_grid_cell : GridCell = null) -> Dictionary:
+	Manager.get_instance("UIManager").hide_non_persitent_windows()
+	Manager.get_instance("UIManager").try_block_input(null)
 	set_is_busy(true)
 
 	var ret_val = {"success": false, "Reasoning": "N/A"}
 
 
 	if not target_grid_cell:
-		ret_val["Reasoning"] = "Current grid cell is null!"
-		print_debug(ret_val["Reasoning"])
-		set_is_busy(false)
+		target_grid_cell = Manager.get_instance("GridInputManager").currentGridCell
+		#ret_val["Reasoning"] = "Current grid cell is null!"
+		#print_debug(ret_val["Reasoning"])
+		#set_is_busy(false)
 		return ret_val
 
 	if not unit:
@@ -178,11 +189,17 @@ func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
 		"starting_inventory": starting_inventory
 	}
 	await _execute_action_internal(action_to_execute, params)
-	UIManager.Instance.unblock_input()
+	Manager.get_instance("UIManager").unblock_input()
 	return ret_val
 
 # Core unified execution method
 func _execute_action_internal(action_def: BaseActionDefinition, params: Dictionary) -> void:
+		
+	#if action_def is BaseItemActionDefinition:
+		#var item_action : BaseItemActionDefinition = action_def as BaseItemActionDefinition
+		#params["item"] = item_action.parent_item
+		#print("is item action with item: " + str(item_action.parent_item))
+	#
 	var result = action_def.can_execute(params)
 	if not result.get("success", false):
 		print_debug("Failed to execute action: %s" % str(result.get("reason", "Unknown reason")))

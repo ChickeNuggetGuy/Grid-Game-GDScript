@@ -9,8 +9,8 @@ var quick_target_buttons : Array[QuickTargetButton]
 
 
 func _setup():
-	UnitManager.Instance.connect("UnitSelected",UnitManager_UnitSelected)
-	UnitActionManager.Instance.connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	Manager.get_instance("UnitManager").connect("UnitSelected",UnitManager_UnitSelected)
+	Manager.get_instance("UnitActionManager").connect("action_execution_finished",UnitActionManager_action_execution_finished)
 
 
 
@@ -25,7 +25,7 @@ func UnitManager_UnitSelected(_new_unit : Unit, _old_unit : Unit):
 
 
 func update_quick_target_buttons():
-	var current_unit = UnitManager.Instance.selectedUnit
+	var current_unit = Manager.get_instance("UnitManager").selectedUnit
 	if current_unit == null:
 		return
 

@@ -40,15 +40,16 @@ func set_direction(dir :Enums.facingDirection, update_transform : bool = false):
 
 
 func set_grid_cell(target_grid_cell: GridCell):
-	if target_grid_cell == null:
-		print("gridcell is null, returning")
-		return
 
 	# Clear previous grid cell references and restore original states
 	for cell in grid_cells:
 		cell.restore_original_state()
 	
 	grid_cells.clear()
+
+	if target_grid_cell == null:
+		print("gridcell is null, returning")
+		return
 
 	# Add the base cell
 	grid_cells.append(target_grid_cell)
@@ -64,7 +65,7 @@ func set_grid_cell(target_grid_cell: GridCell):
 					
 				var offset = Vector3i(x, y, z)
 				var cell_pos = target_grid_cell.gridCoordinates + offset
-				var temp_grid_cell = GridSystem.Instance.get_grid_cell(cell_pos)
+				var temp_grid_cell = Manager.get_instance("GridSystem").get_grid_cell(cell_pos)
 
 				if temp_grid_cell != null and not grid_cells.has(temp_grid_cell):
 					grid_cells.append(temp_grid_cell)

@@ -5,25 +5,35 @@ var gridSystem: GridSystem
 var currentGridCell : GridCell;
 var visual : Node3D
 
-static var Instance : GridInputManager
 
 #endregion
 
 signal grid_cell_selected(grid_cell : GridCell)
 #region Functions
-func _init() -> void:
-	Instance = self
+
+
+func get_manager_data() -> Dictionary:
+	return {}
 
 
 
 func _ready() -> void:
-	gridSystem = GridSystem.Instance
+	super._ready()
+	gridSystem = Manager.get_instance("GridSystem")
 	visual = CSGBox3D.new()
 	add_child(visual)
 
 
+
+func on_scene_changed(_new_scene: Node):
+	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+		queue_free()
+
+func _on_exit_tree() -> void:
+	return
+
 func _process(_delta: float) -> void:
-	if !GameManager.Instance.execution_completed:
+	if !Manager.get_instance("GameManager").execution_completed:
 		return
 	var mp   = get_viewport().get_mouse_position()
 	var from = get_viewport().get_camera_3d().project_ray_origin(mp)

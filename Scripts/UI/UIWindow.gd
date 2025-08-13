@@ -12,7 +12,7 @@ var is_shown : bool
 
 #region Functions
 func _ready() -> void:
-	UIManager.Instance.add_ui_window(self)
+	Manager.get_instance("UIManager").add_ui_window(self)
 	if start_hidden:
 		hide_call()
 	else:
@@ -21,7 +21,7 @@ func show_call():
 	_show()
 
 func _show():
-	if block_inputs and UnitActionManager.Instance.is_busy:
+	if block_inputs and Manager.get_instance("UnitActionManager").is_busy:
 		return
 	
 	if visual != null:
@@ -31,7 +31,7 @@ func _show():
 		push_warning("Visual for UI Window is null!")
 	is_shown = true
 	if block_inputs:
-		UIManager.Instance.try_block_input(self)
+		Manager.get_instance("UIManager").try_block_input(self)
 
 
 func hide_call():
@@ -44,8 +44,8 @@ func _hide():
 		visual.hide()
 		visual.set_process(false)
 	
-	if UIManager.Instance.blocking_input and UIManager.Instance.blocking_window == self:
-		UIManager.Instance.unblock_input()
+	if Manager.get_instance("UIManager").blocking_input and Manager.get_instance("UIManager").blocking_window == self:
+		Manager.get_instance("UIManager").unblock_input()
 	is_shown = false
 
 

@@ -1,13 +1,19 @@
-[gd_resource type="Resource" script_class="TeamTurnData" load_steps=6 format=3 uid="uid://dsqgmnc1g1g4c"]
+[gd_resource type="Resource" script_class="TeamTurnData" load_steps=8 format=3 uid="uid://dsqgmnc1g1g4c"]
 
 [ext_resource type="Script" uid="uid://k2mchnt8k1fd" path="res://Scripts/TurnSystem/TeamTurnData.gd" id="1_e1fvw"]
 [ext_resource type="Script" uid="uid://btg5hvyvxirc4" path="res://Scripts/TurnSystem/TurnSegment.gd" id="2_3nrmx"]
 [ext_resource type="Script" uid="uid://d152u74oby2ve" path="res://Scripts/TurnSystem/TurnSegments/TestPrintTurnSegment.gd" id="3_t86fl"]
+[ext_resource type="Script" uid="uid://bpkxhpk4a0hyg" path="res://Scripts/TurnSystem/TurnSegments/CheckGameState.gd" id="4_r2xrp"]
 
 [sub_resource type="Resource" id="Resource_r2xrp"]
 script = ExtResource("3_t86fl")
 print_string = "1"
 metadata/_custom_type_script = "uid://d152u74oby2ve"
+
+[sub_resource type="Resource" id="Resource_3qqde"]
+script = ExtResource("4_r2xrp")
+team = 1
+metadata/_custom_type_script = "uid://bpkxhpk4a0hyg"
 
 [sub_resource type="Resource" id="Resource_t86fl"]
 script = ExtResource("3_t86fl")
@@ -18,7 +24,7 @@ metadata/_custom_type_script = "uid://d152u74oby2ve"
 script = ExtResource("1_e1fvw")
 team = 1
 turn_name = "Player Turn"
-turn_segments = Array[ExtResource("2_3nrmx")]([SubResource("Resource_r2xrp"), SubResource("Resource_t86fl")])
+turn_segments = Array[ExtResource("2_3nrmx")]([SubResource("Resource_r2xrp"), SubResource("Resource_3qqde"), SubResource("Resource_t86fl")])
 repeatable = true
 turn_priority = 1
 metadata/_custom_type_script = "uid://k2mchnt8k1fd"

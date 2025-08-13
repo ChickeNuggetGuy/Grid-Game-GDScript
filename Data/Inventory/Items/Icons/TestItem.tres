@@ -1,0 +1,16 @@
+[gd_resource type="Texture2D" script_class="SceneTexture" load_steps=3 format=3 uid="uid://boj73dkaxm2hj"]
+
+[ext_resource type="Script" uid="uid://bwljpk6atbqtn" path="res://addons/scene_texture/SceneTexture.gd" id="1_7kwcn"]
+[ext_resource type="PackedScene" uid="uid://bv2hsh276nah7" path="res://Third-Party Assets/FBX/SM_Prop_Pistol_01.fbx" id="1_m7nom"]
+
+[resource]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("1_7kwcn")
+size = Vector2i(128, 128)
+scene = ExtResource("1_m7nom")
+scene_rotation = Vector3(-0.84299403, 1.0663961, -0.15184365)
+scene_scale = Vector3(3, 3, 3)
+camera_projection = 1
+light_rotation = Vector3(-2.0141098, 1.0471976, 0)
+metadata/_custom_type_script = "uid://bwljpk6atbqtn"

@@ -14,7 +14,7 @@ const MOTION_MASK := Enums.UnitStance.STATIONARY | Enums.UnitStance.MOVING
 func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam):
 	
 	super._setup(gridCell,direction, unit_team)
-	inventory_grids[Enums.inventoryType.RIGHTHAND].try_add_item(InventoryManager.Instance.get_random_item())
+	inventory_grids[Enums.inventoryType.RIGHTHAND].try_add_item(Manager.get_instance("InventoryManager").get_random_item())
 func set_stance(flag: int) -> void:
 	# Ensure flag is one of the posture flags
 	assert((flag & POSTURE_MASK) != 0 and (flag & ~POSTURE_MASK) == 0)

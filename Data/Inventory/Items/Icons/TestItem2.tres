@@ -1,0 +1,16 @@
+[gd_resource type="Texture2D" script_class="SceneTexture" load_steps=3 format=3 uid="uid://cxs8kvrxmh0kn"]
+
+[ext_resource type="Script" uid="uid://bwljpk6atbqtn" path="res://addons/scene_texture/SceneTexture.gd" id="1_1uhfe"]
+[ext_resource type="PackedScene" uid="uid://cmgqnxwthorif" path="res://Third-Party Assets/FBX/SM_Prop_Rifle_01.fbx" id="1_6l3un"]
+
+[resource]
+resource_local_to_scene = false
+resource_name = ""
+script = ExtResource("1_1uhfe")
+size = Vector2i(128, 128)
+scene = ExtResource("1_6l3un")
+scene_position = Vector3(-0.19, 0, 0)
+scene_rotation = Vector3(-0.6440265, 1.3055062, -0.3211406)
+scene_scale = Vector3(1.25, 1.25, 1.25)
+camera_projection = 1
+metadata/_custom_type_script = "uid://bwljpk6atbqtn"

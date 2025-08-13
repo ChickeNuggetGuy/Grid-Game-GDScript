@@ -12,7 +12,7 @@ func _init() -> void:
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.GROUND | Enums.cellState.EMPTY
-	var result = GridSystem.Instance.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
 	
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")

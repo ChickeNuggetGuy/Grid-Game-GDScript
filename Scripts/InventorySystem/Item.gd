@@ -21,12 +21,22 @@ var current_inventory_grid : InventoryGrid
 func _init():
 	resource_local_to_scene = true
 	shape = null 
-	action_blueprints = []
+
 
 func _post_initialize():
 	# Ensure shape is created and initialized based on its *own* loaded dimensions.
 	_ensure_shape_exists_and_matches()
 
+
+func _setup():
+	if action_blueprints.size() != 0:
+		
+		for action in action_blueprints:
+			print("Item_Setup")
+			var item_action : BaseItemActionDefinition = action
+			item_action.parent_item = self
+			item_action.extra_parameters["item"] = self
+			print("Item_Setup" + item_action.parent_item.item_name)
 
 func _ensure_shape_exists_and_matches(): # No arguments needed now
 	if shape == null:
@@ -47,6 +57,7 @@ func _duplicate() -> Resource:
 	new_item.item_name = item_name
 	new_item.description = description
 	new_item.icon = icon
+	new_item.parent_grid_object = parent_grid_object
 	
 	if shape != null:
 		new_item.shape = shape.duplicate(true)
@@ -69,6 +80,12 @@ func get_context_items() -> Dictionary[String,Callable]:
 	
 	
 	for action in action_blueprints:
-		ret_value[action.action_name] = Callable.create(UnitActionManager.Instance, "try_execute_item_action").bind(action, self, current_inventory_grid)
+		ret_value[action.action_name] = (Callable.create(self,"set_item_action").bind(action))
 	
 	return ret_value
+
+func set_item_action(action_def : BaseItemActionDefinition):
+	action_def.extra_parameters["item"] = self
+	action_def.extra_parameters["starting_inventory"] = self.current_inventory_grid
+	
+	Manager.get_instance("UnitActionManager").try_set_selected_action(action_def)

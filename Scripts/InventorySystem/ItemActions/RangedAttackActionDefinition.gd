@@ -10,13 +10,23 @@ func _init() -> void:
 	
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.NONE
-	var result = GridSystem.Instance.try_get_neighbors_in_radius(starting_grid_cell, Vector2i(10,5), walkable_empty_filter)
+	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, Vector2i(10,5), walkable_empty_filter)
+	
+	var grid_object : GridObject = starting_grid_cell.grid_object
 	
 	var grid_cells : Array[GridCell] = result["grid_cell_array"] 
 	for i in range(grid_cells.size() - 1, -1, -1):
 		if not grid_cells[i].has_grid_object():
 			grid_cells.remove_at(i)
+			continue
 			
+		if  grid_cells[i].grid_object == grid_object:
+					grid_cells.remove_at(i)
+					continue
+			
+		if grid_cells[i] == starting_grid_cell:
+			grid_cells.remove_at(i)
+	
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	

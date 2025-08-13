@@ -12,6 +12,13 @@ static var instance: CameraController
 @export var phantom_cameras : Dictionary[String, PhantomCamera3D]
 
 var current_camera : PhantomCamera3D
+
+
+func get_manager_data() -> Dictionary:
+	return {}
+
+
+
 func _init() -> void:
 	instance = self
 
@@ -19,14 +26,14 @@ func _ready() -> void:
 	call_deferred("setup")
 
 func setup() -> void:
-	UnitManager.Instance.connect("UnitSelected", _unitmanager_unitselected)
+	Manager.get_instance("UnitManager").connect("UnitSelected", _unitmanager_unitselected)
 	
-	UnitActionManager.Instance.connect("action_execution_started", UnitActionManager_action_execution_started)
-	UnitActionManager.Instance.connect("action_execution_finished", UnitActionManager_action_execution_finished)
+	Manager.get_instance("UnitActionManager").connect("action_execution_started", UnitActionManager_action_execution_started)
+	Manager.get_instance("UnitActionManager").connect("action_execution_finished", UnitActionManager_action_execution_finished)
 
 func _exit_tree() -> void:
 	# Optional: disconnect if you want to clean up manually
-	UnitManager.Instance.disconnect("SelectedUnitChanged",Callable.create(self,
+	Manager.get_instance("UnitManager").disconnect("SelectedUnitChanged",Callable.create(self,
 	 "_on_unit_manager_selected_unit"))
 
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
@@ -46,12 +53,12 @@ func _physics_process(delta: float) -> void:
 	_transposer_height(delta)
 
 func _unhandled_input(event):
-	if UIManager.Instance.blocking_input:
+	if Manager.get_instance("UIManager") != null and Manager.get_instance("UIManager").blocking_input:
 		return
 	
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_F:
-			quick_switch_target(UnitManager.Instance.selectedUnit)
+			quick_switch_target(Manager.get_instance("UnitManager").selectedUnit)
 
 func _transposer_movement(delta: float) -> void:
 	var move_dir := Vector3.ZERO

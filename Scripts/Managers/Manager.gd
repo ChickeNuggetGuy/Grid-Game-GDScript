@@ -1,8 +1,10 @@
-# Manager.gd
 @abstract
 class_name Manager extends Node
 
+static var Instances: Dictionary = {}
 @export var debug_mode : bool = false
+@export var passable_parameters : Dictionary = {}
+#var _runtime_parameters : Dictionary = {}
 #region Signals
 signal setup_completed()
 signal execution_completed()
@@ -14,9 +16,25 @@ signal execution_completed()
 # Abstract method for the manager's name.
 @abstract func _get_manager_name() -> String
 
-func _init() -> void: add_to_group("Managers")
+func _init() -> void:
+	var manager_type = _get_manager_name()
+	
+	if Instances.has(manager_type) and Instances[manager_type] != self:
+		print("Manager: %s transferring parameters" % manager_type)
+		var old_parameters = Instances[manager_type].passable_parameters.duplicate(true)
+		Instances[manager_type].queue_free()
+		Instances[manager_type] = self
+		passable_parameters = old_parameters
+	else:
+		print("Manager: %s first instance created" % manager_type)
+		Instances[manager_type] = self
 
+func _ready() -> void:
+	add_to_group("Managers")
 
+# Add a helper method to get instance of specific manager type
+static func get_instance(manager_type: String) -> Manager:
+	return Instances.get(manager_type)
 
 # Orchestrates the manager's setup phase.
 func setup_manager_flow():
