@@ -40,16 +40,6 @@ func _execute():
 	execution_completed.emit()
 
 
-func on_scene_changed(_new_scene: Node):
-	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
-		queue_free()
-		
-
-func _on_exit_tree() -> void:
-	return
-
-
-
 func setup_grid():
 	grid_cells = {}
 	var map_grid_size = Manager.get_instance("MeshTerrainManager").get_map_cell_size()
@@ -68,7 +58,7 @@ func setup_grid():
 				var cell_state = determine_cell_state(spaceState, position, layer)
 
 				# Debug visualization
-				visualize_cell(position, cell_state)
+				#visualize_cell(position, cell_state)
 
 				# Create/update grid cell
 				var coords = Vector3i(x, layer, z)
@@ -228,25 +218,24 @@ func perform_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vect
 		return Enums.cellState.AIR
 
 
-func set_cell(x: int, z: int, y: int, value: GridCell) -> void:
+func set_cell(grid_coords : Vector3i, value: GridCell) -> void:
 	
-	var key = Vector3i(x,y,z)
-	if(value.gridCoordinates == null || value.gridCoordinates != key):
-		value.gridCoordinates = key
+	if(value.grid_coordinates == null || value.grid_coordinates != grid_coords):
+		value.grid_coordinates = grid_coords
 		
-	grid_cells[key] = value
+	grid_cells[grid_coords] = value
 
 
 func get_grid_cell(grid_coords : Vector3i,  default_value = null):
 	return grid_cells.get(grid_coords, default_value)
 
 
-func has_cell(x: int, z: int, y: int) -> bool:
-	return grid_cells.has(Vector3i(x,y,z))
+func has_cell(grid_coords : Vector3i) -> bool:
+	return grid_cells.has(grid_coords)
 
 
-func remove_cell(x: int, z: int, y: int) -> void:
-	grid_cells.erase(Vector3(x, y, z))
+func remove_cell(grid_coords : Vector3i) -> void:
+	grid_cells.erase(grid_coords)
 
 
 func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest: bool = false) -> Dictionary:
@@ -310,11 +299,11 @@ func try_get_grid_cell_of_state_below(grid_coords: Vector3, wanted_cell_state: E
 		return ret_val
 	
 	# Search downward from the cell below the starting position
-	for y_level in range(starting_grid_cell.gridCoordinates.y - 1, -1, -1):
+	for y_level in range(starting_grid_cell.grid_coordinates.y - 1, -1, -1):
 		var temp_grid_cell: GridCell = get_grid_cell(Vector3(
-			starting_grid_cell.gridCoordinates.x,
+			starting_grid_cell.grid_coordinates.x,
 			y_level,
-			starting_grid_cell.gridCoordinates.z
+			starting_grid_cell.grid_coordinates.z
 		))
 		
 		if temp_grid_cell == null:
@@ -336,76 +325,100 @@ func try_get_cells_in_cone(
 	fov_horizontal_degrees: float,
 	cell_state_filter: Enums.cellState = Enums.cellState.NONE
 ) -> Dictionary:
-	var found_cells: Array[GridCell] = []
-	var ret_val = {"success": false, "cells": found_cells}
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
-
-
+	# Initialize return structure with consistent naming
+	var grid_cells : Dictionary[Vector3i, GridCell] = {}
+	var result: Dictionary = {
+		"success": false,
+		"cells": grid_cells
+	}
+	
+	# Validate input parameters
 	if origin_cell == null:
-		printerr("try_get_cells_in_cone: origin_cell cannot be null.")
-		return ret_val
-	
-	
-	var search_radius_world = max_distance
-	
-	var search_radius_cells = ceil(search_radius_world / cell_size.x) + 1
+		push_error("try_get_cells_in_cone: origin_cell cannot be null.")
+		return result
+		
+	if max_distance <= 0:
+		push_error("try_get_cells_in_cone: max_distance must be positive.")
+		return result
+		
+	if fov_horizontal_degrees <= 0 or fov_horizontal_degrees > 360:
+		push_error("try_get_cells_in_cone: fov_horizontal_degrees must be between 0 and 360.")
+		return result
 
-	var origin_coords: Vector3i = origin_cell.gridCoordinates
+	# Cache frequently used values
+	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var search_radius_cells = ceil(max_distance / cell_size.x) + 1
+	var origin_coords = origin_cell.grid_coordinates
+	var origin_position = origin_cell.world_position
 	var normalized_forward = forward_direction.normalized()
-
-	# Iterate in a cube-shaped area around the origin cell
-	for y in range(
-		-search_radius_cells, search_radius_cells + 1
-	):
-		for x in range(
-			-search_radius_cells, search_radius_cells + 1
-		):
-			for z in range(
-				-search_radius_cells, search_radius_cells + 1
-			):
-				var offset = Vector3i(x, y, z)
-				var test_coords = origin_coords + offset
-				var candidate_cell: GridCell = get_grid_cell(test_coords)
-
+	
+	# Pre-calculate cosine of half FOV angle for efficiency
+	var half_fov_rad = deg_to_rad(fov_horizontal_degrees / 2.0)
+	var cos_half_fov = cos(half_fov_rad)
+	
+	# Pre-calculate squared max distance for efficient comparison
+	var max_distance_sq = max_distance * max_distance
+	
+	# Iterate through potential cells in a more optimized way
+	for x in range(-search_radius_cells, search_radius_cells + 1):
+		for z in range(-search_radius_cells, search_radius_cells + 1):
+			for y in range(-search_radius_cells, search_radius_cells + 1):
+				# Calculate test coordinates
+				var test_coords = Vector3i(
+					origin_coords.x + x,
+					origin_coords.y + y,
+					origin_coords.z + z
+				)
 				
+				# Get candidate cell
+				var candidate_cell: GridCell = get_grid_cell(test_coords)
+				
+				# Skip if no cell exists or it's the origin cell
 				if candidate_cell == null or candidate_cell == origin_cell:
 					continue
 				
-				var distance_sq = origin_cell.world_position.distance_squared_to(
-					candidate_cell.world_position
-				)
-				if distance_sq > max_distance * max_distance:
+				# Get candidate position
+				var candidate_position = candidate_cell.world_position
+				
+				# Calculate vector from origin to candidate
+				var to_candidate = candidate_position - origin_position
+				
+				# Quick distance check using squared distance
+				var distance_sq = to_candidate.length_squared()
+				if distance_sq > max_distance_sq:
 					continue
-
-				var direction_to_cell = (
-					candidate_cell.world_position - origin_cell.world_position
-				).normalized()
-				# angle_to gives the angle between two vectors in radians.
-				var angle_rad = normalized_forward.angle_to(direction_to_cell)
-				var angle_deg = rad_to_deg(angle_rad)
-
-				# Check if the angle is within half of the total FOV
-				if angle_deg > fov_horizontal_degrees / 2.0:
+				
+				# Check if within cone using dot product instead of angle calculation
+				# This is more efficient than angle_to
+				var to_candidate_normalized = to_candidate.normalized()
+				var dot_product = normalized_forward.dot(to_candidate_normalized)
+				
+				# If dot product is less than cosine of half FOV, it's outside the cone
+				if dot_product < cos_half_fov:
 					continue
-
+				
+				# Apply cell state filter if specified
 				if cell_state_filter != Enums.cellState.NONE:
-					if not (
-						candidate_cell.grid_cell_state & cell_state_filter
-					):
+					if not (candidate_cell.grid_cell_state & cell_state_filter):
 						continue
 				
 				# If all checks pass, add the cell to results
-				found_cells.append(candidate_cell)
+				result["cells"][candidate_cell.grid_coordinates] = candidate_cell
+				
+				# Optional debug visualization (consider making this conditional)
+				DebugDraw3D.draw_box(
+					candidate_position, 
+					Quaternion.IDENTITY,
+					Vector3(cell_size.x, cell_size.y, cell_size.x), 
+					Color.MAGENTA, 
+					true, 
+					5
+				)
 
-				#DebugDraw3D.draw_box(candidate_cell.world_position, Quaternion.IDENTITY,
-				 		#Vector3(gridCellSize.x, gridCellSize.y, gridCellSize.x), Color.MAGENTA, true, 5)
-
-
-	if not found_cells.is_empty():
-		ret_val["success"] = true
-
-	return ret_val
-
+	# Update success flag based on whether we found any cells
+	result["success"] = not result["cells"].is_empty()
+	
+	return result
 
 
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.
@@ -440,9 +453,9 @@ func get_grid_cell_neighbors(target_grid_cell: GridCell) -> Array[GridCell]:
 				
 				# Calculate the neighbor's coordinates
 				var test_coords = Vector3i(
-					target_grid_cell.gridCoordinates.x + x,
-					target_grid_cell.gridCoordinates.y + y,
-					target_grid_cell.gridCoordinates.z + z
+					target_grid_cell.grid_coordinates.x + x,
+					target_grid_cell.grid_coordinates.y + y,
+					target_grid_cell.grid_coordinates.z + z
 				)
 				
 				# Check if the neighbor exists in the grid
@@ -471,7 +484,7 @@ func try_get_neighbors_in_radius(starting_grid_cell : GridCell, radius_3d : Vect
 		for x in range(-radius_3d.x, radius_3d.x + 1):
 			for z in range(-radius_3d.x, radius_3d.x + 1):
 				var offset : Vector3i = Vector3i(x, y, z)
-				var test_grid_cell : GridCell = get_grid_cell(starting_grid_cell.gridCoordinates + offset)
+				var test_grid_cell : GridCell = get_grid_cell(starting_grid_cell.grid_coordinates + offset)
 				
 				if test_grid_cell == null:
 					continue

@@ -770,8 +770,10 @@ anim_player = NodePath("../AnimationPlayer")
 
 [node name="GridObjectComponents" type="Node" parent="."]
 
-[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents"]
+[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("parent_grid_object")]
 script = ExtResource("9_7mmco")
+sight_range_degrees = Vector2(45, 180)
+parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 
 [node name="GridObjectAnimation" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("animation_player_holder", "animation_tree", "parent_grid_object")]

@@ -64,7 +64,7 @@ func set_grid_cell(target_grid_cell: GridCell):
 					continue
 					
 				var offset = Vector3i(x, y, z)
-				var cell_pos = target_grid_cell.gridCoordinates + offset
+				var cell_pos = target_grid_cell.grid_coordinates + offset
 				var temp_grid_cell = Manager.get_instance("GridSystem").get_grid_cell(cell_pos)
 
 				if temp_grid_cell != null and not grid_cells.has(temp_grid_cell):

@@ -36,6 +36,7 @@ func _setup():
 		if child is UnitTeamHolder:
 			var team : UnitTeamHolder = child
 			
+			team.setup()
 			UnitTeams.get_or_add(team.team,)
 			UnitTeams[team.team] = team
 	setup_completed.emit()
@@ -53,14 +54,11 @@ func _execute():
 	for y in range(spawn_counts.y):
 		spawn_unit(Enums.unitTeam.ENEMY)
 	
-	set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].gridObjects[0])
+	set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
 	execution_completed.emit()
+	
+	FogManager.Instance.setup()
 
-
-
-func on_scene_changed(_new_scene: Node):
-	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
-		queue_free()
 
 func _on_exit_tree() -> void:
 	return
@@ -76,7 +74,7 @@ func spawn_unit(team : Enums.unitTeam):
 	spawneUnit.position = result["cell"].world_position
 	
 	var team_holder : UnitTeamHolder = UnitTeams[team]
-	team_holder.gridObjects.append(spawneUnit)
+	team_holder.grid_objects["active"].append(spawneUnit)
 	team_holder.add_child(spawneUnit)
 	
 	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH, team)
@@ -97,17 +95,17 @@ func set_selected_unit_next():
 	if selectedUnit == null:
 		return
 	else:
-		var currentIndex : int = UnitTeams[Enums.unitTeam.PLAYER].gridObjects.find(selectedUnit)
+		var currentIndex : int = UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].find(selectedUnit)
 		var nextIndex = 0
 		if currentIndex != -1:
-				if currentIndex + 1 < UnitTeams[Enums.unitTeam.PLAYER].gridObjects.size():
+				if currentIndex + 1 < UnitTeams[Enums.unitTeam.PLAYER].grid_objects.size():
 					nextIndex = currentIndex + 1
 				else:
 					nextIndex = 0
 		else:
 			nextIndex = 0
 		
-		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].gridObjects[nextIndex])
+		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][nextIndex])
 
 
 func _unhandled_input(event):
@@ -121,6 +119,6 @@ func _unhandled_input(event):
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			if Manager.get_instance("GridInputManager").currentGridCell != null:
 				var grid_object : Unit = Manager.get_instance("GridInputManager").currentGridCell.grid_object
-				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].gridObjects.has(grid_object):
+				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].grid_objects.has(grid_object):
 					set_selected_unit(grid_object)
 #endregion

@@ -1,7 +1,8 @@
-[gd_scene load_steps=19 format=3 uid="uid://bxup2rkksx6g1"]
+[gd_scene load_steps=23 format=3 uid="uid://bxup2rkksx6g1"]
 
 [ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/CameraController.gd" id="1_bejc1"]
 [ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="2_6fjuf"]
+[ext_resource type="Material" uid="uid://gaelj660aco3" path="res://Shaders/FogofWarMaterial.tres" id="3_6fjuf"]
 [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="3_o5x0x"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="4_1qdt5"]
 [ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/GameManager.gd" id="5_6ppp3"]
@@ -16,6 +17,9 @@
 [ext_resource type="Script" uid="uid://qbdewo8k424a" path="res://Scripts/Managers/UnitActionManager.gd" id="14_co1qo"]
 [ext_resource type="Script" uid="uid://duiusploqylre" path="res://Scripts/Managers/Pathfinder.gd" id="15_t4bds"]
 [ext_resource type="Script" uid="uid://swicsbxj3n2f" path="res://Scripts/Managers/TurnManager.gd" id="16_wvoxn"]
+[ext_resource type="Script" uid="uid://c0303oxw6al88" path="res://Scripts/Managers/FogManager.gd" id="17_6fjuf"]
+[ext_resource type="Material" uid="uid://dqvadbsa7g3b8" path="res://Shaders/FOW.tres" id="19_1qdt5"]
+[ext_resource type="Texture2D" uid="uid://byb7gikisgnmc" path="res://art/ground_albedo.png" id="20_e3qp5"]
 
 [sub_resource type="Resource" id="Resource_lcfwl"]
 script = ExtResource("4_1qdt5")
@@ -33,6 +37,7 @@ metadata/_custom_type_script = "uid://mg5g38d61gap"
 [node name="MeshTerrainManager" type="Node" parent="GameManager" groups=["Managers"]]
 script = ExtResource("6_t2hbq")
 cell_size = Vector2(1, 0.5)
+material = ExtResource("3_6fjuf")
 amplitude = 5.0
 metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
 
@@ -128,3 +133,11 @@ look_at_mode = 2
 tween_resource = SubResource("Resource_at5uv")
 tween_on_load = false
 metadata/_custom_type_script = "uid://csjccrhj5wnx7"
+
+[node name="FogManager" type="Node" parent="."]
+script = ExtResource("17_6fjuf")
+flip_z_in_image = false
+draw_test_patch = true
+test_material = ExtResource("19_1qdt5")
+terrain_texture = ExtResource("20_e3qp5")
+metadata/_custom_type_script = "uid://c0303oxw6al88"

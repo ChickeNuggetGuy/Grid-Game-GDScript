@@ -3,20 +3,21 @@ class_name Chunk
 
 @export var grass_instances_per_vertex: int = 5
 var chunk_size: int = 0
-var cell_size: float = 0.0
+var cell_size: Vector2 = Vector2(1, 0.5)
 var chunk_data  # Expected to be an instance of ChunkData
 var grid_coords: Vector2i
 
 # Mesh Data
 var mesh: ArrayMesh
 var mesh_instance: MeshInstance3D
+var original_material
 # var grass_multi_mesh: MultiMeshInstance3D  # Uncomment if needed
 
 var local_vertices = []  # Local vertices (Array of Vector3)
 var bounds: AABB        # Bounding box of the mesh
 
 func initialize(chunk_index_x: int, chunk_index_y: int, chnk_sizing: int,
-		global_vertices, cell_chnk_sizing: float, data) -> void:
+		global_vertices, cell_chnk_sizing: Vector2, data) -> void:
 	grid_coords = Vector2i(chunk_index_x, chunk_index_y)
 	self.chunk_size = chnk_sizing
 	self.cell_size = cell_chnk_sizing
@@ -48,18 +49,19 @@ func initialize(chunk_index_x: int, chunk_index_y: int, chnk_sizing: int,
 		for x in range(chunk_size + 1):
 			# Assuming global_vertices is a 2D array: global_vertices[x][y]
 			var world_pos: Vector3 = global_vertices[start_x + x][start_y + y]
-			var local_x = world_pos.x - (start_x * self.cell_size)
+			var local_x = world_pos.x - (start_x * self.cell_size.x)
 			var local_y = world_pos.y
-			var local_z = world_pos.z - (start_y * self.cell_size)
+			var local_z = world_pos.z - (start_y * self.cell_size.x)
 			local_vertices.append(Vector3(local_x, local_y, local_z))
 	
 	#print("Chunk %s initialized with %s vertices." % 
 		#[str(grid_coords), local_vertices.size()])
 
-func generate(color: Color) -> void:
+func generate(material : Material) -> void:
 	if chunk_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
 		return
 	
+	original_material = material
 	mesh = ArrayMesh.new()
 	# Use typed arrays for vertices, indices, and UVs.
 	var mesh_verts: PackedVector3Array = PackedVector3Array()
@@ -118,10 +120,7 @@ func generate(color: Color) -> void:
 	CalculateSmoothNormals(mesh)
 	mesh_instance.mesh = mesh
 	
-	var new_material = StandardMaterial3D.new()
-	new_material.albedo_color = color
-	new_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	new_material.cull_mode = BaseMaterial3D.CULL_BACK
+	var new_material = material
 	mesh_instance.material_override = new_material
 	
 	mesh_instance.create_trimesh_collision()

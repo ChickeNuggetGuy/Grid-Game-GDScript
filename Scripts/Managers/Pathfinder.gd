@@ -59,7 +59,7 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 	var targets := []
 	if adjacent:
 		# Find walkable neighbors of the goal
-		var gk = goal.gridCoordinates
+		var gk = goal.grid_coordinates
 		for off in NEIGHBOR_OFFSETS:
 			var nk = gk + off
 			if dict.has(nk):
@@ -100,7 +100,7 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 			return path
 
 		closed_set[current] = true
-		var ckey = current.gridCoordinates
+		var ckey = current.grid_coordinates
 
 		# Check all neighbors
 		for off in NEIGHBOR_OFFSETS:
@@ -127,7 +127,7 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 				f_score[neighbor] = tentative_g + h
 				_heap.push({"cell": neighbor, "f": f_score[neighbor]})
 	
-	print("No path found from ", start.gridCoordinates, " to ", goal.gridCoordinates)
+	print("No path found from ", start.grid_coordinates, " to ", goal.grid_coordinates)
 	return []  # no path found
 
 # Helper function to check if a cell is walkable
@@ -139,16 +139,16 @@ func _is_cell_walkable(cell: GridCell) -> bool:
 func _min_heuristic(a: GridCell, targets: Array) -> float:
 	var best = INF
 	for t in targets:
-		var dx = a.gridCoordinates.x - t.gridCoordinates.x
-		var dz = a.gridCoordinates.z - t.gridCoordinates.z
-		var dl = a.gridCoordinates.y - t.gridCoordinates.y
+		var dx = a.grid_coordinates.x - t.grid_coordinates.x
+		var dz = a.grid_coordinates.z - t.grid_coordinates.z
+		var dl = a.grid_coordinates.y - t.grid_coordinates.y
 		best = min(best, Vector3(dx, dl, dz).length())
 	return best
 
 func _cost(a: GridCell, b: GridCell) -> float:
-	var dx = a.gridCoordinates.x - b.gridCoordinates.x
-	var dz = a.gridCoordinates.z - b.gridCoordinates.z
-	var dl = a.gridCoordinates.y - b.gridCoordinates.y
+	var dx = a.grid_coordinates.x - b.grid_coordinates.x
+	var dz = a.grid_coordinates.z - b.grid_coordinates.z
+	var dl = a.grid_coordinates.y - b.grid_coordinates.y
 	
 	# Different costs for different movement types
 	var base_cost = Vector3(dx, dl, dz).length()
@@ -229,13 +229,13 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 
 			# More comprehensive validation
 			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
-				print("Obstacle detected at: ", grid_cell.gridCoordinates)
+				print("Obstacle detected at: ", grid_cell.grid_coordinates)
 				path_valid = false
 				break
 			
 			# For arc paths, we want AIR or WALKABLE cells
 			if  grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
-				print("Invalid cell state for arc path at: ", grid_cell.gridCoordinates, " State: ", grid_cell.grid_cell_state)
+				print("Invalid cell state for arc path at: ", grid_cell.grid_coordinates, " State: ", grid_cell.grid_cell_state)
 				path_valid = false
 				break
 
@@ -259,4 +259,4 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 func _are_grid_cells_equal(cell1: GridCell, cell2: GridCell) -> bool:
 	if cell1 == null or cell2 == null:
 		return cell1 == cell2
-	return cell1.gridCoordinates == cell2.gridCoordinates
+	return cell1.grid_coordinates == cell2.grid_coordinates

@@ -24,8 +24,8 @@ static func get_direction_between_cells(from_cell: GridCell, to_cell: GridCell) 
 	if from_cell == null or to_cell == null:
 		return result
 
-	var dx = to_cell.gridCoordinates.x - from_cell.gridCoordinates.x
-	var dz = -(to_cell.gridCoordinates.z - from_cell.gridCoordinates.z)  # flip so +dz = North
+	var dx = to_cell.grid_coordinates.x - from_cell.grid_coordinates.x
+	var dz = -(to_cell.grid_coordinates.z - from_cell.grid_coordinates.z)  # flip so +dz = North
 	var sx = sign(dx) # sign() in GDScript returns -1, 0, or 1
 	var sz = sign(dz)
 

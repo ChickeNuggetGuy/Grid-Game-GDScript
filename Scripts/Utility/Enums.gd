@@ -24,3 +24,6 @@ enum UnitStance {
 	CROUCHED = 1 << 1,
 	STATIONARY = 1 << 2,
 	MOVING = 1 << 3}
+
+
+enum FogState { UNSEEN, PREVIOUSLY_SEEN, VISIBLE }

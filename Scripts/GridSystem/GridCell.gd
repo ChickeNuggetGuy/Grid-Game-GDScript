@@ -1,9 +1,10 @@
 class_name GridCell
 
 #region Variables
-var gridCoordinates: Vector3i
+var grid_coordinates: Vector3i
 var world_position: Vector3
 
+var fog_status: Enums.FogState = Enums.FogState.VISIBLE
 var original_grid_cell_state: Enums.cellState
 var grid_cell_state: Enums.cellState
 
@@ -15,7 +16,7 @@ var grid_object: GridObject
 
 #region Functions
 func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, cell_state: Enums.cellState, inventory: InventoryGrid, parentGridSystem: GridSystem):
-	gridCoordinates = Vector3i(xCoord, layerCoord, zCoord)
+	grid_coordinates = Vector3i(xCoord, layerCoord, zCoord)
 	world_position = worldPos
 	original_grid_cell_state = cell_state
 	grid_cell_state = cell_state
@@ -42,7 +43,7 @@ func has_specific_gridObject(gridObjectToCheck) -> bool:
 	return grid_object == gridObjectToCheck
 
 func _to_string() -> String:
-	return str(gridCoordinates) + " state: " + str(grid_cell_state)
+	return str(grid_coordinates) + " state: " + str(grid_cell_state)
 
 func inventory_grid_item_added(item_added: Item):
 	if item_added == null: 
@@ -50,7 +51,7 @@ func inventory_grid_item_added(item_added: Item):
 		return
 	
 	if grid_cell_state & Enums.cellState.AIR:
-		var result = Manager.get_instance("GridSystem").try_get_grid_cell_of_state_below(gridCoordinates, Enums.cellState.GROUND)
+		var result = Manager.get_instance("GridSystem").try_get_grid_cell_of_state_below(grid_coordinates, Enums.cellState.GROUND)
 		if result["success"]:
 			InventoryGrid.try_transfer_item(inventory_grid, result["grid_cell"].inventory_grid, item_added)
 			print("Item was in air at " + self.to_string() + " and was moved to " + result["grid_cell"].to_string())

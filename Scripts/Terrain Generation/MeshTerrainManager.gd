@@ -2,11 +2,11 @@ extends Manager
 class_name MeshTerrainManager
 
 
-@export var map_size: Vector2i = Vector2i(2, 2)
+@export var map_size: Vector2i = Vector2i(1, 1)
 @export var chunk_size: int = 16
 @export var cell_size: Vector2 = Vector2(1.0, 1.0)
 @export var chunk_types: Array = []
-@export var color: Color = Color.SEA_GREEN
+@export var material : Material
 @export var amplitude: float = 1.2
 
 var terrain_heights = []
@@ -27,6 +27,8 @@ func _setup_conditions():
 
 func _setup():
 	map_size = Manager.get_instance("GameManager").passable_parameters["map_size"]
+	
+	
 	setup_completed.emit()
 
 func _execute_conditions() -> bool:
@@ -235,7 +237,7 @@ func generate_chunk(x: int, y: int) -> void:
 		chunk_node.position = Vector3(x * chunk_size * cell_size.x, 0, y * chunk_size * cell_size.x)
 	if debug_mode:
 		print("Initializing chunk %s, %s" % [x, y])
-	c_data.chunk.initialize(x, y, chunk_size, terrain_heights, cell_size.x, c_data)
+	c_data.chunk.initialize(x, y, chunk_size, terrain_heights, cell_size, c_data)
 	if debug_mode:
 		print("Initialized chunk %s, %s" % [x, y])
 	if c_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
@@ -244,7 +246,9 @@ func generate_chunk(x: int, y: int) -> void:
 		return
 	if debug_mode:
 		print("Generating mesh for chunk %s, %s" % [x, y])
-	await c_data.chunk.generate(color)
+		
+		
+	await c_data.chunk.generate(material)
 
 func lock_manmade_edges() -> void:
 	var total_width = map_size.x * chunk_size + 1
@@ -340,7 +344,9 @@ func get_cell_size() -> Vector2:
 	return cell_size
 
 func get_map_cell_size() -> Vector3:
-	return Vector3(map_size.x * chunk_size, chunk_size, map_size.y * chunk_size)
+	return Vector3(map_size.x * chunk_size,
+		 map_size.y * chunk_size,
+		 map_size.x * chunk_size)
 
 func _normalize_terrain_heights() -> void:
 	var min_y = INF

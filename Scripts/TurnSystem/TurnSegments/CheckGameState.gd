@@ -11,9 +11,7 @@ func execute(parent_turn: TurnData) -> void:
 		printerr("CheckGameStateTurnSegment: Could not find UnitTeamHolder for team %s." % Enums.unitTeam.find_key(team))
 		return
 
-	var is_any_unit_active = unit_team_holder.gridObjects.any(
-		func(obj): return obj is Unit and obj.active
-	)
+	var is_any_unit_active = unit_team_holder.grid_objects["active"].size() > 0
 
 	if not is_any_unit_active:
 		print("All units of team " + str(team) + " are defeated!")
