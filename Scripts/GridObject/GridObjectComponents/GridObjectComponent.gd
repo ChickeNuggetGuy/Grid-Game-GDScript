@@ -4,9 +4,9 @@ class_name GridObjectComponent
 @export var parent_grid_object : GridObject
 
 
-func setup_call(parent : GridObject):
+func setup_call(parent : GridObject, extra_params : Dictionary):
 	parent_grid_object = parent
-	_setup()
+	_setup(extra_params)
 
 
-@abstract func _setup() 
+@abstract func _setup( extra_params : Dictionary) 

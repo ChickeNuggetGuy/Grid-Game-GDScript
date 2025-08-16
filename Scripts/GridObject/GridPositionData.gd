@@ -1,8 +1,7 @@
 class_name GridPositionData
-extends Node
+extends GridObjectComponent
 
 #region Variables
-var parent_gridobject : GridObject
 var grid_height : int = 2
 var grid_shape : GridShape 
 var grid_cells : Array[GridCell] = []
@@ -17,26 +16,24 @@ var direction : Enums.facingDirection = Enums.facingDirection.NONE
 signal grid_position_data_updated(grid_cell : GridCell)
 #endregion
 #region Functions
-func _init(parent : GridObject, cell : GridCell, dir : Enums.facingDirection,
-		shape : GridShape, height : int = 2):
-	parent_gridobject = parent
+func _setup(extra_params : Dictionary):
+	
 	grid_cells = []
-	set_grid_height(height)
-	set_grid_shape(shape)
-	set_grid_cell(cell)
-	cell.set_gridobject(parent, cell.grid_cell_state)
-	set_direction(dir)
+	set_grid_height(extra_params["height"])
+	set_grid_shape(extra_params["shape"])
+	set_grid_cell(extra_params["grid_cell"])
+	extra_params["grid_cell"].set_gridobject(parent_grid_object, extra_params["grid_cell"].grid_cell_state)
+	set_direction(extra_params["direction"])
 
 
 func set_direction(dir :Enums.facingDirection, update_transform : bool = false):
 	direction = dir
 	if update_transform:
 		var canonical_yaw = RotationHelperFunctions.get_yaw_for_direction(dir)
-		var start_yaw = parent_gridobject.rotation.y
+		var start_yaw = parent_grid_object.rotation.y
 		var delta = wrapf(canonical_yaw - start_yaw, -PI, PI)
 		var target_yaw = start_yaw + delta
-		parent_gridobject.rotation = Vector3(0,target_yaw,0)
-		
+		parent_grid_object.rotation = Vector3(0,target_yaw,0)
 
 
 func set_grid_cell(target_grid_cell: GridCell):
@@ -54,7 +51,7 @@ func set_grid_cell(target_grid_cell: GridCell):
 	# Add the base cell
 	grid_cells.append(target_grid_cell)
 	var new_state = target_grid_cell.grid_cell_state & ~Enums.cellState.WALKABLE
-	target_grid_cell.set_gridobject(parent_gridobject, new_state)
+	target_grid_cell.set_gridobject(parent_grid_object, new_state)
 
 	# Add additional cells based on shape and height
 	for y in range(grid_height):
@@ -70,11 +67,18 @@ func set_grid_cell(target_grid_cell: GridCell):
 				if temp_grid_cell != null and not grid_cells.has(temp_grid_cell):
 					grid_cells.append(temp_grid_cell)
 					var temp_new_state = temp_grid_cell.grid_cell_state & ~Enums.cellState.WALKABLE
-					temp_grid_cell.set_gridobject(parent_gridobject, temp_new_state)
-
+					temp_grid_cell.set_gridobject(parent_grid_object, temp_new_state)
+		
 	grid_position_data_updated.emit(target_grid_cell)
 
 
+func update_parent_visability():
+	if grid_cell.fog_status != Enums.FogState.VISIBLE:
+		print("HIDE" + str(grid_cell.fog_status))
+		parent_grid_object.visual.hide()
+	else:
+		print("Show" + str(grid_cell.fog_status))
+		parent_grid_object.visual.show()
 func set_grid_shape(new_shape: GridShape):
 	grid_shape = new_shape
 

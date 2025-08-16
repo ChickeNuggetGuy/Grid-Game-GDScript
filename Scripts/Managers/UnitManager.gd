@@ -64,7 +64,9 @@ func _on_exit_tree() -> void:
 	return
 
 func spawn_unit(team : Enums.unitTeam):
-	var result = Manager.get_instance("GridSystem").try_get_random_walkable_cell()
+	var grid_system : GridSystem = Manager.get_instance("GridSystem")
+	
+	var result = grid_system.try_get_random_walkable_cell()
 	
 	if result["success"] == false || result["cell"] == null:
 		print("Could not find any valid grid cell. Returning prematurely")

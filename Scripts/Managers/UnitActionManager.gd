@@ -13,6 +13,8 @@ signal selected_action_changed(new_selected_action: BaseActionDefinition)
 signal is_busy_value_changed(current_value: bool)
 signal action_execution_started(current_action_definition: BaseActionDefinition, execution_parameters: Dictionary)
 signal action_execution_finished(current_action_definition: BaseActionDefinition, execution_parameters: Dictionary)
+signal any_action_execution_finished(current_action_definition: BaseActionDefinition, execution_parameters: Dictionary)
+
 #endregion
 
 #region Setup

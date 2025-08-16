@@ -10,11 +10,11 @@ func execute(parent_turn : TurnData):
 		return
 	
 	
-	if unit_team.gridObjects.size() < 1:
+	if unit_team.grid_objects.size() < 1:
 		push_error("Unit Team has no gridobjects!")
 		return
 	
-	for  grid_object in unit_team.gridObjects:
+	for  grid_object in unit_team.grid_objects["active"]:
 		
 		if grid_object == null:
 			continue

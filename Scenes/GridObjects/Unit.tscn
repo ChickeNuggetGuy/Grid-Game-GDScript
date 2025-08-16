@@ -309,11 +309,12 @@ states/walking/position = Vector2(657.5, 92.875)
 transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_vnaax"), "idle", "walking", SubResource("AnimationNodeStateMachineTransition_jpqeb"), "walking", "idle", SubResource("AnimationNodeStateMachineTransition_0dq7h")]
 graph_offset = Vector2(30, 22)
 
-[node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
+[node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
 script = ExtResource("1_33ww8")
 _stance = 1
 _action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat")])
-visual = NodePath("StaticBody3D")
+visual = NodePath("SK_Character_Dummy_Male_02")
+collider = NodePath("StaticBody3D")
 stat_holder = NodePath("Stats")
 inventory_grid_types = Array[int]([1, 2, 4, 6])
 grid_object_animator = NodePath("GridObjectComponents/GridObjectAnimation")
@@ -772,7 +773,7 @@ anim_player = NodePath("../AnimationPlayer")
 
 [node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("parent_grid_object")]
 script = ExtResource("9_7mmco")
-sight_range_degrees = Vector2(45, 180)
+sight_range_degrees = Vector2(90, 180)
 parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 

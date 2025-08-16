@@ -45,7 +45,7 @@ metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
 script = ExtResource("7_l7dpb")
 metadata/_custom_type_script = "uid://nrsj1jjbrlxq"
 
-[node name="GridSystem" type="Node" parent="GameManager" groups=["Managers"]]
+[node name="GridSystem" type="Node" parent="GameManager"]
 script = ExtResource("8_qefp6")
 metadata/_custom_type_script = "uid://bjauxagwg8odf"
 

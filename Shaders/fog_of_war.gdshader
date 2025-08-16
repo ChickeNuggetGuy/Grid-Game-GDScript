@@ -31,12 +31,23 @@ void fragment() {
     float vis = rg.r;
     float explored = rg.g;
 
+    // Discard fragment if not visible AND not previously seen
+    if (vis < 0.5 && explored < 0.5) {
+        discard;
+    }
+
+    // Color based on visibility state
     vec3 col = base.rgb;
-    if (vis < 0.5) {
-        col = explored > 0.5 ? base.rgb * explored_tint.rgb : unseen_color;
+    if (vis >= 0.5) {
+        // Visible cell - use base color
+        col = base.rgb;
+    } else if (explored >= 0.5) {
+        // Previously seen cell - apply tint
+        col = base.rgb * explored_tint.rgb;
+    } else {
+        // Unseen cell - should be discarded above, but just in case
+        col = unseen_color;
     }
 
     ALBEDO = col;
 }
-
-

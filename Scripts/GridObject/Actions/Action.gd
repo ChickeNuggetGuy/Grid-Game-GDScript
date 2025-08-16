@@ -8,8 +8,10 @@ var start_grid_cell: GridCell = null
 var target_grid_cell: GridCell = null
 var multiple_executions : bool
 
+var execution_parameters : Dictionary
 
 func _init(parameters : Dictionary) -> void:
+	execution_parameters = parameters
 	parameters["action_name"] = action_name
 	owner  = parameters["unit"]
 	start_grid_cell = parameters["start_grid_cell"]
@@ -24,10 +26,12 @@ func execute_call() -> void:
 @abstract func _execute() -> void
 func _action_complete_call() -> void:
 	await _action_complete()
+	var unit_action_manager: UnitActionManager = Manager.get_instance("UnitActionManager")
 	_spend_unit_stats()
 	if not multiple_executions:
-		Manager.get_instance("UnitActionManager")._set_selected_action(
+		unit_action_manager._set_selected_action(
 				owner.try_get_action_definition_by_type("MoveActionDefinition")["action_definition"])
+	unit_action_manager.any_action_execution_finished.emit(unit_action_manager.selected_action,execution_parameters)
 
 
 

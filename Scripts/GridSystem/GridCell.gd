@@ -15,11 +15,15 @@ var grid_object: GridObject
 #endregion
 
 #region Functions
-func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3, cell_state: Enums.cellState, inventory: InventoryGrid, parentGridSystem: GridSystem):
+func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3,
+		cell_state: Enums.cellState,
+		fog_state: Enums.FogState,
+		inventory: InventoryGrid, parentGridSystem: GridSystem):
 	grid_coordinates = Vector3i(xCoord, layerCoord, zCoord)
 	world_position = worldPos
 	original_grid_cell_state = cell_state
 	grid_cell_state = cell_state
+	fog_status = fog_state
 	inventory_grid = inventory 
 	inventory_grid.initialize()
 	inventory_grid.connect("item_added", inventory_grid_item_added)

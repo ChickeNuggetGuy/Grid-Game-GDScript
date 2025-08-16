@@ -10,17 +10,17 @@ func _init() -> void:
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.WALKABLE
-	var result =  Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+	var result =  Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, 8, walkable_empty_filter)
 
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	
-	var grid_cells : Array[GridCell] = result["grid_cell_array"] 
+	var grid_cells : Array[GridCell] = result["grid_cells"].values()
 	for i in range(grid_cells.size() - 1, -1, -1):
 		if not Pathfinder.Instance.is_path_possible(starting_grid_cell, grid_cells[i]):
 			grid_cells.remove_at(i)
 			
-	return result["grid_cell_array"]
+	return grid_cells
 
 
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:

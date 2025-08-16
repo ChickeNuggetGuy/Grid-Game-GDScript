@@ -3,7 +3,8 @@ extends Node3D
 
 #region Variables
 var grid_position_data : GridPositionData
-@export var visual :  StaticBody3D
+@export var visual :  Node3D
+@export var collider :  StaticBody3D
 
 var team : Enums.unitTeam 
 @export var active : bool = true
@@ -39,10 +40,11 @@ signal  grid_object_died(grid_object : GridObject)
 #region Functions
 
 func _ready() -> void:
-	visual.collision_layer =PhysicsLayersUtility.PLAYER
+	collider.collision_layer =PhysicsLayersUtility.PLAYER
 
 func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam):
-	var data = GridPositionData.new(self, gridCell, direction, grid_shape, grid_height)
+	var data = GridPositionData.new()
+	data.setup_call(self, {"grid_cell" : gridCell,"direction" :  direction,"shape" : grid_shape,"height" :  grid_height})
 	add_child(data)
 	grid_position_data = data
 	
@@ -61,7 +63,9 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : 
 	
 	for component in _grid_object_components:
 		var grid_object_component : GridObjectComponent = component
-		grid_object_component.setup_call(self)
+		if grid_object_component is GridPositionData:
+			continue
+		grid_object_component.setup_call(self,{})
 	
 	setup_inventory_grids()
 

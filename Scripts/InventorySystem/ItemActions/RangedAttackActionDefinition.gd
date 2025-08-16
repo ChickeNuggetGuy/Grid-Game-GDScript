@@ -10,11 +10,11 @@ func _init() -> void:
 	
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.NONE
-	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, Vector2i(10,5), walkable_empty_filter)
+	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, 10, walkable_empty_filter)
 	
 	var grid_object : GridObject = starting_grid_cell.grid_object
 	
-	var grid_cells : Array[GridCell] = result["grid_cell_array"] 
+	var grid_cells : Array[GridCell] = result["grid_cells"].values()
 	for i in range(grid_cells.size() - 1, -1, -1):
 		if not grid_cells[i].has_grid_object():
 			grid_cells.remove_at(i)
@@ -30,7 +30,7 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	
-	return result["grid_cell_array"]
+	return grid_cells
 
 
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:

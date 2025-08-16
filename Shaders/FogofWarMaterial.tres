@@ -1,12 +1,9 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://gaelj660aco3"]
 
-[ext_resource type="Shader" uid="uid://cqiavgnre4vt8" path="res://Shaders/terrain_fog.gdshader" id="1_2oer5"]
+[ext_resource type="Shader" uid="uid://brqn6vfemlb5x" path="res://Shaders/fog_of_war.gdshader" id="1_2oer5"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_2oer5")
-shader_parameter/world_offset = Vector2(0, 0)
-shader_parameter/grid_size = Vector2(0, 0)
-shader_parameter/cell_size = 1.0
-shader_parameter/fog_color = Color(0.1, 0.1, 0.1, 1)
-shader_parameter/fog_blend = 0.8
+shader_parameter/explored_tint = Color(0.5, 0.5, 0.5, 1)
+shader_parameter/unseen_color = Color(0, 0, 0, 1)

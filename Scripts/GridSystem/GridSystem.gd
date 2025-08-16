@@ -1,5 +1,4 @@
 @tool
-
 extends Manager
 class_name GridSystem
 #region Varibles
@@ -181,11 +180,13 @@ func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enum
 	if not grid_cells.has(coords) || grid_cells[coords] == null:
 		var result = Manager.get_instance("InventoryManager").try_get_inventory_grid(Enums.inventoryType.GROUND)
 		var ground_inventory_grid = result["inventory_grid"]
-		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, ground_inventory_grid, self)
+		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, Enums.FogState.UNSEEN, ground_inventory_grid, self)
 		grid_cells[coords] = cell
 	else:
 		grid_cells[coords].grid_cell_state = cell_state
 		grid_cells[coords].worldPosition = position
+
+
 # Helper function to handle raycast logic cleanly
 func perform_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
 	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
@@ -406,14 +407,14 @@ func try_get_cells_in_cone(
 				result["cells"][candidate_cell.grid_coordinates] = candidate_cell
 				
 				# Optional debug visualization (consider making this conditional)
-				DebugDraw3D.draw_box(
-					candidate_position, 
-					Quaternion.IDENTITY,
-					Vector3(cell_size.x, cell_size.y, cell_size.x), 
-					Color.MAGENTA, 
-					true, 
-					5
-				)
+#				DebugDraw3D.draw_box(
+#					candidate_position, 
+#					Quaternion.IDENTITY,
+#					Vector3(cell_size.x, cell_size.y, cell_size.x), 
+#					Color.MAGENTA, 
+#					true, 
+#					5
+#				)
 
 	# Update success flag based on whether we found any cells
 	result["success"] = not result["cells"].is_empty()
@@ -473,34 +474,39 @@ func try_get_randomGrid_cell() -> Dictionary:
 	return {"success": true,"cell":cell}
 
 
-func try_get_neighbors_in_radius(starting_grid_cell : GridCell, radius_3d : Vector2i, grid_cell_state_filter : Enums.cellState = Enums.cellState.NONE) -> Dictionary:
-	var grid_cell_array: Array[GridCell] = []
-	var ret_value = {"success" : false, "grid_cell_array" : grid_cell_array}
+func try_get_neighbors_in_radius(starting_grid_cell: GridCell,	radius: float,	grid_cell_state_filter: Enums.cellState = Enums.cellState.NONE
+) -> Dictionary:
+	var grid_cells_dict: Dictionary[Vector3i, GridCell] = {}
+	var ret_value = {"success": false, "grid_cells": grid_cells_dict}
 	
 	if starting_grid_cell == null:
-		return ret_value
+			return ret_value
 	
-	for y in range(-radius_3d.y, radius_3d.y + 1):
-		for x in range(-radius_3d.x, radius_3d.x + 1):
-			for z in range(-radius_3d.x, radius_3d.x + 1):
-				var offset : Vector3i = Vector3i(x, y, z)
-				var test_grid_cell : GridCell = get_grid_cell(starting_grid_cell.grid_coordinates + offset)
-				
-				if test_grid_cell == null:
-					continue
-				
-				if grid_cell_state_filter != Enums.cellState.NONE and (test_grid_cell.grid_cell_state & grid_cell_state_filter) != grid_cell_state_filter:
-					continue
-				
-				#DebugDraw3D.draw_box(test_grid_cell.world_position,Quaternion.IDENTITY, 
-						#Vector3(gridCellSize.x, gridCellSize.y,gridCellSize.x,),Color.REBECCA_PURPLE, true,10)
-				ret_value["grid_cell_array"].append(test_grid_cell)
+	# Define the bounding box based on the radius
+	var min_bound = Vector3i(-ceil(radius), -ceil(radius), -ceil(radius))
+	var max_bound = Vector3i(ceil(radius), ceil(radius), ceil(radius))
 	
+	for x in range(min_bound.x, max_bound.x + 1):
+			for y in range(min_bound.y, max_bound.y + 1):
+				for z in range(min_bound.z, max_bound.z + 1):
+					var offset: Vector3i = Vector3i(x, y, z)
+					var test_coord: Vector3i = starting_grid_cell.grid_coordinates + offset
+					var test_grid_cell: GridCell = get_grid_cell(test_coord)
+					
+					if test_grid_cell == null:
+						continue
+					
+					if grid_cell_state_filter != Enums.cellState.NONE and (test_grid_cell.grid_cell_state & grid_cell_state_filter) != grid_cell_state_filter:
+						continue
+					
+					# Check Euclidean distance for circular radius
+					var distance_squared: float = offset.length_squared()
+					
+					if distance_squared <= radius * radius:
+						ret_value["grid_cells"][test_grid_cell.grid_coordinates] = test_grid_cell
 	
-	ret_value["success"] = ret_value["grid_cell_array"].size() > 0
-	
+	ret_value["success"] = ret_value["grid_cells"].size() > 0
 	return ret_value
-
 
 
 func is_gridcell_walkable(cell: GridCell) -> bool:
