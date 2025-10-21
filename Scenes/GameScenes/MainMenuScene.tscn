@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://dksvn0rdbvqwb"]
+[gd_scene load_steps=7 format=3 uid="uid://dksvn0rdbvqwb"]
 
-[ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scenes/UI/MainMenuUI.gd" id="1_ibpp6"]
+[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/UIManager.gd" id="1_abbdw"]
+[ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scripts/UI/MainMenuUI.gd" id="1_ibpp6"]
 [ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="2_h3486"]
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_eembx"]
 
@@ -10,7 +11,13 @@ font_size = 50
 [sub_resource type="LabelSettings" id="LabelSettings_yf2vi"]
 font_size = 12
 
-[node name="Control" type="Control" node_paths=PackedStringArray("play_button", "start_button", "quit_button", "map_settingsUI", "player_text_field", "enemy_text_field", "map_x_text_field", "map_y_text_field", "visual")]
+[node name="Managers" type="Node" unique_id=1913442400 groups=["Managers"]]
+
+[node name="UIManager" type="Node" parent="." unique_id=792269168]
+script = ExtResource("1_abbdw")
+metadata/_custom_type_script = "uid://cq3ef3ssfwu7w"
+
+[node name="Control" type="Control" parent="UIManager" unique_id=1331450721 node_paths=PackedStringArray("play_button", "quick_start_button", "start_button", "quit_button", "map_settingsUI", "player_text_field", "enemy_text_field", "map_x_text_field", "map_y_text_field", "visual")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,9 +25,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ibpp6")
-play_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Button3")
+play_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Play Button")
+quick_start_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Quick Play Button")
 start_button = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/Button")
-quit_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Button5")
+quit_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Quit Button")
 map_settingsUI = NodePath("UIWindow/UIWindow/UIWindow")
 player_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer/TextEdit")
 enemy_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer/TextEdit2")
@@ -29,7 +37,7 @@ map_y_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBox
 visual = NodePath("UIWindow")
 metadata/_custom_type_script = "uid://dwvn62nyw6f8x"
 
-[node name="UIWindow" type="Control" parent="." node_paths=PackedStringArray("visual")]
+[node name="UIWindow" type="Control" parent="UIManager/Control" unique_id=1765712845 node_paths=PackedStringArray("visual")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -43,9 +51,10 @@ visual = NodePath("UIWindow")
 ui_name = "main Menu"
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="UIWindow" type="Control" parent="UIWindow" node_paths=PackedStringArray("visual")]
+[node name="UIWindow" type="Control" parent="UIManager/Control/UIWindow" unique_id=419815113 node_paths=PackedStringArray("visual")]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
+anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 303.0
 grow_vertical = 2
@@ -54,7 +63,7 @@ visual = NodePath("Panel")
 ui_name = "Main Buttons "
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="Panel" type="Panel" parent="UIWindow/UIWindow"]
+[node name="Panel" type="Panel" parent="UIManager/Control/UIWindow/UIWindow" unique_id=535947445]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -62,7 +71,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIWindow/UIWindow/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/Panel" unique_id=977362078]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -71,7 +80,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1916661202]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 text = "Grid Game GDScript 
@@ -82,7 +91,7 @@ autowrap_mode = 3
 autowrap_trim_flags = 0
 clip_text = true
 
-[node name="Button3" type="Button" parent="UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="Play Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=2039408630]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Play"
@@ -90,11 +99,11 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="HSeparator3" type="HSeparator" parent="UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HSeparator3" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=79264080]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="Button4" type="Button" parent="UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="Quick Play Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1292998028]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "
@@ -103,11 +112,11 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="HSeparator4" type="HSeparator" parent="UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HSeparator4" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1754245284]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="Button5" type="Button" parent="UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="Quit Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1722461585]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Quit
@@ -116,9 +125,10 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="UIWindow" type="Control" parent="UIWindow/UIWindow" node_paths=PackedStringArray("visual")]
+[node name="UIWindow" type="Control" parent="UIManager/Control/UIWindow/UIWindow" unique_id=373953530 node_paths=PackedStringArray("visual")]
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 1
+anchors_preset = 6
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
@@ -129,14 +139,13 @@ offset_right = 445.0
 offset_bottom = 292.0
 grow_horizontal = 0
 grow_vertical = 2
-pivot_offset = Vector2(0, 0.5)
 script = ExtResource("2_h3486")
 start_hidden = true
 visual = NodePath("Panel")
 ui_name = "Map Settings"
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="Panel" type="Panel" parent="UIWindow/UIWindow/UIWindow"]
+[node name="Panel" type="Panel" parent="UIManager/Control/UIWindow/UIWindow/UIWindow" unique_id=917176621]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -144,7 +153,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIWindow/UIWindow/UIWindow/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel" unique_id=1766506888]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -152,25 +161,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1967326068]
 layout_mode = 2
 text = "Map Settings "
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1140322128]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=241739564]
 layout_mode = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer" unique_id=355062666]
 layout_mode = 2
 text = "Player Count "
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit" type="SpinBox" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer"]
+[node name="TextEdit" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer" unique_id=155229083]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -178,12 +187,12 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="Label2" type="Label" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer"]
+[node name="Label2" type="Label" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer" unique_id=538906526]
 layout_mode = 2
 text = "Enemy Count "
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit2" type="SpinBox" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer"]
+[node name="TextEdit2" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer" unique_id=278312219]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -191,20 +200,20 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="HSeparator2" type="HSeparator" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1687435448]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=174169159]
 layout_mode = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2" unique_id=1208546006]
 layout_mode = 2
 text = "Map Size X"
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit" type="SpinBox" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2"]
+[node name="TextEdit" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2" unique_id=1531243869]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -212,12 +221,12 @@ max_value = 25.0
 value = 1.0
 update_on_text_changed = true
 
-[node name="Label2" type="Label" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2"]
+[node name="Label2" type="Label" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2" unique_id=387111379]
 layout_mode = 2
 text = "map Size Y"
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit2" type="SpinBox" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2"]
+[node name="TextEdit2" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2" unique_id=1192020613]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -226,10 +235,10 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="HSeparator3" type="HSeparator" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="HSeparator3" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=167820576]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="Button" type="Button" parent="UIWindow/UIWindow/UIWindow/Panel/VBoxContainer"]
+[node name="Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=565426123]
 layout_mode = 2
 text = "Start"

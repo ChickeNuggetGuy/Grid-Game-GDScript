@@ -8,7 +8,13 @@ func _init() -> void:
 	script_path = "res://Scripts/GridObject/Actions/RotateAction.gd"
 	super._init()
 
-func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
+
+func double_click_call(parameters : Dictionary) -> void:
+	return
+
+
+
+func get_valid_grid_cells(_starting_grid_cell : GridCell) -> Array[GridCell]:
 	return []
 
 

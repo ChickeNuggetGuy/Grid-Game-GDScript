@@ -15,4 +15,4 @@ func action_setup(definition : BaseActionDefinition):
 	pressed.connect(_button_pressed)
 	
 func _button_pressed():
-	Manager.get_instance("UnitActionManager")._set_selected_action(action_defintition)
+	GameManager.managers["UnitActionManager"]._set_selected_action(action_defintition)

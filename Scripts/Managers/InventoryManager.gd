@@ -1,5 +1,4 @@
 extends Manager
-class_name InventoryManager
 
 var inventory_items : Dictionary[String, Item] = {}
 
@@ -10,9 +9,6 @@ var inactive_inventory_slot_prefab : PackedScene
 
 
 #region Functions
-
-func get_manager_data() -> Dictionary:
-	return {}
 
 
 
@@ -27,9 +23,10 @@ func _setup():
 
 
 func _execute_conditions() -> bool: return true
-
-
 func _execute():
+	return
+
+func _init():
 	
 	inventory_slot_prefab = load("res://Scenes/UI/inventory_slot_ui.tscn") as PackedScene
 	inactive_inventory_slot_prefab = load("res://Scenes/UI/inactive_inventory_slot_ui.tscn") as PackedScene
@@ -55,7 +52,7 @@ func _execute():
 
 
 func on_scene_changed(_new_scene: Node):
-	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+	if not GameManager.Instance.current_scene_name == "BattleScene":
 		queue_free()
 
 

@@ -8,11 +8,13 @@ func _init() -> void:
 	script_path = "res://Scripts/InventorySystem/ItemActions/ThrowAction.gd"
 	super._init()
 
-
+func double_click_call(parameters : Dictionary) -> void:
+	if parameters.has("path"):
+		print(parameters["path"].size())
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.GROUND | Enums.cellState.EMPTY
-	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
+	var result = GameManager.managers["GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, Vector2i(8,5), walkable_empty_filter)
 	
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")

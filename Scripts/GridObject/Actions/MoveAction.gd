@@ -17,7 +17,7 @@ func _setup() -> void:
 
 func _execute() -> void:
 	
-	var path = Pathfinder.Instance.find_path(
+	var path = Pathfinder.find_path(
 	owner.grid_position_data.grid_cell,
 	target_grid_cell
 	)

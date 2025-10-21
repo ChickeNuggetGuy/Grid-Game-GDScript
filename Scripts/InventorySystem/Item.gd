@@ -87,5 +87,4 @@ func get_context_items() -> Dictionary[String,Callable]:
 func set_item_action(action_def : BaseItemActionDefinition):
 	action_def.extra_parameters["item"] = self
 	action_def.extra_parameters["starting_inventory"] = self.current_inventory_grid
-	
-	Manager.get_instance("UnitActionManager").try_set_selected_action(action_def)
+	GameManager.managers["UnitActionManager"].try_set_selected_action(action_def)

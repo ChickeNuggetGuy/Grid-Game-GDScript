@@ -9,13 +9,13 @@ var quick_target_buttons : Array[QuickTargetButton]
 
 
 func _setup():
-	Manager.get_instance("UnitManager").connect("UnitSelected",UnitManager_UnitSelected)
-	Manager.get_instance("UnitActionManager").connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	GameManager.managers["UnitManager"].connect("UnitSelected",UnitManager_UnitSelected)
+	GameManager.managers["UnitActionManager"].connect("action_execution_finished",UnitActionManager_action_execution_finished)
 
 
 
-func UnitActionManager_action_execution_finished(current_action : BaseActionDefinition,
-		 execution_parameters : Dictionary):
+func UnitActionManager_action_execution_finished(_current_action : BaseActionDefinition,
+		 _execution_parameters : Dictionary):
 	update_quick_target_buttons()
 
 
@@ -25,7 +25,7 @@ func UnitManager_UnitSelected(_new_unit : Unit, _old_unit : Unit):
 
 
 func update_quick_target_buttons():
-	var current_unit = Manager.get_instance("UnitManager").selectedUnit
+	var current_unit = GameManager.managers["UnitManager"].selectedUnit
 	if current_unit == null:
 		return
 

@@ -7,17 +7,23 @@ func _init() -> void:
 	script_path = "res://Scripts/GridObject/Actions/MoveAction.gd"
 	super._init()
 
-
+func double_click_call(parameters : Dictionary) -> void:
+	print("Double Click")
+	if parameters.has("path"):
+		for cell in parameters["path"]:
+			var grid_cell : GridCell = cell as GridCell
+			DebugDraw3D.draw_box(grid_cell.world_position, Quaternion.IDENTITY, Vector3.ONE, Color.MEDIUM_VIOLET_RED, true, 10)
+	
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.WALKABLE
-	var result =  Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, 8, walkable_empty_filter)
+	var result = GameManager.managers["GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, 8, walkable_empty_filter)
 
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	
 	var grid_cells : Array[GridCell] = result["grid_cells"].values()
 	for i in range(grid_cells.size() - 1, -1, -1):
-		if not Pathfinder.Instance.is_path_possible(starting_grid_cell, grid_cells[i]):
+		if not Pathfinder.is_path_possible(starting_grid_cell, grid_cells[i]):
 			grid_cells.remove_at(i)
 			
 	return grid_cells
@@ -26,9 +32,8 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]:
 	var ret_value : Dictionary[GridCell, float]= {}
 	
-	var grid_system : GridSystem = Manager.get_instance("GridSystem")
 	for grid_cell in get_valid_grid_cells(starting_grid_cell):
-		var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
+		var distance_between_cells  = GameManager.managers["GridSystem"].get_distance_between_grid_cells(starting_grid_cell,grid_cell)
 		var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 0.8)
 		ret_value[grid_cell] = normalized_distance
 	
@@ -42,7 +47,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	var temp_costs = {"time_units" : 0, "stamina" : 0}
 	
 	# Check if path is possible first
-	if not Pathfinder.Instance.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
+	if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
 		print("Path not possible!")
 		ret_val["success"] = false
 		ret_val["costs"]["time_units"] = -1
@@ -50,7 +55,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		ret_val["reason"] = "No path possible!"
 		return ret_val
 	
-	var path = Pathfinder.Instance.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
+	var path = Pathfinder.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
 	
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")
@@ -106,4 +111,5 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	ret_val["success"] = true
 	ret_val["costs"] = temp_costs
 	ret_val["reason"] = "success"
+	extra_parameters["path"] = path
 	return ret_val

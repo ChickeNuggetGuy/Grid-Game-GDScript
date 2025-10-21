@@ -3,7 +3,7 @@ class_name AIActionsTurnSegment
 
 
 func execute(parent_turn : TurnData):
-	var unit_team : UnitTeamHolder = Manager.get_instance("UnitManager").UnitTeams[parent_turn.team]
+	var unit_team : UnitTeamHolder = GameManager.managers["UnitManager"].UnitTeams[parent_turn.team]
 	
 	if unit_team == null:
 		push_error("Unit Team was null!")
@@ -33,13 +33,13 @@ func execute(parent_turn : TurnData):
 					
 					var action_item = unit_actions["item_action_definitions"].get(best_action_results["action"])
 
-					await Manager.get_instance("UnitActionManager").try_execute_item_action(best_action_results["action"],
+					await GameManager.managers["UnitActionManager"].try_execute_item_action(best_action_results["action"],
 											unit,
 											action_item,
 											action_item.current_inventory_grid,
 											best_action_results["best_action_result"]["grid_cell"],)
 				else:
-					await Manager.get_instance("UnitActionManager").try_execute_action(best_action_results["best_action_result"]["grid_cell"],
+					await GameManager.managers["UnitActionManager"].try_execute_action(best_action_results["best_action_result"]["grid_cell"],
 							unit,
 							best_action_results["action"])
 

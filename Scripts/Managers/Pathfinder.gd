@@ -1,10 +1,5 @@
 extends Node
-class_name Pathfinder
 
-static  var Instance : Pathfinder
-
-func _init() -> void:
-	Instance = self
 
 
 static func _create_neighbor_offsets() -> Array:
@@ -24,7 +19,7 @@ func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false)
 	return _find_path_internal(start, goal, adjacent_is_valid)
 
 func find_path_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool = false) -> Array:
-	var dict = Manager.get_instance("GridSystem").grid_cells
+	var dict =GameManager.managers[" GridSystem"].grid_cells
 	if not dict.has(start_coords) or not dict.has(goal_coords):
 		return []
 	return find_path(dict[start_coords], dict[goal_coords], adjacent_is_valid)
@@ -40,7 +35,7 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 	if start == null or goal == null:
 		return path
 	
-	var dict = Manager.get_instance("GridSystem").grid_cells
+	var dict =GameManager.managers["GridSystem"].grid_cells
 	
 	# Validate start position
 	#if not _is_cell_walkable(start):
@@ -168,7 +163,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 	
 	var start = start_pos
 	var end = end_pos
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var cell_size =GameManager.managers[" MeshTerrainManager"].cell_size
 
 	
 	if start.grid_cell_state & Enums.cellState.OBSTRUCTED or \
@@ -219,7 +214,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 			smooth_path.append(arc_pos)
 
 			# Convert world position to grid coordinates
-			var get_grid_cell_result = Manager.get_instance("GridSystem").try_get_gridCell_from_world_position(arc_pos, true)  # Use nearest
+			var get_grid_cell_result =GameManager.managers["GridSystem"].try_get_gridCell_from_world_position(arc_pos, true)  # Use nearest
 			if not get_grid_cell_result["success"]:
 				print("Failed to get grid cell at position: ", arc_pos)
 				path_valid = false

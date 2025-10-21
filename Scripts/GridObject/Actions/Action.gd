@@ -8,6 +8,7 @@ var start_grid_cell: GridCell = null
 var target_grid_cell: GridCell = null
 var multiple_executions : bool
 
+
 var execution_parameters : Dictionary
 
 func _init(parameters : Dictionary) -> void:
@@ -18,15 +19,20 @@ func _init(parameters : Dictionary) -> void:
 	target_grid_cell = parameters["target_grid_cell"]
 
 func execute_call() -> void:
+	@warning_ignore("redundant_await")
 	await _setup()
+	@warning_ignore("redundant_await")
 	await _execute()
 	await _action_complete_call()
 	
 @abstract func _setup() -> void
 @abstract func _execute() -> void
+
+
+
 func _action_complete_call() -> void:
 	await _action_complete()
-	var unit_action_manager: UnitActionManager = Manager.get_instance("UnitActionManager")
+	var unit_action_manager = GameManager.managers["UnitActionManager"]
 	_spend_unit_stats()
 	if not multiple_executions:
 		unit_action_manager._set_selected_action(

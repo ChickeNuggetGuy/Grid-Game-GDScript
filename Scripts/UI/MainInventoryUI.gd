@@ -11,7 +11,7 @@ var inventory_ui_grids : Dictionary[Enums.inventoryType, InventoryGridUI] = {}
 
 func _setup():
 	intance = self
-	Manager.get_instance("UnitActionManager").connect("action_execution_started",UnitActionManager_action_started)
+	GameManager.managers["UnitActionManager"].connect("action_execution_started",UnitActionManager_action_started)
 	for child in inventory_grids_holder.get_children():
 		if child is InventoryGridUI:
 			var inventory_ui = child as InventoryGridUI
@@ -39,6 +39,6 @@ func _hide():
 	super._hide()
 
 
-func UnitActionManager_action_started(_action : BaseActionDefinition, execution_parameters : Dictionary):
+func UnitActionManager_action_started(_action : BaseActionDefinition, _execution_parameters : Dictionary):
 	if is_shown:
 		hide()

@@ -1,23 +1,12 @@
 extends Manager
 class_name TurnManager
 
-static var Instance : TurnManager
 
 var turns : Array[TurnData]
 var current_turn : TurnData
 var is_busy = false
 
 signal  turn_changed(current_turn : TurnData)
-
-
-func get_manager_data() -> Dictionary:
-	return {}
-
-
-
-func _init() -> void:
-	Instance = self
-
 
 
 func _get_manager_name() -> String: return "Turn Manager"
@@ -56,7 +45,7 @@ func _execute():
 
 
 func on_scene_changed(_new_scene: Node):
-	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+	if not GameManager.current_scene_name == "BattleScene":
 		queue_free()
 
 func _on_exit_tree() -> void:

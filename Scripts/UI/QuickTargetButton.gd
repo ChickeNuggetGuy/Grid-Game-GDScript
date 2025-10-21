@@ -12,4 +12,4 @@ func initialize(grid_object : GridObject):
 
 
 func quick_target_grid_object():
-	CameraController.instance.quick_switch_target(target_grid_object)
+	GameManager.managers["CameraController"].quick_switch_target(target_grid_object)

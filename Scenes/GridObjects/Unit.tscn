@@ -16,6 +16,7 @@
 script = ExtResource("4_r2bin")
 action_name = "Move"
 show_in_ui = true
+double_click_activation = true
 metadata/_custom_type_script = "uid://kvwmhrhi3w7q"
 
 [sub_resource type="Resource" id="Resource_oew58"]
@@ -309,7 +310,7 @@ states/walking/position = Vector2(657.5, 92.875)
 transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_vnaax"), "idle", "walking", SubResource("AnimationNodeStateMachineTransition_jpqeb"), "walking", "idle", SubResource("AnimationNodeStateMachineTransition_0dq7h")]
 graph_offset = Vector2(30, 22)
 
-[node name="Unit" type="Node3D" node_paths=PackedStringArray("visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
+[node name="Unit" type="Node3D" unique_id=529937144 node_paths=PackedStringArray("visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
 script = ExtResource("1_33ww8")
 _stance = 1
 _action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat")])
@@ -322,47 +323,49 @@ grid_shape = SubResource("Resource_jq84y")
 grid_object_component_holder = NodePath("GridObjectComponents")
 metadata/_custom_type_script = "uid://bu7ki2ekfvc8v"
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=356431723]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1197524433]
 transform = Transform3D(0.5, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0, 0)
 shape = SubResource("ConcavePolygonShape3D_qwska")
 
-[node name="Stats" type="Node" parent="."]
+[node name="Stats" type="Node" parent="." unique_id=249771169]
 
-[node name="Stamina" type="Node" parent="Stats"]
+[node name="Stamina" type="Node" parent="Stats" unique_id=1521967554]
 script = ExtResource("8_uv3na")
 stat_name = "stamina"
 current_value = 24
 min_max_values = Vector2i(0, 64)
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
-[node name="Health" type="Node" parent="Stats"]
+[node name="Health" type="Node" parent="Stats" unique_id=1071235893]
 script = ExtResource("8_uv3na")
 stat_name = "Health"
 current_value = 100
+signal_on_min = true
+signal_on_change = true
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
-[node name="time_units" type="Node" parent="Stats"]
+[node name="time_units" type="Node" parent="Stats" unique_id=44068985]
 script = ExtResource("8_uv3na")
 stat_name = "time_units"
 current_value = 64
 min_max_values = Vector2i(0, 64)
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
-[node name="Bravery" type="Node" parent="Stats"]
+[node name="Bravery" type="Node" parent="Stats" unique_id=492314847]
 script = ExtResource("8_uv3na")
 stat_name = "bravery"
 current_value = 50
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
-[node name="SK_Character_Dummy_Male_02" type="Node3D" parent="."]
+[node name="SK_Character_Dummy_Male_02" type="Node3D" parent="." unique_id=1118187467]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
-[node name="Root" type="Node3D" parent="SK_Character_Dummy_Male_02"]
+[node name="Root" type="Node3D" parent="SK_Character_Dummy_Male_02" unique_id=94491477]
 
-[node name="Skeleton" type="Skeleton3D" parent="SK_Character_Dummy_Male_02/Root"]
+[node name="Skeleton" type="Skeleton3D" parent="SK_Character_Dummy_Male_02/Root" unique_id=1637682159]
 unique_name_in_owner = true
 motion_scale = 0.8762761
 bones/0/name = "Hips"
@@ -751,33 +754,30 @@ bones/54/position = Vector3(0, 0, 0)
 bones/54/rotation = Quaternion(1.110223e-16, 0, 0, 1)
 bones/54/scale = Vector3(1, 1, 1)
 
-[node name="SK_Character_Dummy_Male_01" type="MeshInstance3D" parent="SK_Character_Dummy_Male_02/Root/Skeleton"]
+[node name="SK_Character_Dummy_Male_01" type="MeshInstance3D" parent="SK_Character_Dummy_Male_02/Root/Skeleton" unique_id=738859151]
 mesh = SubResource("ArrayMesh_3k3d0")
 skin = SubResource("Skin_1wsu5")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="SK_Character_Dummy_Male_02"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="SK_Character_Dummy_Male_02" unique_id=2068311875]
 libraries = {
 &"Unit": ExtResource("9_jq84y")
 }
 blend_times = [&"Unit/turn_90_left", &"Unit/turn_90_left", 3.0, &"Unit/walk_forward", &"Unit/idle", 1.0]
 
-[node name="AnimationTree" type="AnimationTree" parent="SK_Character_Dummy_Male_02"]
-libraries = {
-&"Unit": ExtResource("9_jq84y")
-}
+[node name="AnimationTree" type="AnimationTree" parent="SK_Character_Dummy_Male_02" unique_id=1581276040]
 tree_root = SubResource("AnimationNodeStateMachine_4rhxl")
 advance_expression_base_node = NodePath("../..")
 anim_player = NodePath("../AnimationPlayer")
 
-[node name="GridObjectComponents" type="Node" parent="."]
+[node name="GridObjectComponents" type="Node" parent="." unique_id=1798251923]
 
-[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("parent_grid_object")]
+[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" unique_id=1882307956 node_paths=PackedStringArray("parent_grid_object")]
 script = ExtResource("9_7mmco")
 sight_range_degrees = Vector2(90, 180)
 parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 
-[node name="GridObjectAnimation" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("animation_player_holder", "animation_tree", "parent_grid_object")]
+[node name="GridObjectAnimation" type="Node3D" parent="GridObjectComponents" unique_id=393229149 node_paths=PackedStringArray("animation_player_holder", "animation_tree", "parent_grid_object")]
 script = ExtResource("8_jq84y")
 animation_player_holder = NodePath("../../SK_Character_Dummy_Male_02")
 animation_tree = NodePath("../../SK_Character_Dummy_Male_02/AnimationTree")
@@ -785,7 +785,7 @@ locomotion_State_playback_path = "parameters/Locomotion/playback"
 parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://caqcyrpsjdjhb"
 
-[node name="GridObjectWorldTarget" type="Node3D" parent="GridObjectComponents" node_paths=PackedStringArray("targets", "parent_grid_object")]
+[node name="GridObjectWorldTarget" type="Node3D" parent="GridObjectComponents" unique_id=1240600694 node_paths=PackedStringArray("targets", "parent_grid_object")]
 script = ExtResource("11_r2bin")
 targets = {
 "action_camera_position": NodePath("../../action_camera_position"),
@@ -795,11 +795,11 @@ targets = {
 parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://cd41g8c45qgxd"
 
-[node name="fire_position" type="Node3D" parent="."]
+[node name="fire_position" type="Node3D" parent="." unique_id=925479125]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.8771856, -0.35317683)
 
-[node name="target_position" type="Node3D" parent="."]
+[node name="target_position" type="Node3D" parent="." unique_id=1538746135]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 1.1569839, -0.07811797)
 
-[node name="action_camera_position" type="Node3D" parent="."]
+[node name="action_camera_position" type="Node3D" parent="." unique_id=1778791977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0.47130597, 1.7167535, -0.07811797)

@@ -8,9 +8,15 @@ func _init() -> void:
 	script_path = "res://Scripts/InventorySystem/ItemActions/RangedAttackAction.gd"
 	super._init()
 	
+
+func double_click_call(parameters : Dictionary) -> void:
+	return
+
+
+
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.NONE
-	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, 10, walkable_empty_filter)
+	var result = GameManager.managers["GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, 10, walkable_empty_filter)
 	
 	var grid_object : GridObject = starting_grid_cell.grid_object
 	

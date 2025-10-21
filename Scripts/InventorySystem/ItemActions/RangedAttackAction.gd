@@ -180,7 +180,7 @@ func calculate_direction_with_variance(
 			grid_object = parent as GridObject
 			grid_cell = grid_object.grid_position_data.grid_cell
 		else:
-			var get_grid_cell_result = Manager.get_instance("GridSystem").\
+			var get_grid_cell_result = GameManager.managers["GridSystem"].\
 				try_get_gridCell_from_world_position(hit_position)
 			if get_grid_cell_result.get("success", false):
 				grid_cell = get_grid_cell_result["grid_cell"]
@@ -189,7 +189,7 @@ func calculate_direction_with_variance(
 	else:
 		# Miss: stop at max_range instead of a huge arbitrary distance
 		hit_position = ray_params.from + new_direction * max_range
-		var miss_cell_res = Manager.get_instance("GridSystem").\
+		var miss_cell_res = GameManager.managers["GridSystem"].\
 			try_get_gridCell_from_world_position(hit_position)
 		if miss_cell_res.get("success", false):
 			grid_cell = miss_cell_res["grid_cell"]
@@ -210,13 +210,13 @@ func _action_complete():
 
 
 func _exclude_owner_and_children(
-	ray_params: PhysicsRayQueryParameters3D, owner: Node
+	ray_params: PhysicsRayQueryParameters3D, node_owner: Node
 ) -> void:
 	var excludes: Array[RID] = []
-	if owner:
-		if owner is CollisionObject3D:
+	if node_owner:
+		if node_owner is CollisionObject3D:
 			excludes.append(owner.get_rid())
-		for child in owner.get_children():
+		for child in node_owner.get_children():
 			if child is CollisionObject3D:
 				excludes.append(child.get_rid())
 	ray_params.exclude = excludes

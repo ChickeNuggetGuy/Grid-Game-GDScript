@@ -1,8 +1,7 @@
-extends Camera3D
+extends Manager
 class_name CameraController
 
-static var instance: CameraController
-
+@export var camera_3d : Camera3D
 @export var transposer: Node3D
 @export var move_speed: float = 10.0
 @export var zoom_speed: float = 50.0
@@ -17,24 +16,22 @@ var current_camera : PhantomCamera3D
 func get_manager_data() -> Dictionary:
 	return {}
 
+func _get_manager_name() -> String: return "CameraController"
 
 
-func _init() -> void:
-	instance = self
 
-func _ready() -> void:
-	call_deferred("setup")
+func _setup_conditions() -> bool: return true
 
-func setup() -> void:
-	Manager.get_instance("UnitManager").connect("UnitSelected", _unitmanager_unitselected)
-	
-	Manager.get_instance("UnitActionManager").connect("action_execution_started", UnitActionManager_action_execution_started)
-	Manager.get_instance("UnitActionManager").connect("action_execution_finished", UnitActionManager_action_execution_finished)
 
-func _exit_tree() -> void:
-	# Optional: disconnect if you want to clean up manually
-	Manager.get_instance("UnitManager").disconnect("SelectedUnitChanged",Callable.create(self,
-	 "_on_unit_manager_selected_unit"))
+func _setup():
+	return
+
+
+func _execute_conditions() -> bool: return true
+
+func _execute():
+	return
+
 
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
 	quick_switch_target(newUnit)
@@ -53,12 +50,13 @@ func _physics_process(delta: float) -> void:
 	_transposer_height(delta)
 
 func _unhandled_input(event):
-	if Manager.get_instance("UIManager") != null and Manager.get_instance("UIManager").blocking_input:
+	if not execute_complete: return
+	if GameManager.managers["UIManager"] != null and GameManager.managers["UIManager"].blocking_input:
 		return
 	
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_F:
-			quick_switch_target(Manager.get_instance("UnitManager").selectedUnit)
+			quick_switch_target(GameManager.managers["UnitManager"].selectedUnit)
 
 func _transposer_movement(delta: float) -> void:
 	var move_dir := Vector3.ZERO
@@ -123,7 +121,7 @@ func _camera_zoom(delta: float) -> void:
 	if Input.is_action_just_pressed("Camera_Scroll_Down"):
 		zoom_dir += 1
 
-	if zoom_dir != 0 and (self.position.y >= transposer.position.y or zoom_dir > 0):
+	if zoom_dir != 0 and (camera_3d.position.y >= transposer.position.y or zoom_dir > 0):
 		# Calculate the change amount
 		var change = zoom_dir * zoom_speed * delta
 		

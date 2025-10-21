@@ -12,7 +12,11 @@ var action_script: Script
 @export var cost: int
 @export var multiple_exectutions : bool = true
 @export var extra_parameters : Dictionary
+@export var double_click_activation : bool = false
 
+
+@abstract func double_click_call(parameters : Dictionary) -> void
+@abstract func double_click_clear(parameters : Dictionary) -> void
 
 @abstract func can_execute(parameters : Dictionary) -> Dictionary
 @abstract func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]

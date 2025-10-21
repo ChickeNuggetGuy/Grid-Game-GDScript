@@ -6,4 +6,4 @@ class_name InventoryGridHolder
 var inventory_grid : InventoryGrid
 
 func _setup() -> void:
-	inventory_grid = Manager.get_instance("InventoryManager").try_get_inventory_grid(Enums.inventoryType.MOUSEHELD)["inventory_grid"]
+	inventory_grid = GameManager.managers["InventoryManager"].try_get_inventory_grid(Enums.inventoryType.MOUSEHELD)["inventory_grid"]

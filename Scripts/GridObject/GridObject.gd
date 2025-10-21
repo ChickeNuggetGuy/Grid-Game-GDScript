@@ -35,7 +35,6 @@ signal  gridObject_stat_changed(stat : GridObjectStat, snew_vaule : int)
 @warning_ignore("unused_signal")
 signal gridObject_moved(owner : Unit, new_grid_cell : GridCell)
 
-signal  grid_object_died(grid_object : GridObject)
 #endregion
 #region Functions
 
@@ -54,9 +53,9 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : 
 	
 	for stat in stat_library:
 		var grid_stat : GridObjectStat = stat
-		grid_stat.setUp(self)
+		grid_stat.setup(self)
 		if grid_stat.stat_name == "Health":
-			grid_stat.connect("min_value_reached", grid_object_dealth)
+			grid_stat.connect("stat_value_min", grid_object_dealth)
 	
 	
 	_grid_object_components.append_array(grid_object_component_holder.get_children())
@@ -70,7 +69,7 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : 
 	setup_inventory_grids()
 
 
-func grid_object_dealth():
+func grid_object_dealth(_parent_grid_object : GridObject):
 	print("Grid Object Died, Removing from tree")
 	active = false
 	#self.queue_free()
@@ -82,7 +81,7 @@ func grid_object_dealth():
 func setup_inventory_grids():
 	for inventory_type in inventory_grid_types:
 		
-		var result = Manager.get_instance("InventoryManager").try_get_inventory_grid(inventory_type)
+		var result = InventoryManager.try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
 
@@ -185,8 +184,8 @@ func try_get_grid_object_component_by_type(type_to_find : String) -> Dictionary:
 func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_B:
-			if Manager.get_instance("UnitManager").selectedUnit == self:
+			if GameManager.managers["UnitManager"].Instance.selectedUnit == self:
 				print(grid_position_data.grid_cell.inventory_grid.try_add_item(
-					Manager.get_instance("InventoryManager").get_random_item()))
+					InventoryManager.Instance.get_random_item()))
 
 #endregion

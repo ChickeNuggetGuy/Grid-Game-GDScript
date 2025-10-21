@@ -23,6 +23,7 @@ metadata/_custom_type_script = "uid://d152u74oby2ve"
 [resource]
 script = ExtResource("1_e1fvw")
 team = 1
+team = 1
 turn_name = "Player Turn"
 turn_segments = Array[ExtResource("2_3nrmx")]([SubResource("Resource_r2xrp"), SubResource("Resource_3qqde"), SubResource("Resource_t86fl")])
 repeatable = true

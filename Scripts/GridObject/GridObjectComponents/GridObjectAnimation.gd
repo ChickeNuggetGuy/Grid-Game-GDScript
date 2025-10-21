@@ -7,10 +7,10 @@ class_name GridObjectAnimation
 @export var locomotion_State_playback_path : String
 @export var animation_state_names : Array[String]
 
-func _setup( extra_params : Dictionary) -> void:
+func _setup( _extra_params : Dictionary) -> void:
 	animation_tree = animation_player_holder.find_child("AnimationTree")
 	#animation_tree.advance_expression_base_node = parent_grid_object.get_path()
-	Manager.get_instance("UnitActionManager").connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	GameManager.managers["UnitActionManager"].connect("action_execution_finished",UnitActionManager_action_execution_finished)
 
 
 func UnitActionManager_action_execution_finished(_completed_action_definition : BaseActionDefinition, 

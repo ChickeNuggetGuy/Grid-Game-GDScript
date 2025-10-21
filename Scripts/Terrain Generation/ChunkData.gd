@@ -13,7 +13,10 @@ enum ChunkType {
 var chunk = null
 var chunk_node = null
 
-func _init(coords: Vector2i = Vector2i.ZERO, type: int = ChunkType.PROCEDURAL, _chunk_node = null) -> void:
+func _init(
+		coords: Vector2i = Vector2i.ZERO,
+		type: int = ChunkType.PROCEDURAL,
+		_chunk_node = null) -> void:
 	chunk_coordinates = coords
 	chunk_type = type
 	chunk_node = _chunk_node
@@ -31,5 +34,4 @@ func get_chunk_type() -> int:
 	return chunk_type
 
 func get_chunk_go_index() -> String:
-	# This example always returns "ShipChunk" but you may change this.
 	return "ShipChunk"

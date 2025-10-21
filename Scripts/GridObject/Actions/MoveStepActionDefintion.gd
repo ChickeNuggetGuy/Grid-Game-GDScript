@@ -8,9 +8,14 @@ func _init() -> void:
 	super._init()
 
 
+func double_click_call(parameters : Dictionary) -> void:
+	return
+
+
+
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.WALKABLE | Enums.cellState.EMPTY
-	var result = Manager.get_instance("GridSystem").try_get_neighbors_in_radius(starting_grid_cell, Vector2i(1,2), walkable_empty_filter)
+	var result =GameManager.managers[" GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, 1, walkable_empty_filter)
 	
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
@@ -36,7 +41,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	
 	var temp_cost = {"time_units" : 0, "stamina" : 0}
 		
-	var neighbors = Manager.get_instance("GridSystem").get_grid_cell_neighbors(parameters["start_grid_cell"])
+	var neighbors = GameManager.managers["GridSystem"].get_grid_cell_neighbors(parameters["start_grid_cell"])
 	
 	if !neighbors.has(parameters["target_grid_cell"]):
 		ret_val["success"] = false

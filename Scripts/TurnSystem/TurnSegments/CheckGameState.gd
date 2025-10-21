@@ -1,18 +1,18 @@
 extends TurnSegment
 class_name CheckGameStateTurnSegment
 
-@export var team: Enums.unitTeam
 
 
 func execute(parent_turn: TurnData) -> void:
-	var unit_team_holder: UnitTeamHolder = Manager.get_instance("UnitManager").UnitTeams.get(team)
+	var unit_team_holder: UnitTeamHolder = GameManager.managers["UnitManager"].UnitTeams.get(parent_turn.team)
 
 	if not unit_team_holder:
-		printerr("CheckGameStateTurnSegment: Could not find UnitTeamHolder for team %s." % Enums.unitTeam.find_key(team))
+		printerr("CheckGameStateTurnSegment: Could not find UnitTeamHolder for team %s." % Enums.unitTeam.find_key(parent_turn.team))
 		return
 
-	var is_any_unit_active = unit_team_holder.grid_objects["active"].size() > 0
 
-	if not is_any_unit_active:
-		print("All units of team " + str(team) + " are defeated!")
-		Manager.get_instance("GameManager").try_load_scene_by_name("MainMenuScene")
+	if unit_team_holder.grid_objects["active"].size() < 1:
+		print("All units of team " + str(parent_turn.team) + " are defeated!")
+		print("End Game: " + str( await GameManager.try_load_scene_by_type(GameManager.sceneType.MAINMENU)))
+	else:
+		print("there are still:  " + str(unit_team_holder.grid_objects["active"].size()) + " units alive!")

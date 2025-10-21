@@ -24,11 +24,6 @@ func _get_manager_name() -> String: return "GridSystem"
 func _setup_conditions(): return true
 
 
-func get_manager_data() -> Dictionary:
-	return {}
-
-
-
 func _setup(): 
 	setup_completed.emit()
 
@@ -41,8 +36,8 @@ func _execute():
 
 func setup_grid():
 	grid_cells = {}
-	var map_grid_size = Manager.get_instance("MeshTerrainManager").get_map_cell_size()
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var map_grid_size = GameManager.managers["MeshTerrainManager"].get_map_cell_size()
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 	var spaceState = get_tree().root.world_3d.direct_space_state
 
 	for layer in range(map_grid_size.y):
@@ -65,6 +60,12 @@ func setup_grid():
 
 	print("Grid setup complete: ", grid_cells.size(), " cells")
 
+
+func get_passable_data() -> Dictionary:
+	return {}
+
+
+
 func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
 	# Multi-point collision detection for better hill detection
 	if colliderCheck and is_position_obstructed(spaceState, position):
@@ -80,7 +81,7 @@ func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vec
 	var box = BoxShape3D.new()
 	box.size = colliderSize
 	
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var cell_size = GameManager.managers["MeshTerrainManager"].Instance.cell_size
 	# Test multiple points within the cell for better hill detection
 	var test_points = [
 		position + collideroffset,  # Center
@@ -105,7 +106,7 @@ func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vec
 	return false
 
 func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 	
 	var ray_offsets = [
 		Vector3(0, 0, 0),  # Center
@@ -156,7 +157,7 @@ func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, posit
 		return Enums.cellState.AIR
 
 func visualize_cell(position: Vector3, cell_state: Enums.cellState):
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 	var color = Color.WHITE
 	match cell_state:
 		Enums.cellState.WALKABLE:
@@ -178,9 +179,9 @@ func visualize_cell(position: Vector3, cell_state: Enums.cellState):
 
 func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enums.cellState):
 	if not grid_cells.has(coords) || grid_cells[coords] == null:
-		var result = Manager.get_instance("InventoryManager").try_get_inventory_grid(Enums.inventoryType.GROUND)
+		var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
 		var ground_inventory_grid = result["inventory_grid"]
-		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, Enums.FogState.UNSEEN, ground_inventory_grid, self)
+		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, Enums.FogState.UNSEEN, ground_inventory_grid)
 		grid_cells[coords] = cell
 	else:
 		grid_cells[coords].grid_cell_state = cell_state
@@ -189,7 +190,7 @@ func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enum
 
 # Helper function to handle raycast logic cleanly
 func perform_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 
 	
 	var rayStart = position + raycastOffset
@@ -243,8 +244,8 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	var retVal: Dictionary = {"success": false, "grid_cell": null}
 
 
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
-	var map_grid_size = Manager.get_instance("MeshTerrainManager").get_map_cell_size()
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
+	var map_grid_size = GameManager.managers["MeshTerrainManager"].get_map_cell_size()
 
 	if (cell_size.x <= 0 or cell_size.y <= 0): 
 		push_error("Either Grid cell size X or Y is set to 0! Returning")
@@ -292,6 +293,22 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 	return retVal
 
 
+func get_cell_below_recursive(grid_coords : Vector3i, cell_state_filter : Enums.cellState) -> GridCell:
+	if grid_cells[grid_coords] == null: return null
+	
+	var grid_cell : GridCell = grid_cells[grid_coords]
+	var test_coords = Vector3i(grid_coords.x, grid_coords.y -1,grid_coords.z)
+
+	
+	if not grid_cells.has(test_coords): return null
+	
+	var test_grid_cell = grid_cells[test_coords]
+		
+	if  cell_state_filter != Enums.cellState.NONE and test_grid_cell.grid_cell_state != cell_state_filter:
+		return get_cell_below_recursive(test_coords, cell_state_filter)
+		
+	else: return test_grid_cell
+
 func try_get_grid_cell_of_state_below(grid_coords: Vector3, wanted_cell_state: Enums.cellState) -> Dictionary:
 	var ret_val = {"success": false, "grid_cell": null}
 	var starting_grid_cell: GridCell = get_grid_cell(grid_coords)
@@ -327,10 +344,10 @@ func try_get_cells_in_cone(
 	cell_state_filter: Enums.cellState = Enums.cellState.NONE
 ) -> Dictionary:
 	# Initialize return structure with consistent naming
-	var grid_cells : Dictionary[Vector3i, GridCell] = {}
+	var temp_grid_cells : Dictionary[Vector3i, GridCell] = {}
 	var result: Dictionary = {
 		"success": false,
-		"cells": grid_cells
+		"cells": temp_grid_cells
 	}
 	
 	# Validate input parameters
@@ -347,7 +364,7 @@ func try_get_cells_in_cone(
 		return result
 
 	# Cache frequently used values
-	var cell_size = Manager.get_instance("MeshTerrainManager").cell_size
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 	var search_radius_cells = ceil(max_distance / cell_size.x) + 1
 	var origin_coords = origin_cell.grid_coordinates
 	var origin_position = origin_cell.world_position

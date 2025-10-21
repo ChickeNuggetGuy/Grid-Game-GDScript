@@ -8,8 +8,8 @@ class_name TurnUI
 func _setup():
 	print("GRRRRRR")
 	end_turn_button.pressed.connect(call_end_turn)
-	TurnManager.Instance.connect("turn_changed",TurnManager_turn_changed)
-	turn_label.text = "Current Turn: " + TurnManager.Instance.current_turn.turn_name
+	GameManager.managers["TurnManager"].connect("turn_changed",TurnManager_turn_changed)
+	turn_label.text = "Current Turn: " + GameManager.managers["TurnManager"].current_turn.turn_name
 	super._setup()
 
 
@@ -20,14 +20,14 @@ func TurnManager_turn_changed(current_turn : TurnData):
 
 	turn_label.text = "Current Turn: " + current_turn.turn_name
 	
-	if TurnManager.Instance.current_turn is TeamTurnData and not TurnManager.Instance.current_turn.team & Enums.unitTeam.PLAYER:
+	if GameManager.managers["TurnManager"].current_turn is TeamTurnData and not GameManager.managers["TurnManager"].current_turn.team & Enums.unitTeam.PLAYER:
 		end_turn_button.hide()
 	else:
 		end_turn_button.show()
 
 
 func call_end_turn():
-	if TurnManager.Instance.current_turn is TeamTurnData and TurnManager.Instance.current_turn.team & Enums.unitTeam.PLAYER:
+	if GameManager.managers["TurnManager"].current_turn is TeamTurnData and GameManager.managers["TurnManager"].current_turn.team & Enums.unitTeam.PLAYER:
 		print("end Turn")
-		TurnManager.Instance.end_turn()
+		GameManager.managers["TurnManager"].end_turn()
 		

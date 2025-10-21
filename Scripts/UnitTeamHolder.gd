@@ -6,23 +6,20 @@ extends Node
 
 var team_textures : Dictionary[String, ImageTexture]
 
+#region signals
+#endregion
 func setup() -> void:
-	grid_objects = {"active" : [], "not_active": []}
-	Manager.get_instance("UnitActionManager").connect("any_action_execution_finished",
-			on_any_action_finished )
+	grid_objects = {"active" : [], "inactive": []}
 	
 	
 	team_textures = {}
-	var terrain := Manager.get_instance("MeshTerrainManager")
+	var terrain := GameManager.managers["MeshTerrainManager"]
 	if terrain == null:
 		push_error("Unit Team Holder: MeshTerrainManager not found!")
 		return
 		
 	var size_v3: Vector3 = terrain.get_map_cell_size()  # cells, not world units
 	var fog_dims = Vector2i(int(size_v3.x), int(size_v3.z))
-	var cell_size = Vector2(terrain.cell_size.x, terrain.cell_size.x)  # Ensure it's Vector2
-
-	var map_origin = Vector2.ZERO
 
 	# 3) Create fog image/texture (RG8: R=visible, G=explored)
 	var fog_image = Image.create(fog_dims.x,fog_dims.y,	false,Image.FORMAT_RG8)
@@ -30,7 +27,24 @@ func setup() -> void:
 
 	team_textures["fow_texture"] = ImageTexture.create_from_image(fog_image)
 	update_unit_visibility()
+
+
+func add_grid_object(grid_object : GridObject):
 	
+	if grid_object == null:
+		print("grid object is null!")
+		return
+	
+	if grid_objects["active"].has(grid_object):
+		return
+	
+	grid_objects["active"].append(grid_object)
+	add_child(grid_object)
+	
+	var health_stat = grid_object.get_stat_by_name("Health")
+	health_stat.stat_value_min.connect(on_grid_object_died)
+
+
 func update_unit_visibility():
 	var active_grid_objects = grid_objects["active"]
 	
@@ -77,3 +91,10 @@ func update_unit_visibility():
 
 func on_any_action_finished(_current_action_def: BaseActionDefinition, _execution_parameters: Dictionary):
 	update_unit_visibility()
+
+
+func on_grid_object_died(gridObject : GridObject):
+	if grid_objects["active"].has(gridObject):
+		grid_objects["inactive"].append(gridObject)
+		grid_objects["active"].erase(gridObject)
+		print("Unit Died")

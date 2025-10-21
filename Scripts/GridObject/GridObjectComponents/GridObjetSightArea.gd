@@ -24,7 +24,7 @@ func update_sight_area(set_cell_visability : bool) -> Dictionary:
 
 	var forward_dir = -parent_grid_object.global_transform.basis.z
 	
-	var result = Manager.get_instance("GridSystem").try_get_cells_in_cone(
+	var result = GameManager.managers["GridSystem"].try_get_cells_in_cone(
 		current_cell,
 		forward_dir,
 		sight_depth,
@@ -32,7 +32,7 @@ func update_sight_area(set_cell_visability : bool) -> Dictionary:
 		Enums.cellState.NONE
 	)
 
-	var short_result = Manager.get_instance("GridSystem").try_get_cells_in_cone(current_cell, 
+	var short_result = GameManager.managers["GridSystem"].try_get_cells_in_cone(current_cell, 
 			forward_dir,
 			4, 
 			180, 

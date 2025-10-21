@@ -27,12 +27,12 @@ func setup() -> void:
 
 func init_fog() -> void:
 	# 1) Fetch grid dimensions and world cell size from your systems
-	var terrain := Manager.get_instance("MeshTerrainManager")
+	var terrain := GameManager.managers["MeshTerrainManager"]
 	if terrain == null:
 		push_error("FogManager: MeshTerrainManager not found!")
 		return
 	
-	var unit_manager : UnitManager = Manager.get_instance("UnitManager")
+	var unit_manager : UnitManager = GameManager.managers["UnitManager"]
 	if unit_manager == null:
 		push_error("FogManager: UnitManager not found!")
 		return
@@ -56,14 +56,14 @@ func init_fog() -> void:
 	
 	Color.ORANGE, false, 100)
 	
-	fog_material = terrain.material
-	
-	fog_material.set_shader_parameter("visibility_texture", main_fog_texture)
-	fog_material.set_shader_parameter("terrain_texture", terrain_texture)
-	fog_material.set_shader_parameter("world_offset", Vector3(0,0,0))
-	fog_material.set_shader_parameter("grid_size", fog_dims)
-	fog_material.set_shader_parameter("cell_size", cell_size)
-	
+	#fog_material = terrain.material
+	#
+	#fog_material.set_shader_parameter("visibility_texture", main_fog_texture)
+	#fog_material.set_shader_parameter("terrain_texture", terrain_texture)
+	#fog_material.set_shader_parameter("world_offset", Vector3(0,0,0))
+	#fog_material.set_shader_parameter("grid_size", fog_dims)
+	#fog_material.set_shader_parameter("cell_size", cell_size)
+	#
 	
 
 
@@ -72,7 +72,7 @@ func update_fog_texture(changed_cells: Dictionary, team : Enums.unitTeam) -> voi
 	var changed := false
 	
 	
-	var unit_manager : UnitManager = Manager.get_instance("UnitManager")
+	var unit_manager : UnitManager = GameManager.managers["UnitManager"]
 	if unit_manager == null:
 		push_error("FogManager: UnitManager not found!")
 		return
@@ -143,7 +143,7 @@ func world_to_fog_coords(world_pos: Vector3) -> Vector2i:
 func update_fog_at_world_position(world_pos: Vector3, fog_state: Enums.FogState,
 		team : Enums.unitTeam) -> void:
 	
-	var unit_manager : UnitManager = Manager.get_instance("UnitManager")
+	var unit_manager : UnitManager = GameManager.managers["UnitManager"]
 	if unit_manager == null:
 		push_error("FogManager: UnitManager not found!")
 		return

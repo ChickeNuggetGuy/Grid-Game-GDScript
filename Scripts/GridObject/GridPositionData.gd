@@ -62,7 +62,7 @@ func set_grid_cell(target_grid_cell: GridCell):
 					
 				var offset = Vector3i(x, y, z)
 				var cell_pos = target_grid_cell.grid_coordinates + offset
-				var temp_grid_cell = Manager.get_instance("GridSystem").get_grid_cell(cell_pos)
+				var temp_grid_cell = GameManager.managers["GridSystem"].get_grid_cell(cell_pos)
 
 				if temp_grid_cell != null and not grid_cells.has(temp_grid_cell):
 					grid_cells.append(temp_grid_cell)
@@ -73,6 +73,10 @@ func set_grid_cell(target_grid_cell: GridCell):
 
 
 func update_parent_visability():
+	
+	if !grid_cell:
+		return
+	
 	if grid_cell.fog_status != Enums.FogState.VISIBLE:
 		print("HIDE" + str(grid_cell.fog_status))
 		parent_grid_object.visual.hide()

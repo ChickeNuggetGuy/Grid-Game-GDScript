@@ -12,31 +12,21 @@ signal grid_cell_selected(grid_cell : GridCell)
 #region Functions
 
 
-func get_manager_data() -> Dictionary:
-	return {}
-
-
-
-func _ready() -> void:
-	super._ready()
-	gridSystem = Manager.get_instance("GridSystem")
-	visual = CSGBox3D.new()
-	add_child(visual)
-
-
 
 func on_scene_changed(_new_scene: Node):
-	if not Manager.get_instance("GameManager").current_scene_name == "BattleScene":
+	if not GameManager.Instance.current_scene_name == "BattleScene":
 		queue_free()
 
 func _on_exit_tree() -> void:
 	return
 
 func _process(_delta: float) -> void:
-	if !Manager.get_instance("GameManager").execution_completed:
+	if not execute_complete: return
+		
+	if !GameManager.execution_completed:
 		return
 	var mp   = get_viewport().get_mouse_position()
-	var from = get_viewport().get_camera_3d().project_ray_origin(mp)
+	var from = get_tree().root.get_viewport().get_camera_3d().project_ray_origin(mp)
 	var dir  = get_viewport().get_camera_3d().project_ray_normal(mp)
 	var to   = from + dir * 1000.0  # lengthen as needed
 
@@ -65,7 +55,22 @@ func _process(_delta: float) -> void:
 		else:
 			var hit_pos = hit.position
 			var r = gridSystem.try_get_gridCell_from_world_position(hit_pos)
-			currentGridCell = r["grid_cell"] if r["success"] else null
+			if r["success"]:
+				if r["grid_cell"].grid_cell_state == Enums.cellState.AIR:
+					var temp_cell = gridSystem.get_cell_below_recursive(r["grid_cell"].grid_coordinates, Enums.cellState.GROUND)
+					
+					if temp_cell == null:
+						currentGridCell = null
+						
+					else:
+						currentGridCell = temp_cell
+						
+				else:
+					currentGridCell = r["grid_cell"]
+					
+			else:
+				currentGridCell = null
+				
 	else:
 		currentGridCell = null
 	
@@ -84,7 +89,9 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup(): 
-	print("HELP")
+	gridSystem = GameManager.managers["GridSystem"]
+	visual = CSGBox3D.new()
+	add_child(visual)
 	setup_completed.emit()
 
 
