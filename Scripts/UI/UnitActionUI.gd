@@ -12,8 +12,8 @@ var action_buttons : Array = []
 
 func _setup() -> void:
 	super._setup()
-	GameManager.managers["UnitManager"].connect("UnitSelected", unitManager_unit_selected)
-	GameManager.managers["UnitActionManager"].connect("action_execution_finished", UnitActionManager_action_execution_finished)
+	GameManager.managers["UnitManager"].unit_selected.connect( unitManager_unit_selected)
+	GameManager.managers["UnitActionManager"].action_execution_finished.connect( UnitActionManager_action_execution_finished)
 	
 	var selected_unit = GameManager.managers["UnitManager"].selectedUnit
 	
@@ -23,13 +23,13 @@ func _setup() -> void:
 	update_action_buttons(selected_unit)
 
 func unitManager_unit_selected(selectedUnit : Unit, _old_unit : Unit):
-	print("Working!")
 	update_action_buttons(selectedUnit)
 	update_stat_bars(selectedUnit)
 
 
 func UnitActionManager_action_execution_finished(_current_action : BaseActionDefinition,
 	_execution_paramaters : Dictionary):
+	print("Stat bars should be updating")
 	update_stat_bars(GameManager.managers["UnitManager"].selectedUnit)
 
 

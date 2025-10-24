@@ -15,7 +15,7 @@ static func _create_neighbor_offsets() -> Array:
 @onready var NEIGHBOR_OFFSETS = _create_neighbor_offsets()
 @onready var _heap = preload("res://Scripts/Utility/MinHeap.gd").new()
 
-func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false) -> Array:
+func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false) -> Array[GridCell]:
 	return _find_path_internal(start, goal, adjacent_is_valid)
 
 func find_path_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool = false) -> Array:
@@ -30,8 +30,8 @@ func is_path_possible(start: GridCell, goal: GridCell, adjacent_is_valid: bool =
 func is_path_possible_coords(start_coords: Vector3i, goal_coords: Vector3i, adjacent_is_valid: bool = false) -> bool:
 	return find_path_coords(start_coords, goal_coords, adjacent_is_valid).size() > 0
 
-func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Array:
-	var path := []
+func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Array[GridCell]:
+	var path : Array[GridCell] = []
 	if start == null or goal == null:
 		return path
 	

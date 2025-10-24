@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="RotateActionDefinition" load_steps=2 format=3 uid="uid://byxgdeudo6lav"]
 
-[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionDefinition.gd" id="1_rv6ep"]
+[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/Rotate/RotateActionDefinition.gd" id="1_rv6ep"]
 
 [resource]
 script = ExtResource("1_rv6ep")

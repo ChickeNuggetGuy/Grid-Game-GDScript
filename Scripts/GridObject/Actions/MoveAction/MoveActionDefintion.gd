@@ -4,16 +4,22 @@ class_name MoveActionDefinition
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/MoveAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/MoveAction/MoveAction.gd"
 	super._init()
 
-func double_click_call(parameters : Dictionary) -> void:
-	print("Double Click")
-	if parameters.has("path"):
-		for cell in parameters["path"]:
+func double_click_call(_parameters : Dictionary) -> void:
+	var cell_size : Vector2 = GameManager.managers["MeshTerrainManager"].cell_size
+	if _parameters.has("path"):
+		for cell in _parameters["path"]:
 			var grid_cell : GridCell = cell as GridCell
-			DebugDraw3D.draw_box(grid_cell.world_position, Quaternion.IDENTITY, Vector3.ONE, Color.MEDIUM_VIOLET_RED, true, 10)
-	
+			DebugDraw3D.draw_box((grid_cell.grid_coordinates as Vector3) +Vector3(cell_size.x, cell_size.y, cell_size.x) /2 , Quaternion.IDENTITY, Vector3.ONE, Color.MEDIUM_VIOLET_RED, true, 10)
+
+
+func double_click_clear(_parameters : Dictionary) -> void:
+	return
+
+
+
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.WALKABLE
 	var result = GameManager.managers["GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, 8, walkable_empty_filter)
@@ -42,7 +48,7 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_val = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A"}
+	var ret_val = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A", "extra_parameters" : {}}
 	
 	var temp_costs = {"time_units" : 0, "stamina" : 0}
 	
@@ -55,7 +61,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		ret_val["reason"] = "No path possible!"
 		return ret_val
 	
-	var path = Pathfinder.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
+	var path : Array[GridCell] = Pathfinder.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
 	
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")
@@ -111,5 +117,5 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	ret_val["success"] = true
 	ret_val["costs"] = temp_costs
 	ret_val["reason"] = "success"
-	extra_parameters["path"] = path
+	ret_val["extra_parameters"]["path"] = path
 	return ret_val

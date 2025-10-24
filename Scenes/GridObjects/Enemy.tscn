@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://bqmue7sxhcjmp"]
+
+[ext_resource type="PackedScene" uid="uid://hhe7ab2xbje0" path="res://Scenes/GridObjects/Unit.tscn" id="1_3i5yr"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="2_tdn1q"]
+
+[sub_resource type="Resource" id="Resource_fq8pg"]
+resource_local_to_scene = true
+script = ExtResource("2_tdn1q")
+grid_width = 1
+grid_height = 1
+shape_grid = Array[int]([1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[node name="Unit" unique_id=529937144 instance=ExtResource("1_3i5yr")]
+grid_shape = SubResource("Resource_fq8pg")
+
+[node name="GridObjectWorldTarget" parent="GridObjectComponents" parent_id_path=PackedInt32Array(1798251923) index="2" unique_id=1240600694 node_paths=PackedStringArray("targets")]
+targets = {
+"action_camera_position": NodePath("../../action_camera_position"),
+"fire_position": NodePath("../../fire_position"),
+"target_position": NodePath("../../target_position")
+}

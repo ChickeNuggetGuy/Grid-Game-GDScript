@@ -5,12 +5,18 @@ class_name ThrowActionDefinition
 
 func _init() -> void:
 	action_name = "Throw"
-	script_path = "res://Scripts/InventorySystem/ItemActions/ThrowAction.gd"
+	script_path = "res://Scripts/InventorySystem/ItemActions/Throw/ThrowAction.gd"
 	super._init()
 
 func double_click_call(parameters : Dictionary) -> void:
 	if parameters.has("path"):
 		print(parameters["path"].size())
+
+
+func double_click_clear(parameters : Dictionary) -> void:
+	return
+
+
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.GROUND | Enums.cellState.EMPTY

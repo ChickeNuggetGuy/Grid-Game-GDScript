@@ -59,8 +59,6 @@ func  _setup():
 	
 	var ui_elements : Array = UtilityMethods.find_children_by_type(self, "UIElement")
 	
-	if ui_elements == null or ui_elements.size() < 1:
-		return
 	
 	for element in ui_elements:
 		if element is UIElement:

@@ -24,6 +24,8 @@ func _setup(extra_params : Dictionary):
 	set_grid_cell(extra_params["grid_cell"])
 	extra_params["grid_cell"].set_gridobject(parent_grid_object, extra_params["grid_cell"].grid_cell_state)
 	set_direction(extra_params["direction"])
+	
+	
 
 
 func set_direction(dir :Enums.facingDirection, update_transform : bool = false):
@@ -76,12 +78,13 @@ func update_parent_visability():
 	
 	if !grid_cell:
 		return
-	
-	if grid_cell.fog_status != Enums.FogState.VISIBLE:
-		print("HIDE" + str(grid_cell.fog_status))
+		
+	var team_holder = GameManager.managers["UnitManager"].UnitTeams[Enums.unitTeam.PLAYER]
+	var grid_data = team_holder.get_grid_cell_visibility_data(grid_cell)
+		
+	if grid_data["fog_state"] == Enums.FogState.UNSEEN:
 		parent_grid_object.visual.hide()
 	else:
-		print("Show" + str(grid_cell.fog_status))
 		parent_grid_object.visual.show()
 func set_grid_shape(new_shape: GridShape):
 	grid_shape = new_shape

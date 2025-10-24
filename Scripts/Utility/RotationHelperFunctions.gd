@@ -3,7 +3,6 @@ extends RefCounted
 class_name RotationHelperFunctions
 
 
-# ← no `static` here, just `const`
 const YAW_MAP: Dictionary = {
 	Enums.facingDirection.NORTH:     0.0,
 	Enums.facingDirection.NORTHEAST: -PI/4,
@@ -15,103 +14,84 @@ const YAW_MAP: Dictionary = {
 	Enums.facingDirection.NORTHWEST:  PI/4,
 }
 
-static func get_direction_between_cells(from_cell: GridCell, to_cell: GridCell) -> Dictionary:
+# --- START: MODIFIED/NEW CODE ---
+
+# Private helper function to handle the core logic and prevent duplication.
+# This is where we apply the fix for floating-point inaccuracy.
+static func _get_direction_from_vector(delta: Vector2) -> Dictionary:
 	var result = {
 		"direction": Enums.facingDirection.NONE,
 		"rotation_steps": 0
 	}
 
+	# Epsilon is a small tolerance to treat near-zero values as zero
+	const EPSILON = 0.001
+
+	var sx = 0
+	if delta.x > EPSILON:
+		sx = 1
+	elif delta.x < -EPSILON:
+		sx = -1
+	
+	var sz = 0
+	if delta.y > EPSILON:
+		sz = 1
+	elif delta.y < -EPSILON:
+		sz = -1
+
+	# Determine direction and rotation steps
+	match [sx, sz]:
+		[0, 0]: # Same cell or invalid
+			result.direction = Enums.facingDirection.NONE
+			result.rotation_steps = 0
+		[0, 1]: # North
+			result.direction = Enums.facingDirection.NORTH
+			result.rotation_steps = 0
+		[1, 1]: # Northeast
+			result.direction = Enums.facingDirection.NORTHEAST
+			result.rotation_steps = 1
+		[1, 0]: # East
+			result.direction = Enums.facingDirection.EAST
+			result.rotation_steps = 2
+		[1, -1]: # Southeast
+			result.direction = Enums.facingDirection.SOUTHEAST
+			result.rotation_steps = 3
+		[0, -1]: # South
+			result.direction = Enums.facingDirection.SOUTH
+			result.rotation_steps = 4
+		[-1, -1]: # Southwest
+			result.direction = Enums.facingDirection.SOUTHWEST
+			result.rotation_steps = 5
+		[-1, 0]: # West
+			result.direction = Enums.facingDirection.WEST
+			result.rotation_steps = 6
+		[-1, 1]: # Northwest
+			result.direction = Enums.facingDirection.NORTHWEST
+			result.rotation_steps = 7
+		_: # Fallback
+			result.direction = Enums.facingDirection.NONE
+			result.rotation_steps = 0
+	
+	return result
+
+
+static func get_direction_between_cells(from_cell: GridCell, to_cell: GridCell) -> Dictionary:
 	if from_cell == null or to_cell == null:
-		return result
+		return { "direction": Enums.facingDirection.NONE, "rotation_steps": 0 }
 
 	var dx = to_cell.grid_coordinates.x - from_cell.grid_coordinates.x
 	var dz = -(to_cell.grid_coordinates.z - from_cell.grid_coordinates.z)  # flip so +dz = North
-	var sx = sign(dx) # sign() in GDScript returns -1, 0, or 1
-	var sz = sign(dz)
-
-	# Determine direction and rotation steps
-	match [sx, sz]:
-		[0, 0]: # Same cell or invalid
-			result.direction = Enums.facingDirection.NONE
-			result.rotation_steps = 0
-		[0, 1]: # North
-			result.direction = Enums.facingDirection.NORTH
-			result.rotation_steps = 0
-		[1, 1]: # Northeast
-			result.direction = Enums.facingDirection.NORTHEAST
-			result.rotation_steps = 1
-		[1, 0]: # East
-			result.direction = Enums.facingDirection.EAST
-			result.rotation_steps = 2
-		[1, -1]: # Southeast
-			result.direction = Enums.facingDirection.SOUTHEAST
-			result.rotation_steps = 3
-		[0, -1]: # South
-			result.direction = Enums.facingDirection.SOUTH
-			result.rotation_steps = 4
-		[-1, -1]: # Southwest
-			result.direction = Enums.facingDirection.SOUTHWEST
-			result.rotation_steps = 5
-		[-1, 0]: # West
-			result.direction = Enums.facingDirection.WEST
-			result.rotation_steps = 6
-		[-1, 1]: # Northwest
-			result.direction = Enums.facingDirection.NORTHWEST
-			result.rotation_steps = 7
-		_: # Fallback for any unexpected case (shouldn't happen with sign values)
-			result.direction = Enums.facingDirection.NONE
-			result.rotation_steps = 0
 	
-	
-	return result
+	return _get_direction_from_vector(Vector2(dx, dz))
 
 
 static func get_direction_between_positons(from_pos: Vector3, to_pos: Vector3) -> Dictionary:
-	var result = {
-		"direction": Enums.facingDirection.NONE,
-		"rotation_steps": 0
-	}
-
 	var dx = to_pos.x - from_pos.x
 	var dz = -(to_pos.z - from_pos.z)  # flip so +dz = North
-	var sx = sign(dx) # sign() in GDScript returns -1, 0, or 1
-	var sz = sign(dz)
 
-	# Determine direction and rotation steps
-	match [sx, sz]:
-		[0, 0]: # Same cell or invalid
-			result.direction = Enums.facingDirection.NONE
-			result.rotation_steps = 0
-		[0, 1]: # North
-			result.direction = Enums.facingDirection.NORTH
-			result.rotation_steps = 0
-		[1, 1]: # Northeast
-			result.direction = Enums.facingDirection.NORTHEAST
-			result.rotation_steps = 1
-		[1, 0]: # East
-			result.direction = Enums.facingDirection.EAST
-			result.rotation_steps = 2
-		[1, -1]: # Southeast
-			result.direction = Enums.facingDirection.SOUTHEAST
-			result.rotation_steps = 3
-		[0, -1]: # South
-			result.direction = Enums.facingDirection.SOUTH
-			result.rotation_steps = 4
-		[-1, -1]: # Southwest
-			result.direction = Enums.facingDirection.SOUTHWEST
-			result.rotation_steps = 5
-		[-1, 0]: # West
-			result.direction = Enums.facingDirection.WEST
-			result.rotation_steps = 6
-		[-1, 1]: # Northwest
-			result.direction = Enums.facingDirection.NORTHWEST
-			result.rotation_steps = 7
-		_: # Fallback for any unexpected case (shouldn't happen with sign values)
-			result.direction = Enums.facingDirection.NONE
-			result.rotation_steps = 0
-	
-	
-	return result
+	return _get_direction_from_vector(Vector2(dx, dz))
+
+# --- END: MODIFIED/NEW CODE ---
 
 
 static func get_yaw_for_direction(dir: int) -> float:

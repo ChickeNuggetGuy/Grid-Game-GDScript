@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://bu7ki2ekfvc8v" path="res://Scripts/GridObject/Unit.gd" id="1_33ww8"]
 [ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/BaseActionDefinition.gd" id="2_45onm"]
-[ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveActionDefintion.gd" id="4_r2bin"]
-[ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStepActionDefintion.gd" id="5_3ea33"]
-[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/RotateActionDefinition.gd" id="6_e636m"]
+[ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveAction/MoveActionDefintion.gd" id="4_r2bin"]
+[ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStep/MoveStepActionDefintion.gd" id="5_3ea33"]
+[ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/Rotate/RotateActionDefinition.gd" id="6_e636m"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="7_7mmco"]
 [ext_resource type="Script" uid="uid://caqcyrpsjdjhb" path="res://Scripts/GridObject/GridObjectComponents/GridObjectAnimation.gd" id="8_jq84y"]
 [ext_resource type="Script" uid="uid://d13d5i7vfxem3" path="res://Scripts/GridObject/GridObjectStat.gd" id="8_uv3na"]
@@ -335,7 +335,7 @@ shape = SubResource("ConcavePolygonShape3D_qwska")
 [node name="Stamina" type="Node" parent="Stats" unique_id=1521967554]
 script = ExtResource("8_uv3na")
 stat_name = "stamina"
-current_value = 24
+current_value = 64
 min_max_values = Vector2i(0, 64)
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
@@ -350,9 +350,13 @@ metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 [node name="time_units" type="Node" parent="Stats" unique_id=44068985]
 script = ExtResource("8_uv3na")
 stat_name = "time_units"
-current_value = 64
-min_max_values = Vector2i(0, 64)
+current_value = 80
+min_max_values = Vector2i(0, 80)
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
+
+[node name="GridObjectSightArea" type="Node3D" parent="Stats/time_units" unique_id=958155339]
+script = ExtResource("9_7mmco")
+metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 
 [node name="Bravery" type="Node" parent="Stats" unique_id=492314847]
 script = ExtResource("8_uv3na")
@@ -771,10 +775,8 @@ anim_player = NodePath("../AnimationPlayer")
 
 [node name="GridObjectComponents" type="Node" parent="." unique_id=1798251923]
 
-[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" unique_id=1882307956 node_paths=PackedStringArray("parent_grid_object")]
+[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" unique_id=1882307956]
 script = ExtResource("9_7mmco")
-sight_range_degrees = Vector2(90, 180)
-parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 
 [node name="GridObjectAnimation" type="Node3D" parent="GridObjectComponents" unique_id=393229149 node_paths=PackedStringArray("animation_player_holder", "animation_tree", "parent_grid_object")]

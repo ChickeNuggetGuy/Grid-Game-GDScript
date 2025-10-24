@@ -5,11 +5,15 @@ class_name RotateActionDefinition
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/RotateAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/Rotate/RotateAction.gd"
 	super._init()
 
 
 func double_click_call(parameters : Dictionary) -> void:
+	return
+
+
+func double_click_clear(parameters : Dictionary) -> void:
 	return
 
 

@@ -4,12 +4,17 @@ class_name MoveStepActionDefinition
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/MoveStepAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/MoveStep/MoveStepAction.gd"
 	super._init()
 
 
 func double_click_call(parameters : Dictionary) -> void:
 	return
+
+
+func double_click_clear(parameters : Dictionary) -> void:
+	return
+
 
 
 

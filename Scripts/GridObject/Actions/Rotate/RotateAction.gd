@@ -75,7 +75,7 @@ func _execute() -> void:
 
 	# Tween *only* the Y-rotation
 	var tw = owner.create_tween()
-	tw.tween_property(owner, "rotation:y", target_yaw, 0.45)
+	tw.tween_property(owner, "rotation:y", target_yaw, 0.1)
 	await tw.finished
 
 func _action_complete() -> void:

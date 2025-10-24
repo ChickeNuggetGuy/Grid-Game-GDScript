@@ -9,8 +9,8 @@ var quick_target_buttons : Array[QuickTargetButton]
 
 
 func _setup():
-	GameManager.managers["UnitManager"].connect("UnitSelected",UnitManager_UnitSelected)
-	GameManager.managers["UnitActionManager"].connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	GameManager.managers["UnitManager"].unit_selected.connect(UnitManager_UnitSelected)
+	GameManager.managers["UnitActionManager"].action_execution_finished.connect(UnitActionManager_action_execution_finished)
 
 
 
@@ -42,10 +42,9 @@ func update_quick_target_buttons():
 		return
 
 	var sight_area: GridObjectSightArea = result["grid_object_component"]
-	print("WHAT 1")
+
 
 	if sight_area.seen_gridObjects.size() > 0:
-		print("WHAT")
 		for grid_object_team in sight_area.seen_gridObjects.keys():
 			var objects: Array = sight_area.seen_gridObjects[grid_object_team]
 			if objects == null or objects.is_empty():

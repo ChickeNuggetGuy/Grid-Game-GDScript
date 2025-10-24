@@ -17,7 +17,7 @@ var local_vertices_visual: Array = []
 var local_vertices_physics: Array = []
 
 var bounds: AABB
-
+var local_normals: PackedVector3Array = []
 func initialize(
 		chunk_index_x: int,
 		chunk_index_y: int,
@@ -37,6 +37,10 @@ func initialize(
 		print("Skipping mesh generation for ManMade chunk.")
 		return
 
+	var start_x = chunk_index_x * chunk_size
+	var start_z = chunk_index_y * chunk_size
+
+	# Cache or create the MeshInstance child
 	mesh_instance = get_node_or_null("MeshInstance")
 	if not mesh_instance:
 		mesh_instance = MeshInstance3D.new()
@@ -47,24 +51,29 @@ func initialize(
 	mesh_instance.visible = true
 	mesh_instance.layers = 1
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED  # dynamic lights only
+	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 
 	local_vertices_visual.clear()
 	local_vertices_physics.clear()
 
-	var start_x := chunk_index_x * chunk_size
-	var start_z := chunk_index_y * chunk_size
-
+	# Fill local vertex arrays in a grid-coherent order (matches _vi)
 	for z in range(chunk_size + 1):
 		for x in range(chunk_size + 1):
 			var wv_vis: Vector3 = global_visual_vertices[start_x + x][start_z + z]
 			var wv_phy: Vector3 = global_physics_vertices[start_x + x][start_z + z]
 
-			var lx := wv_vis.x - (start_x * self.cell_size.x)
-			var lz := wv_vis.z - (start_z * self.cell_size.x)
+			var lx = wv_vis.x - (start_x * self.cell_size.x)
+			var lz = wv_vis.z - (start_z * self.cell_size.x)
 
 			local_vertices_visual.append(Vector3(lx, wv_vis.y, lz))
 			local_vertices_physics.append(Vector3(lx, wv_phy.y, lz))
+
+	# Store what we need to compute seam-free normals later
+	set_meta("gv", global_visual_vertices)         # reference to global visual grid
+	set_meta("gw", global_visual_vertices.size())  # total width in verts
+	set_meta("gh", global_visual_vertices[0].size())  # total height in verts
+	set_meta("sx", start_x)  # this chunk's start x in the global grid
+	set_meta("sz", start_z)  # this chunk's start z in the global grid
 
 func generate(material: Material) -> void:
 	if chunk_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
@@ -73,67 +82,109 @@ func generate(material: Material) -> void:
 	# Ensure we have a lit 3D material. If a wrong type or null is passed, create a StandardMaterial3D.
 	var use_material: Material = material
 	if use_material == null or !(use_material is BaseMaterial3D or use_material is ShaderMaterial):
-		var std := StandardMaterial3D.new()
+		var std = StandardMaterial3D.new()
 		std.albedo_color = Color(0.5, 0.8, 0.5)
 		std.roughness = 1.0
 		std.metallic = 0.0
-		std.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL  # make sure it's lit
+		std.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 		std.flags_unshaded = false
 		use_material = std
 	else:
-		# If it's a BaseMaterial3D, ensure it is not unshaded
 		if use_material is BaseMaterial3D:
-			var bm := use_material as BaseMaterial3D
+			var bm = use_material as BaseMaterial3D
 			bm.flags_unshaded = false
 			bm.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 
 	original_material = use_material
 	mesh = ArrayMesh.new()
 
-	var mesh_verts := PackedVector3Array()
-	var tris := PackedInt32Array()
-	var uvs := PackedVector2Array()
+	# Build an indexed mesh with shared vertices
+	var vert_count = (chunk_size + 1) * (chunk_size + 1)
 
+	var mesh_verts = PackedVector3Array()
+	mesh_verts.resize(vert_count)
+	for i in range(vert_count):
+		mesh_verts[i] = local_vertices_visual[i]
+
+	# Per-vertex UVs (one per shared vertex)
+	var uvs = PackedVector2Array()
+	uvs.resize(vert_count)
+	for z in range(chunk_size + 1):
+		for x in range(chunk_size + 1):
+			var idx = _vi(x, z)
+			uvs[idx] = Vector2(
+				x / float(chunk_size),
+				z / float(chunk_size)
+			)
+
+	# Per-vertex normals computed from the GLOBAL height grid
+	# This removes seams between chunks
+	var gv = get_meta("gv")
+	var gw: int = int(get_meta("gw"))
+	var gh: int = int(get_meta("gh"))
+	var sx: int = int(get_meta("sx"))
+	var sz: int = int(get_meta("sz"))
+
+	var cx = self.cell_size.x  # horizontal spacing in world units
+
+	local_normals = PackedVector3Array()
+	local_normals.resize(vert_count)
+
+	for z in range(chunk_size + 1):
+		for x in range(chunk_size + 1):
+			var gx = sx + x
+			var gz = sz + z
+
+			var gl = max(gx - 1, 0)
+			var gr = min(gx + 1, gw - 1)
+			var gd = max(gz - 1, 0)
+			var gu = min(gz + 1, gh - 1)
+
+			var yL = gv[gl][gz].y
+			var yR = gv[gr][gz].y
+			var yD = gv[gx][gd].y
+			var yU = gv[gx][gu].y
+
+			# Build slope vectors and cross them. Use sz x sx to get +Y on flat ground.
+			var sx_vec = Vector3(2.0 * cx, yR - yL, 0.0)
+			var sz_vec = Vector3(0.0, yU - yD, 2.0 * cx)
+			var n = sz_vec.cross(sx_vec)
+
+			var idx = _vi(x, z)
+			if n.length_squared() < 1e-6:
+				local_normals[idx] = Vector3.UP
+			else:
+				local_normals[idx] = n.normalized()
+
+	# Indices for two triangles per cell
+	var tris = PackedInt32Array()
+	tris.resize(chunk_size * chunk_size * 6)
+	var ti = 0
 	for z in range(chunk_size):
 		for x in range(chunk_size):
-			var bl := _vi(x, z)
-			var br := _vi(x + 1, z)
-			var tl := _vi(x, z + 1)
-			var tr := _vi(x + 1, z + 1)
+			var bl = _vi(x, z)
+			var br = _vi(x + 1, z)
+			var tl = _vi(x, z + 1)
+			var tr = _vi(x + 1, z + 1)
 
-			var v_bl: Vector3 = local_vertices_visual[bl]
-			var v_br: Vector3 = local_vertices_visual[br]
-			var v_tl: Vector3 = local_vertices_visual[tl]
-			var v_tr: Vector3 = local_vertices_visual[tr]
+			tris[ti] = bl
+			tris[ti + 1] = br
+			tris[ti + 2] = tl
+			ti += 3
 
-			var v0 := mesh_verts.size()
-			mesh_verts.append(v_bl)
-			mesh_verts.append(v_br)
-			mesh_verts.append(v_tl)
-			tris.append_array([v0, v0 + 1, v0 + 2])
+			tris[ti] = br
+			tris[ti + 1] = tr
+			tris[ti + 2] = tl
+			ti += 3
 
-			var v1 := mesh_verts.size()
-			mesh_verts.append(v_br)
-			mesh_verts.append(v_tr)
-			mesh_verts.append(v_tl)
-			tris.append_array([v1, v1 + 1, v1 + 2])
-
-			uvs.append(Vector2(x / float(chunk_size), z / float(chunk_size)))
-			uvs.append(Vector2((x + 1) / float(chunk_size), z / float(chunk_size)))
-			uvs.append(Vector2(x / float(chunk_size), (z + 1) / float(chunk_size)))
-
-			uvs.append(Vector2((x + 1) / float(chunk_size), z / float(chunk_size)))
-			uvs.append(Vector2((x + 1) / float(chunk_size), (z + 1) / float(chunk_size)))
-			uvs.append(Vector2(x / float(chunk_size), (z + 1) / float(chunk_size)))
-
-	var arrays := []
+	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = mesh_verts
-	arrays[Mesh.ARRAY_INDEX] = tris
+	arrays[Mesh.ARRAY_NORMAL] = local_normals
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_INDEX] = tris
 
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	CalculateSmoothNormals(mesh)
 
 	# Assign the material to the mesh surface (avoid material_override so lights/GI behave normally)
 	mesh.surface_set_material(0, original_material)
@@ -147,20 +198,20 @@ func generate(material: Material) -> void:
 		add_to_group("Mouse")
 
 func _build_physics_collision() -> void:
-	var old := get_node_or_null("CollisionBody")
+	var old = get_node_or_null("CollisionBody")
 	if old:
 		old.queue_free()
 
-	var faces := PackedVector3Array()
+	var faces = PackedVector3Array()
 	faces.resize(chunk_size * chunk_size * 2 * 3)
-	var fi := 0
+	var fi = 0
 
 	for z in range(chunk_size):
 		for x in range(chunk_size):
-			var bl := _vi(x, z)
-			var br := _vi(x + 1, z)
-			var tl := _vi(x, z + 1)
-			var tr := _vi(x + 1, z + 1)
+			var bl = _vi(x, z)
+			var br = _vi(x + 1, z)
+			var tl = _vi(x, z + 1)
+			var tr = _vi(x + 1, z + 1)
 
 			var p_bl: Vector3 = local_vertices_physics[bl]
 			var p_br: Vector3 = local_vertices_physics[br]
@@ -177,14 +228,14 @@ func _build_physics_collision() -> void:
 			faces[fi + 2] = p_tl
 			fi += 3
 
-	var concave := ConcavePolygonShape3D.new()
+	var concave = ConcavePolygonShape3D.new()
 	concave.set_faces(faces)
 
-	var body := StaticBody3D.new()
+	var body = StaticBody3D.new()
 	body.name = "CollisionBody"
 	add_child(body)
 
-	var shape := CollisionShape3D.new()
+	var shape = CollisionShape3D.new()
 	shape.shape = concave
 	body.add_child(shape)
 
@@ -198,19 +249,19 @@ static func CalculateSmoothNormals(array_mesh: ArrayMesh) -> void:
 	var arrays = array_mesh.surface_get_arrays(0)
 	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-	var normals := PackedVector3Array()
+	var normals = PackedVector3Array()
 	normals.resize(vertices.size())
 	for i in range(normals.size()):
 		normals[i] = Vector3.ZERO
 
 	for i in range(0, indices.size(), 3):
-		var i0 := indices[i]
-		var i1 := indices[i + 1]
-		var i2 := indices[i + 2]
-		var v0 := vertices[i0]
-		var v1 := vertices[i1]
-		var v2 := vertices[i2]
-		var face_n := (v1 - v0).cross(v2 - v0)
+		var i0 = indices[i]
+		var i1 = indices[i + 1]
+		var i2 = indices[i + 2]
+		var v0 = vertices[i0]
+		var v1 = vertices[i1]
+		var v2 = vertices[i2]
+		var face_n = (v1 - v0).cross(v2 - v0)
 		if face_n.length_squared() < 0.0001:
 			continue
 		normals[i0] += face_n

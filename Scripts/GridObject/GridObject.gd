@@ -79,11 +79,19 @@ func grid_object_dealth(_parent_grid_object : GridObject):
 
 
 func setup_inventory_grids():
+	var temp_melee_result = InventoryManager.try_gry_inventory_item("test_melee")
+	var temp_ranged_result = InventoryManager.try_gry_inventory_item("test_ranged")
+	
 	for inventory_type in inventory_grid_types:
 		
 		var result = InventoryManager.try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
+			if inventory_grids[inventory_type].inventory_type == Enums.inventoryType.RIGHTHAND:
+				if team == Enums.unitTeam.PLAYER:
+					inventory_grids[inventory_type].try_add_item(temp_ranged_result["inventory_item"])
+				else:
+					inventory_grids[inventory_type].try_add_item(temp_melee_result["inventory_item"])
 
 
 
@@ -118,7 +126,7 @@ func try_spend_stat_value(stat_name : String, amount_to_spend : int) -> Dictiona
 
 
 func check_stat_values(stats_to_check: Dictionary) -> Dictionary:
-	var result := {"success": false, "reason": ""}
+	var result := {"success": false, "reason": "N/A"}
 	var temp_costs: Dictionary = {}
 	
 	
@@ -127,7 +135,7 @@ func check_stat_values(stats_to_check: Dictionary) -> Dictionary:
 		var stat = get_stat_by_name(stat_name)
 		
 		if stat == null:
-			result["reasoning"] = "Stat with name: " + stat_name + " not found!"
+			result["reason"] = "Stat with name: " + stat_name + " not found!"
 			return result
 		
 		if not temp_costs.has(stat):
@@ -138,11 +146,11 @@ func check_stat_values(stats_to_check: Dictionary) -> Dictionary:
 	
 	for stat in temp_costs.keys():
 		if stat.current_value < temp_costs[stat]:
-			result["reasoning"] = "Not enough: " + stat.name + " value"
+			result["reason"] = "Not enough: " + stat.name + " value"
 			return result
 	
 	result["success"] = true
-	result["reasoning"] = "Yay"
+	result["reason"] = "Yay"
 	return result
 
 

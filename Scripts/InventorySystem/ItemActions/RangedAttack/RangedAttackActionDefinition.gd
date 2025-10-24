@@ -5,12 +5,17 @@ class_name RangedAttackActionDefinition
 
 func _init() -> void:
 	action_name = "Ranged Attack"
-	script_path = "res://Scripts/InventorySystem/ItemActions/RangedAttackAction.gd"
+	script_path = "res://Scripts/InventorySystem/ItemActions/RangedAttack/RangedAttackAction.gd"
 	super._init()
 	
 
-func double_click_call(parameters : Dictionary) -> void:
+func double_click_call(_parameters : Dictionary) -> void:
 	return
+
+
+func double_click_clear(_parameters : Dictionary) -> void:
+	return
+
 
 
 

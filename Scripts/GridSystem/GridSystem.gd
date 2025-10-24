@@ -49,14 +49,14 @@ func setup_grid():
 					z * cell_size.x + (cell_size.x * 0.5)
 				)
 
-				var cell_state = determine_cell_state(spaceState, position, layer)
+				var result = determine_cell_state(spaceState, position, layer)
 
 				# Debug visualization
 				#visualize_cell(position, cell_state)
 
 				# Create/update grid cell
 				var coords = Vector3i(x, layer, z)
-				create_or_update_cell(coords, position, cell_state)
+				create_or_update_cell(coords, result["position"], result["cell_state"])
 
 	print("Grid setup complete: ", grid_cells.size(), " cells")
 
@@ -66,16 +66,19 @@ func get_passable_data() -> Dictionary:
 
 
 
-func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
+func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Dictionary:
+	var return_value : Dictionary = {"cell_state": Enums.cellState.NONE, "position": position}
+	
 	# Multi-point collision detection for better hill detection
 	if colliderCheck and is_position_obstructed(spaceState, position):
-		return Enums.cellState.OBSTRUCTED
+		return_value["cell_state"] = Enums.cellState.OBSTRUCTED
+		return return_value
 	
 	# Enhanced raycast check
 	if raycastCheck:
 		return perform_enhanced_raycast_check(spaceState, position, layer)
 	
-	return Enums.cellState.NONE
+	return return_value
 
 func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vector3) -> bool:
 	var box = BoxShape3D.new()
@@ -105,8 +108,10 @@ func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vec
 	
 	return false
 
-func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Enums.cellState:
+func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Dictionary:
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
+	
+	var return_value = {"cell_state":Enums.cellState.NONE, "position" : position}
 	
 	var ray_offsets = [
 		Vector3(0, 0, 0),  # Center
@@ -141,7 +146,7 @@ func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, posit
 			
 			if hitY >= cell_bottom_y and hitY < cell_top_y:
 				walkable_hits += 1
-				# Use the center ray for position adjustment
+				
 				if offset == Vector3.ZERO:
 					adjusted_position.y = hitY
 	
@@ -149,12 +154,18 @@ func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, posit
 	var walkable_ratio = float(walkable_hits) / float(total_rays)
 	
 	if walkable_ratio >= 0.6:  # At least 60% of rays hit walkable ground
-		position.y = adjusted_position.y  # This might need to be handled differently
-		return Enums.cellState.WALKABLE
+		position.y = adjusted_position.y  
+		return_value["position"] = position
+		return_value["cell_state"] = Enums.cellState.WALKABLE
+		return return_value
 	elif walkable_ratio > 0:
-		return Enums.cellState.GROUND  # Partially walkable, maybe stairs/slopes
+		position.y = adjusted_position.y  
+		return_value["position"] = position
+		return_value["cell_state"] = Enums.cellState.GROUND
+		return return_value
 	else:
-		return Enums.cellState.AIR
+		return_value["cell_state"] = Enums.cellState.AIR
+		return return_value
 
 func visualize_cell(position: Vector3, cell_state: Enums.cellState):
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
@@ -458,7 +469,7 @@ func get_min_height() -> int:
 	return min_height
 
 
-func get_grid_cell_neighbors(target_grid_cell: GridCell) -> Array[GridCell]:
+func get_grid_cell_neighbors(target_grid_cell: GridCell, cell_state_filter: Enums.cellState = Enums.cellState.NONE) -> Array[GridCell]:
 	var ret_val: Array[GridCell] = []
 	
 	# Iterate through all 26 neighbors (including diagonals)
@@ -477,8 +488,13 @@ func get_grid_cell_neighbors(target_grid_cell: GridCell) -> Array[GridCell]:
 				)
 				
 				# Check if the neighbor exists in the grid
-				if grid_cells.has(test_coords):
-					ret_val.append(grid_cells[test_coords])
+				if not grid_cells.has(test_coords):
+					continue
+				
+				if (cell_state_filter != Enums.cellState.NONE and grid_cells[test_coords].grid_cell_state != cell_state_filter):
+					continue
+					
+				ret_val.append(grid_cells[test_coords])
 	
 	return ret_val
 

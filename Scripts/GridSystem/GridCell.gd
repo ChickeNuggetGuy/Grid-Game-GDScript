@@ -4,7 +4,7 @@ class_name GridCell
 var grid_coordinates: Vector3i
 var world_position: Vector3
 
-var fog_status: Enums.FogState = Enums.FogState.VISIBLE
+var fog_status: Enums.FogState = Enums.FogState.UNSEEN
 var original_grid_cell_state: Enums.cellState
 var grid_cell_state: Enums.cellState
 

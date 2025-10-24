@@ -14,8 +14,17 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 
 
 
+func double_click_call(parameters : Dictionary) -> void:
+	return
+
+
+func double_click_clear(parameters : Dictionary) -> void:
+	return
+
+
+
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/ChanageStanceAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/ChangeStance/ChanageStanceAction.gd"
 	super._init()
 
 func can_execute(parameters : Dictionary) -> Dictionary:

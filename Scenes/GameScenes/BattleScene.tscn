@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://bxup2rkksx6g1"]
+[gd_scene load_steps=18 format=3 uid="uid://bxup2rkksx6g1"]
 
 [ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/CameraController.gd" id="1_bejc1"]
 [ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="2_6fjuf"]
@@ -14,8 +14,6 @@
 [ext_resource type="Script" uid="uid://qbdewo8k424a" path="res://Scripts/Managers/UnitActionManager.gd" id="7_86i4a"]
 [ext_resource type="Script" uid="uid://swicsbxj3n2f" path="res://Scripts/Managers/TurnManager.gd" id="8_6ppp3"]
 [ext_resource type="Script" uid="uid://c0303oxw6al88" path="res://Scripts/Managers/FogManager.gd" id="17_6fjuf"]
-[ext_resource type="Material" uid="uid://dqvadbsa7g3b8" path="res://Shaders/FOW.tres" id="19_1qdt5"]
-[ext_resource type="Texture2D" uid="uid://byb7gikisgnmc" path="res://art/ground_albedo.png" id="20_e3qp5"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6fjuf"]
 albedo_color = Color(0.0095290225, 0.4852469, 0, 1)
@@ -46,24 +44,40 @@ metadata/_custom_type_script = "uid://cq3ef3ssfwu7w"
 
 [node name="Control" parent="Managers/UIManager" unique_id=1361052491 instance=ExtResource("4_bejc1")]
 
-[node name="UnitDetailPanel" parent="Managers/UIManager/Control" index="0" node_paths=PackedStringArray("stat_progress_bars")]
+[node name="UnitDetailPanel" parent="Managers/UIManager/Control" index="0"]
 anchors_preset = 2
-stat_progress_bars = []
+offset_top = -185.0
+offset_bottom = 0.0
 
 [node name="QuickSelectButtons" parent="Managers/UIManager/Control/UnitDetailPanel" index="1"]
-anchors_preset = 11
+custom_minimum_size = Vector2(35, 0)
+layout_direction = 2
+grow_horizontal = 1
+grow_vertical = 1
 
 [node name="InventoryGrids" parent="Managers/UIManager/Control" index="1"]
 anchors_preset = 5
+offset_top = 0.0
+offset_bottom = 339.0
 
 [node name="Backpack" parent="Managers/UIManager/Control/InventoryGrids/Panel" index="1"]
 anchors_preset = 1
+offset_left = -100.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 100.0
 
 [node name="MouseHeldInventory" parent="Managers/UIManager/Control" index="2"]
 anchors_preset = 8
+offset_top = -20.0
+offset_bottom = 20.0
 
 [node name="UIWindow" parent="Managers/UIManager/Control" index="4"]
 anchors_preset = 1
+offset_left = -150.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 70.0
 
 [node name="UnitManager" type="Node" parent="Managers" unique_id=890527914]
 script = ExtResource("5_7nbcx")
@@ -91,27 +105,27 @@ metadata/_custom_type_script = "uid://qbdewo8k424a"
 script = ExtResource("8_6ppp3")
 metadata/_custom_type_script = "uid://swicsbxj3n2f"
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1255660080]
-transform = Transform3D(-0.056623124, 0.85537, -0.5149137, 0, 0.5157411, 0.8567445, 0.9983956, 0.04851155, -0.029202873, -0.24248457, 0.9739627, 0)
-light_energy = 2.0
-
-[node name="Camera" type="Node" parent="." unique_id=793812520 node_paths=PackedStringArray("camera_3d", "transposer", "phantom_cameras")]
+[node name="CameraController" type="Node" parent="Managers" unique_id=793812520 node_paths=PackedStringArray("camera_3d", "transposer", "phantom_cameras")]
 script = ExtResource("1_bejc1")
 camera_3d = NodePath("Camera3D")
-transposer = NodePath("../Transposer")
+transposer = NodePath("../../Transposer")
 phantom_cameras = {
-"main": NodePath("../PhantomCamera3D")
+"main": NodePath("../../PhantomCamera3D")
 }
 metadata/_custom_type_script = "uid://dp870a6rqd874"
 
-[node name="Camera3D" type="Camera3D" parent="Camera" unique_id=1485395086]
+[node name="Camera3D" type="Camera3D" parent="Managers/CameraController" unique_id=1485395086]
 transform = Transform3D(0.9999976, 0, 0, 0, 0.8943163, 0.44715765, 0, -0.44715816, 0.8943153, 0, 6.291656, 12.146173)
 
-[node name="PhantomCameraHost" type="Node" parent="Camera/Camera3D" unique_id=1188668176]
+[node name="PhantomCameraHost" type="Node" parent="Managers/CameraController/Camera3D" unique_id=1188668176]
 process_priority = 300
 process_physics_priority = 300
 script = ExtResource("2_6fjuf")
 metadata/_custom_type_script = "uid://bd046eokvcnu2"
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1255660080]
+transform = Transform3D(-0.056623124, 0.85537, -0.5149137, 0, 0.5157411, 0.8567445, 0.9983956, 0.04851155, -0.029202873, -0.24248457, 0.9739627, 0)
+light_energy = 2.0
 
 [node name="PhantomCamera3D" type="Node3D" parent="." unique_id=44587506 node_paths=PackedStringArray("follow_target", "look_at_target")]
 transform = Transform3D(0.9999976, 0, 0, 0, 0.8943163, 0.44715765, 0, -0.44715816, 0.8943153, 0, 6.291656, 12.146173)
@@ -142,10 +156,6 @@ metadata/_custom_type_script = "uid://csjccrhj5wnx7"
 
 [node name="FogManager" type="Node" parent="." unique_id=695593509]
 script = ExtResource("17_6fjuf")
-flip_z_in_image = false
-draw_test_patch = true
-test_material = ExtResource("19_1qdt5")
-terrain_texture = ExtResource("20_e3qp5")
 metadata/_custom_type_script = "uid://c0303oxw6al88"
 
 [editable path="Managers/UIManager/Control"]

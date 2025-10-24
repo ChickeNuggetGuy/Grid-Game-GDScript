@@ -51,16 +51,6 @@ func _init():
 	execution_completed.emit()
 
 
-func on_scene_changed(_new_scene: Node):
-	if not GameManager.Instance.current_scene_name == "BattleScene":
-		queue_free()
-
-
-func _on_exit_tree() -> void:
-	return
-
-
-
 func try_gry_inventory_item(item_name : String) -> Dictionary:
 	var retval : Dictionary = {"success": false, "inventory_item" : null}
 

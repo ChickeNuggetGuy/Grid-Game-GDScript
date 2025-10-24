@@ -1,4 +1,5 @@
 extends CompositeAction
+class_name MoveAction
 
 
 func _init(parameters : Dictionary) -> void:
@@ -17,10 +18,15 @@ func _setup() -> void:
 
 func _execute() -> void:
 	
-	var path = Pathfinder.find_path(
-	owner.grid_position_data.grid_cell,
-	target_grid_cell
-	)
+	var path : Array[GridCell]
+	
+	if execution_parameters.get("path"):
+		path = execution_parameters["path"] as Array[GridCell]
+	else:
+		path = Pathfinder.find_path(
+		owner.grid_position_data.grid_cell,
+		target_grid_cell
+		)
 	#var path : Array[GridCell] = Pathfinder.find_path(owner.grid_position_data.grid_cell, target_grid_cell)
 	
 	var get_action_result  = owner.try_get_action_definition_by_type("MoveStepActionDefinition")

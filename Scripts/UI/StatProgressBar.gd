@@ -17,7 +17,7 @@ func setup(gridObject : GridObject, grid_stat : GridObjectStat):
 		max_value = grid_stat.min_max_values.y
 		min_value = grid_stat.min_max_values.x
 		grid_object = gridObject
-		grid_object.connect("gridObject_stat_changed", update_value)
+		grid_object.gridObject_stat_changed.connect(update_value)
 
 
 func update_value(updated_stat : GridObjectStat, new_value : int):

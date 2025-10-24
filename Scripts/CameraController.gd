@@ -24,21 +24,27 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup():
+	setup_completed.emit()
 	return
 
 
 func _execute_conditions() -> bool: return true
 
 func _execute():
+	print ("CameraController execute")
+	GameManager.managers["UnitManager"].unit_selected.connect(_unitmanager_unitselected)
+	execute_complete =true
 	return
 
 
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
+	print("_unitmanager_unitselected")
 	quick_switch_target(newUnit)
 
 func quick_switch_target(target: Node3D) -> void:
-	if target:
-		transposer.position = target.position
+	print("quick_switch_target")
+	if target != null:
+		transposer.global_position = target.global_position
 
 func _physics_process(delta: float) -> void:
 	#if UiManager.blocking_input:

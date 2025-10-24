@@ -9,7 +9,8 @@ class_name UnitManager
 #endregion
 
 #region Signals
-signal UnitSelected(newUnit : Unit, oldUnit: Unit);
+signal unit_selected(newUnit : Unit, oldUnit: Unit);
+signal Unit_spawned(newUnit : Unit);
 #endregion
 
 #region Functions
@@ -24,15 +25,7 @@ func _setup():
 	unitScene = load("Scenes/GridObjects/Unit.tscn")
 	#UnitTeams = {}
 	#Register any existing Unit Teams!
-	var children = get_children()
-	for child in children:
-		print(child.name)
-		if child is UnitTeamHolder:
-			var team : UnitTeamHolder = child
-			
-			team.setup()
-			UnitTeams.get_or_add(team.team,)
-			UnitTeams[team.team] = team
+	
 	setup_completed.emit()
 	
 
@@ -41,6 +34,17 @@ func _execute_conditions() -> bool: return true
 
 func _execute():
 	
+	var children = get_children()
+	for child in children:
+		print(child.name)
+		if child is UnitTeamHolder:
+			var team : UnitTeamHolder = child
+			
+			team.setup(self)
+			UnitTeams.get_or_add(team.team,)
+			UnitTeams[team.team] = team
+	
+	
 	var game_manager = GameManager
 	spawn_counts = game_manager.spawn_counts
 	for x in range(spawn_counts.x):
@@ -48,6 +52,8 @@ func _execute():
 		
 	for y in range(spawn_counts.y):
 		spawn_unit(Enums.unitTeam.ENEMY)
+	
+	
 	
 	set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
 	execution_completed.emit()
@@ -77,6 +83,7 @@ func spawn_unit(team : Enums.unitTeam):
 	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH, team)
 	team_holder.add_grid_object(spawneUnit)
 	
+	Unit_spawned.emit(spawneUnit)
 
 
 
@@ -88,25 +95,29 @@ func set_selected_unit(gridObject: Unit):
 		return
 	var oldUnit = selectedUnit
 	selectedUnit = gridObject
-	UnitSelected.emit(selectedUnit, oldUnit)
+	unit_selected.emit(selectedUnit, oldUnit)
 
 
 func set_selected_unit_next():
 	if selectedUnit == null:
 		return
-	else:
-		var currentIndex : int = UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].find(selectedUnit)
-		var nextIndex = 0
-		if currentIndex != -1:
-				if currentIndex + 1 <= UnitTeams[Enums.unitTeam.PLAYER].grid_objects.size():
-					nextIndex = currentIndex + 1
-				else:
-					nextIndex = 0
-		else:
-			nextIndex = 0
-		
-		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][nextIndex])
 
+	var active = UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"]
+	if active == null or active.size() == 0:
+		return
+
+	if active.size() == 1:
+		set_selected_unit(active[0])
+		return
+
+	var currentIndex: int = active.find(selectedUnit)
+	var nextIndex: int = 0
+	if currentIndex != -1:
+		nextIndex = (currentIndex + 1) % active.size()
+	else:
+		nextIndex = 0
+
+	set_selected_unit(active[nextIndex])
 
 func _unhandled_input(event):
 	if not execute_complete: return

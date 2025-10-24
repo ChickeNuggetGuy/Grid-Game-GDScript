@@ -19,5 +19,6 @@ func _execute() -> void:
 	for a in sub_actions:
 		a.owner = owner
 		await a.execute_call()
+		print(a.action_name + " is being executed")
 
 @abstract func _setup()

@@ -11,7 +11,6 @@ var action_script: Script
 @export_category("Core")
 @export var cost: int
 @export var multiple_exectutions : bool = true
-@export var extra_parameters : Dictionary
 @export var double_click_activation : bool = false
 
 

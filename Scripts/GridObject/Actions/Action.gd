@@ -18,6 +18,9 @@ func _init(parameters : Dictionary) -> void:
 	start_grid_cell = parameters["start_grid_cell"]
 	target_grid_cell = parameters["target_grid_cell"]
 
+
+
+
 func execute_call() -> void:
 	@warning_ignore("redundant_await")
 	await _setup()

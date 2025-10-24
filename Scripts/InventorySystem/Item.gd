@@ -11,6 +11,7 @@ var current_inventory_grid : InventoryGrid
 @export var shape: GridShape
 
 @export var action_blueprints : Array[BaseActionDefinition]
+@export var extra_values : Dictionary [String, Variant] = {}
 
 # REMOVE THESE - dimensions are now solely in GridShape
 # var _grid_width: int = 3
@@ -35,7 +36,6 @@ func _setup():
 			print("Item_Setup")
 			var item_action : BaseItemActionDefinition = action
 			item_action.parent_item = self
-			item_action.extra_parameters["item"] = self
 			print("Item_Setup" + item_action.parent_item.item_name)
 
 func _ensure_shape_exists_and_matches(): # No arguments needed now

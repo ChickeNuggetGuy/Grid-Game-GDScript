@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="Item" load_steps=10 format=3 uid="uid://cwvbdid7esrhv"]
+
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/BaseActionDefinition.gd" id="1_34uyp"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/ThrowActionDefintion.gd" id="3_oh0kb"]
+[ext_resource type="Texture2D" uid="uid://byb7gikisgnmc" path="res://art/ground_albedo.png" id="4_eb2ju"]
+[ext_resource type="Script" uid="uid://bf1isr1wcokqf" path="res://Scripts/InventorySystem/ItemActions/MeleeAttack/MeleeAttackActionDefinition.gd" id="4_oh0kb"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/Item.gd" id="5_c4gob"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="6_dfhas"]
+
+[sub_resource type="Resource" id="Resource_tbkrc"]
+script = ExtResource("3_oh0kb")
+action_name = "Throw Action"
+metadata/_custom_type_script = "uid://bj86rurumq14y"
+
+[sub_resource type="Resource" id="Resource_gxh6s"]
+script = ExtResource("4_oh0kb")
+attack_count = 2
+action_name = "Melee"
+metadata/_custom_type_script = "uid://bf1isr1wcokqf"
+
+[sub_resource type="Resource" id="Resource_iqtct"]
+resource_local_to_scene = true
+script = ExtResource("6_dfhas")
+grid_width = 2
+grid_height = 1
+shape_grid = Array[int]([1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("5_c4gob")
+item_name = "Test"
+description = "Test Item"
+icon = ExtResource("4_eb2ju")
+shape = SubResource("Resource_iqtct")
+action_blueprints = Array[ExtResource("1_34uyp")]([SubResource("Resource_tbkrc"), SubResource("Resource_gxh6s")])
+extra_values = Dictionary[String, Variant]({
+"attack_count": 10
+})
+metadata/_custom_type_script = "uid://8if3mtpocl51"

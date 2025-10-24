@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="MoveStepActionDefinition" load_steps=2 format=3 uid="uid://6xp5tqgsle6p"]
 
-[ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStepActionDefintion.gd" id="1_ec3s2"]
+[ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStep/MoveStepActionDefintion.gd" id="1_ec3s2"]
 
 [resource]
 script = ExtResource("1_ec3s2")

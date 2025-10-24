@@ -10,8 +10,8 @@ var inventory_slots : Dictionary[Vector2i, Control] = {}
 
 
 func _setup():
-	if not GameManager.managers["UnitManager"].is_connected("UnitSelected",unit_manager_unit_selected):
-		GameManager.managers["UnitManager"].connect("UnitSelected",unit_manager_unit_selected)
+	if not GameManager.managers["UnitManager"].unit_selected.is_connected(unit_manager_unit_selected):
+		GameManager.managers["UnitManager"].unit_selected.connect(unit_manager_unit_selected)
 
 	var selected_unit : GridObject = GameManager.managers["UnitManager"].selectedUnit
 	if selected_unit == null:

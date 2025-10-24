@@ -11,7 +11,7 @@ var inventory_ui_grids : Dictionary[Enums.inventoryType, InventoryGridUI] = {}
 
 func _setup():
 	intance = self
-	GameManager.managers["UnitActionManager"].connect("action_execution_started",UnitActionManager_action_started)
+	GameManager.managers["UnitActionManager"].action_execution_started.connect(UnitActionManager_action_started)
 	for child in inventory_grids_holder.get_children():
 		if child is InventoryGridUI:
 			var inventory_ui = child as InventoryGridUI
@@ -19,6 +19,7 @@ func _setup():
 			inventory_ui_grids[inventory_ui.inventory_grid_type] = inventory_ui
 			#TODO:determine  if I should setup the children inventoryGridUI's now or at a seperate time
 			inventory_ui.setup_call()
+	super._setup()
 
 
 func _show():
