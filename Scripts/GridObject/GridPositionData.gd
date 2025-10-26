@@ -28,6 +28,14 @@ func _setup(extra_params : Dictionary):
 	
 
 
+func detect_grid_position():
+	var grid_system : GridSystem = GameManager.managers["GridSystem"]
+	
+	var new_grid_cell_result = grid_system.try_get_gridCell_from_world_position(parent_grid_object.global_position)
+	
+	if new_grid_cell_result["success"]:
+		set_grid_cell(new_grid_cell_result["grid_cell"])
+
 func set_direction(dir :Enums.facingDirection, update_transform : bool = false):
 	direction = dir
 	if update_transform:

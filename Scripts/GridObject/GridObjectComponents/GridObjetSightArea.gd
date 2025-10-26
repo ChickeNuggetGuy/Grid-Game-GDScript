@@ -23,7 +23,7 @@ func update_sight_area(set_cell_visibility: bool) -> Dictionary:
 		current_cell,
 		forward_dir,
 		sight_depth,
-		sight_range_degrees.x, # horizontal FOV
+		sight_range_degrees.x,
 		Enums.cellState.NONE
 	)
 
@@ -31,8 +31,8 @@ func update_sight_area(set_cell_visibility: bool) -> Dictionary:
 	var peripheral_sight_result = GameManager.managers["GridSystem"].try_get_cells_in_cone(
 		current_cell,
 		forward_dir,
-		4, # A short radius
-		180, # A very wide angle
+		4, 
+		181, 
 		Enums.cellState.NONE
 	)
 

@@ -29,6 +29,8 @@ func _setup():
 		return
 	
 	turns.sort_custom(Callable(self, "_sort_by_priority"))
+	
+
 	current_turn = turns[0]
 	
 	setup_completed.emit()
@@ -39,6 +41,12 @@ func _execute_conditions() -> bool: return true
 
 
 func _execute():
+	
+	for turn in turns:
+		if turn is TeamTurnData:
+			var team_turn : TeamTurnData = turn as TeamTurnData
+			team_turn.team_holder = GameManager.managers["UnitManager"].UnitTeams[team_turn.team]
+	
 	execute_current_turn()
 	execution_completed.emit()
 	return;

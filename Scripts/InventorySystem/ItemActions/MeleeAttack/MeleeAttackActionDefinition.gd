@@ -17,7 +17,7 @@ func double_click_clear(parameters : Dictionary) -> void:
 	return
 
 
-
+func get_can_cancel_action() -> bool: return true
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.NONE
@@ -65,7 +65,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	
 	var temp_costs = {"time_units" : 0, "stamina" : 0}
 	
-	if not parameters.has("item"):
+	if not parent_item :
 		ret_value["success"] = false
 		ret_value["reason"] = "Item was null"
 		return ret_value
@@ -135,8 +135,8 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			ret_value["reason"] = "Target is out of range (no reachable adjacent cell)"
 			return ret_value
 
-	var attack_count = parameters["item"].extra_values.get("attack_count", 1)
-	var attack_cost = parameters["item"].extra_values.get("attack_cost", 1)
+	var attack_count = parent_item.extra_values.get("attack_count", 1)
+	var attack_cost = parent_item.extra_values.get("attack_cost", 1)
 	
 	temp_costs["time_units"] += attack_count * attack_cost
 	temp_costs["stamina"] += attack_count * attack_cost

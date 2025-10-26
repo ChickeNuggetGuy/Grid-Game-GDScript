@@ -16,7 +16,7 @@ func _init(parameters : Dictionary) -> void:
 	costs = {"time_units" : 12 }
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
-	item = parameters["item"]
+	item = parameters.get("item")
 	attack_count = parameters["action_definition"].attack_count
 	super._init(parameters)
 
@@ -25,7 +25,7 @@ func _init(parameters : Dictionary) -> void:
 func _setup():
 	return
 
-func _execute() -> void:
+func _execute() -> bool:
 	var from_position: Vector3 = start_grid_cell.world_position
 	var owner_results = owner.try_get_grid_object_component_by_type(
 		"GridObjectWorldTarget"
@@ -54,7 +54,7 @@ func _execute() -> void:
 			"RotateActionDefinition"
 		)
 		if get_action_result["success"] == false:
-			return
+			return false
 
 		var rotate_action_node: RotateActionDefinition = get_action_result[
 			"action_definition"
@@ -125,7 +125,7 @@ func _execute() -> void:
 				)
 
 		await owner.get_tree().create_timer(0.8).timeout
-	return
+	return true
 
 
 func calculate_direction_with_variance(
@@ -207,6 +207,8 @@ func calculate_direction_with_variance(
 func _action_complete():
 	return
 	
+func action_cancel():
+	return
 
 
 func _exclude_owner_and_children(

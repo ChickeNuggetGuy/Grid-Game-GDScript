@@ -35,6 +35,7 @@ icon = ExtResource("4_eb2ju")
 shape = SubResource("Resource_iqtct")
 action_blueprints = Array[ExtResource("1_34uyp")]([SubResource("Resource_tbkrc"), SubResource("Resource_gxh6s")])
 extra_values = Dictionary[String, Variant]({
-"attack_count": 10
+"attack_count": 3,
+"damage": 45
 })
 metadata/_custom_type_script = "uid://8if3mtpocl51"

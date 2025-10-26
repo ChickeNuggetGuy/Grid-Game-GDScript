@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="TeamTurnData" load_steps=11 format=3 uid="uid://x216dvmhfik2"]
+[gd_resource type="Resource" script_class="TeamTurnData" load_steps=13 format=3 uid="uid://x216dvmhfik2"]
 
 [ext_resource type="Script" uid="uid://k2mchnt8k1fd" path="res://Scripts/TurnSystem/TeamTurnData.gd" id="1_qycj8"]
 [ext_resource type="Script" uid="uid://btg5hvyvxirc4" path="res://Scripts/TurnSystem/TurnSegment.gd" id="2_ns034"]
 [ext_resource type="Script" uid="uid://d152u74oby2ve" path="res://Scripts/TurnSystem/TurnSegments/TestPrintTurnSegment.gd" id="3_ns034"]
 [ext_resource type="Script" uid="uid://tv0c3h8boa3t" path="res://Scripts/TurnSystem/TurnSegments/AIUnitActionsTurnSegment.gd" id="4_l5t4u"]
+[ext_resource type="Script" uid="uid://b4vm01ys4aj4o" path="res://Scripts/TurnSystem/TurnSegments/UpdateUnitStatsTurnSegment.gd" id="5_5w0fq"]
 [ext_resource type="Script" uid="uid://mojvjtt1nl8u" path="res://Scripts/TurnSystem/TurnSegments/EndTurnSegment.gd" id="5_b1qxc"]
 [ext_resource type="Script" uid="uid://bpkxhpk4a0hyg" path="res://Scripts/TurnSystem/TurnSegments/CheckGameState.gd" id="5_lsvtv"]
 
@@ -14,8 +15,11 @@ metadata/_custom_type_script = "uid://d152u74oby2ve"
 
 [sub_resource type="Resource" id="Resource_5w0fq"]
 script = ExtResource("5_lsvtv")
-team = 2
 metadata/_custom_type_script = "uid://bpkxhpk4a0hyg"
+
+[sub_resource type="Resource" id="Resource_egnd3"]
+script = ExtResource("5_5w0fq")
+metadata/_custom_type_script = "uid://b4vm01ys4aj4o"
 
 [sub_resource type="Resource" id="Resource_b1qxc"]
 script = ExtResource("4_l5t4u")
@@ -29,7 +33,7 @@ metadata/_custom_type_script = "uid://mojvjtt1nl8u"
 script = ExtResource("1_qycj8")
 team = 2
 turn_name = "Enemy"
-turn_segments = Array[ExtResource("2_ns034")]([SubResource("Resource_l5t4u"), SubResource("Resource_5w0fq"), SubResource("Resource_b1qxc"), SubResource("Resource_lsvtv")])
+turn_segments = Array[ExtResource("2_ns034")]([SubResource("Resource_l5t4u"), SubResource("Resource_5w0fq"), SubResource("Resource_egnd3"), SubResource("Resource_b1qxc"), SubResource("Resource_lsvtv")])
 repeatable = true
 turn_priority = 2
 metadata/_custom_type_script = "uid://k2mchnt8k1fd"

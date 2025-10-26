@@ -54,11 +54,10 @@ func _execute():
 		spawn_unit(Enums.unitTeam.ENEMY)
 	
 	
-	
-	set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
+	if UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].size() > 0:
+		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
 	execution_completed.emit()
 	
-	FogManager.Instance.setup()
 	
 
 

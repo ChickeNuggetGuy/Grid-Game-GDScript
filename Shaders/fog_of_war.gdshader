@@ -1,53 +1,49 @@
 shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, world_vertex_coords; // For transparency
 
-uniform sampler2D ground_texture : source_color, filter_linear_mipmap,
-    repeat_enable;
+// All these uniforms will be set globally by RenderingServer
+uniform sampler3D visibility_texture : filter_nearest;
+uniform vec3 grid_origin_world;             // Global grid origin
+uniform vec2 cell_size_world;               // Global cell size (Correctly a vec2 now)
+uniform vec3 texture_resolution;            // Global texture resolution
 
-global uniform sampler2D fog_map : source_color, filter_nearest,
-    repeat_disable;
-global uniform vec2 fog_dims;    // texture size in pixels (grid W,H)
-global uniform vec2 map_origin;  // world-space XZ of grid origin
-global uniform vec2 cell_size;   // world units per cell (X,Z)
-global uniform int fog_debug = 0; // 0=normal, 1=UV, 2=fog RG
-uniform vec4 explored_tint : source_color =
-    vec4(0.5, 0.5, 0.5, 1.0);
-uniform vec3 unseen_color : source_color = vec3(0.0);
-
-varying vec3 v_world_pos;
+varying vec3 world_pos_interp;
 
 void vertex() {
-    v_world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    world_pos_interp = VERTEX;
 }
 
-void fragment() {
-    vec4 base = texture(ground_texture, UV);
+void fragment() 
+{
+    // 1. Offset by grid origin to get position relative to grid
+    vec3 relative_pos = world_pos_interp - grid_origin_world;
 
-    // World -> grid -> fog texture UV (sample pixel centers)
-    vec2 grid_xy = (v_world_pos.xz - map_origin) / cell_size;
-    vec2 uv = (floor(grid_xy) + 0.5) / fog_dims;
-    uv = clamp(uv, vec2(0.0), vec2(1.0));
+    // 2. Convert world units to grid cell units
+    vec3 grid_coords_float;
+    grid_coords_float.x = relative_pos.x / cell_size_world.x; 
+    grid_coords_float.y = relative_pos.y / cell_size_world.y; 
+    grid_coords_float.z = relative_pos.z / cell_size_world.x; 
 
-    vec2 rg = texture(fog_map, uv).rg; // R=visible, G=explored
-    float vis = rg.r;
-    float explored = rg.g;
+    // 3. Normalize to UVW (0.0 to 1.0) for texture sampling
+    vec3 uvw = grid_coords_float / texture_resolution;
 
-    // Discard fragment if not visible AND not previously seen
-    if (vis < 0.5 && explored < 0.5) {
-        discard;
+    // 4. Ensure UVW is within [0,1] range
+    uvw = clamp(uvw, vec3(0.0), vec3(1.0)); 
+
+    // 5. Sample your 3D texture
+    // We only need one channel (e.g., .r) since R=G=B
+    float visibility = texture(visibility_texture, uvw).r; 
+
+    // 6. Set the material's alpha based on visibility (Corrected Logic)
+    // VISIBLE (White, ~1.0) -> ALPHA = 0.0 (Transparent)
+    // PREVIOUSLY_SEEN (Grey, ~0.5) -> ALPHA = 0.5 (Semi-Transparent)
+    // UNSEEN (Black, ~0.0) -> ALPHA = 1.0 (Opaque)
+
+    if (visibility > 0.9) {         // Approximately 1.0 (White)
+        ALBEDO = vec3(1.0, 1.0, 1.0);
+    } else if (visibility > 0.4) {  // Approximately 0.5 (Grey)
+        ALBEDO = vec3(0.5, 0.5, 0.5);               // You can make this 0.7 for a darker "explored" fog
+    } else {                        // Approximately 0.0 (Black)
+        ALPHA =0.0;
     }
-
-    // Color based on visibility state
-    vec3 col = base.rgb;
-    if (vis >= 0.5) {
-        // Visible cell - use base color
-        col = base.rgb;
-    } else if (explored >= 0.5) {
-        // Previously seen cell - apply tint
-        col = base.rgb * explored_tint.rgb;
-    } else {
-        // Unseen cell - should be discarded above, but just in case
-        col = unseen_color;
-    }
-
-    ALBEDO = col;
 }

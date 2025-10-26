@@ -14,7 +14,8 @@ var parent_gridobject : GridObject
 @export var signal_on_max : bool
 @export var signal_on_change : bool
 
-
+@export var change_turn_behavior : Enums.ChangeTurnBehavior
+@export var change_amount : float
 #endregion
 
 #region Signals
@@ -59,11 +60,30 @@ func _remove_value(value_to_remove : int):
 func try_remove_value(value_to_remove : int) -> bool:
 	if current_value - value_to_remove <= min_max_values.x:
 		current_value = min_max_values.x
-		
 		if signal_on_min:
 			stat_value_min.emit(parent_gridobject)
 		return true
 	
 	_remove_value(value_to_remove)
 	return true
+
+
+func current_turn_changed():
+	match change_turn_behavior:
+		Enums.ChangeTurnBehavior.NONE:
+			return
+		Enums.ChangeTurnBehavior.MIN:
+			try_remove_value(current_value)
+		Enums.ChangeTurnBehavior.MAX:
+			try_add_value(min_max_values.y)
+		Enums.ChangeTurnBehavior.INCREMENT:
+			if change_amount < 1 and change_amount > 0:
+				try_add_value(roundi(min_max_values.y * change_amount))
+			else:
+				try_add_value(roundi(change_amount))
+		Enums.ChangeTurnBehavior.DERCREMENT:
+			if change_amount < 1 and change_amount > 0:
+				try_remove_value(roundi(min_max_values.y * change_amount))
+			else:
+				try_remove_value(roundi(change_amount))
 #endregion

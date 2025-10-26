@@ -27,3 +27,6 @@ enum UnitStance {
 
 
 enum FogState { UNSEEN, PREVIOUSLY_SEEN, VISIBLE }
+
+
+enum ChangeTurnBehavior {NONE,MIN, MAX, INCREMENT, DERCREMENT }

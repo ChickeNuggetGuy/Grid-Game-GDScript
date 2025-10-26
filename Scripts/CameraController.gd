@@ -24,6 +24,8 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup():
+	GameManager.managers["UnitManager"].unit_selected.connect(_unitmanager_unitselected)
+	execute_complete = true
 	setup_completed.emit()
 	return
 
@@ -31,9 +33,8 @@ func _setup():
 func _execute_conditions() -> bool: return true
 
 func _execute():
-	print ("CameraController execute")
-	GameManager.managers["UnitManager"].unit_selected.connect(_unitmanager_unitselected)
-	execute_complete =true
+	
+	
 	return
 
 

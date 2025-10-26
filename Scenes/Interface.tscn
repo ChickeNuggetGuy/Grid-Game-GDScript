@@ -21,7 +21,7 @@ font_size = 24
 [sub_resource type="LabelSettings" id="LabelSettings_r7ian"]
 font_size = 14
 
-[node name="Control" type="Control"]
+[node name="Control" type="Control" unique_id=1015671078]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,8 +30,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="UnitDetailPanel" type="Control" parent="." node_paths=PackedStringArray("action_button_holder", "stat_progress_bars", "visual")]
+[node name="UnitDetailPanel" type="Control" parent="." unique_id=1324919607 node_paths=PackedStringArray("action_button_holder", "stat_progress_bars", "visual")]
 layout_mode = 1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -223.0
@@ -47,7 +48,7 @@ visual = NodePath("PanelContainer")
 ui_name = "UnitActionUI"
 metadata/_custom_type_script = "uid://d222p848qf3w4"
 
-[node name="PanelContainer" type="PanelContainer" parent="UnitDetailPanel"]
+[node name="PanelContainer" type="PanelContainer" parent="UnitDetailPanel" unique_id=1752516977]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = -0.062000003
@@ -58,14 +59,14 @@ offset_bottom = -10.044006
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer" unique_id=1262518863]
 layout_mode = 2
 
-[node name="LeftSide" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer"]
+[node name="LeftSide" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer" unique_id=407499390]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Unit Name" type="Label" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide"]
+[node name="Unit Name" type="Label" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide" unique_id=1166293707]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Unit Unitson"
@@ -73,36 +74,36 @@ label_settings = SubResource("LabelSettings_ga4cb")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="AspectRatioContainer" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide"]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide" unique_id=612951684]
 layout_mode = 2
 size_flags_vertical = 3
 stretch_mode = 1
 
-[node name="TextureRect" type="TextureRect" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide/AspectRatioContainer"]
+[node name="TextureRect" type="TextureRect" parent="UnitDetailPanel/PanelContainer/HBoxContainer/LeftSide/AspectRatioContainer" unique_id=1669131795]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 texture = ExtResource("3_6lbs1")
 
-[node name="RightSide" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer"]
+[node name="RightSide" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer" unique_id=347001899]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Top - Action Buttons" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide"]
+[node name="Top - Action Buttons" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide" unique_id=1763785326]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Bottom - Stats - Equiped Items" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide"]
+[node name="Bottom - Stats - Equiped Items" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide" unique_id=1842406201]
 layout_mode = 2
 
-[node name="Stat Bars" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items"]
+[node name="Stat Bars" type="VBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" unique_id=1358945914]
 clip_contents = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="ProgressBar" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars"]
+[node name="ProgressBar" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=1388116799]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 step = 1.0
@@ -112,7 +113,7 @@ script = ExtResource("4_odcd3")
 stat_name = "Health"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
-[node name="ProgressBar2" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars"]
+[node name="ProgressBar2" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=874262558]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 value = 100.0
@@ -121,7 +122,7 @@ script = ExtResource("4_odcd3")
 stat_name = "time_units"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
-[node name="ProgressBar3" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars"]
+[node name="ProgressBar3" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=1200946447]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 value = 100.0
@@ -130,7 +131,7 @@ script = ExtResource("4_odcd3")
 stat_name = "stamina"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
-[node name="ProgressBar4" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars"]
+[node name="ProgressBar4" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=673027343]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 value = 100.0
@@ -139,15 +140,16 @@ script = ExtResource("4_odcd3")
 stat_name = "bravery"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
-[node name="EquipmentUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" node_paths=PackedStringArray("visual")]
+[node name="EquipmentUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" unique_id=1220578484 node_paths=PackedStringArray("visual", "ui_elements")]
 custom_minimum_size = Vector2(250, 0)
 layout_direction = 2
 layout_mode = 2
 script = ExtResource("4_wi8ec")
 visual = NodePath("HBoxContainer")
+ui_elements = [NodePath("HBoxContainer/LeftSide/InventoryGridUI"), NodePath("HBoxContainer/RightSide/InventoryGridUI")]
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI" unique_id=982397436]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -155,11 +157,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LeftSide" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer"]
+[node name="LeftSide" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer" unique_id=466044919]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="InventoryGridUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide" node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+[node name="InventoryGridUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide" unique_id=1356516162 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 layout_mode = 2
 script = ExtResource("7_xn8c0")
 inventory_grid_type = 4
@@ -168,7 +170,7 @@ slot_behavior = 1
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
 
-[node name="Panel" type="Panel" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide/InventoryGridUI"]
+[node name="Panel" type="Panel" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide/InventoryGridUI" unique_id=1518105206]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -176,7 +178,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GridContainer" type="GridContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide/InventoryGridUI/Panel"]
+[node name="GridContainer" type="GridContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide/InventoryGridUI/Panel" unique_id=1833471408]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -184,11 +186,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="RightSide" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer"]
+[node name="RightSide" type="AspectRatioContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer" unique_id=990165316]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="InventoryGridUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/RightSide" node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+[node name="InventoryGridUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/RightSide" unique_id=2027794385 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 layout_mode = 2
 script = ExtResource("7_xn8c0")
 inventory_grid_type = 6
@@ -197,7 +199,7 @@ slot_behavior = 1
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
 
-[node name="Panel" type="Panel" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/RightSide/InventoryGridUI"]
+[node name="Panel" type="Panel" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/RightSide/InventoryGridUI" unique_id=477204147]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -205,7 +207,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GridContainer" type="GridContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/RightSide/InventoryGridUI/Panel"]
+[node name="GridContainer" type="GridContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/RightSide/InventoryGridUI/Panel" unique_id=327384350]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -213,8 +215,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="QuickSelectButtons" type="Control" parent="UnitDetailPanel" node_paths=PackedStringArray("quick_target_button_holder", "quick_target_button_holder_enemy", "visual")]
+[node name="QuickSelectButtons" type="Control" parent="UnitDetailPanel" unique_id=786211252 node_paths=PackedStringArray("quick_target_button_holder", "quick_target_button_holder_enemy", "visual")]
 layout_mode = 1
+anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -229,7 +232,7 @@ visual = NodePath("HBoxContainer")
 ui_name = "QuickSelect"
 metadata/_custom_type_script = "uid://bs7hvkesombq3"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/QuickSelectButtons"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/QuickSelectButtons" unique_id=1797468332]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -237,29 +240,30 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ScrollContainer - enemies" type="ScrollContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
+[node name="ScrollContainer - enemies" type="ScrollContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer" unique_id=25083413]
 custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer/ScrollContainer - enemies"]
-custom_minimum_size = Vector2(25, 0)
-layout_mode = 2
-size_flags_horizontal = 6
-
-[node name="VSeparator" type="VSeparator" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
-layout_mode = 2
-
-[node name="ScrollContainer - player" type="ScrollContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer"]
-custom_minimum_size = Vector2(25, 0)
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer/ScrollContainer - player"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer/ScrollContainer - enemies" unique_id=202412108]
 custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 size_flags_horizontal = 6
 
-[node name="InventoryGrids" type="Control" parent="." node_paths=PackedStringArray("inventory_grids_holder", "mouse_held_inventory_ui", "visual")]
+[node name="VSeparator" type="VSeparator" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer" unique_id=1967035519]
+layout_mode = 2
+
+[node name="ScrollContainer - player" type="ScrollContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer" unique_id=407845487]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UnitDetailPanel/QuickSelectButtons/HBoxContainer/ScrollContainer - player" unique_id=687436164]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+
+[node name="InventoryGrids" type="Control" parent="." unique_id=2114284367 node_paths=PackedStringArray("inventory_grids_holder", "mouse_held_inventory_ui", "visual")]
 layout_mode = 1
+anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -225.0
@@ -267,7 +271,6 @@ offset_top = 61.0
 offset_right = 225.0
 offset_bottom = 400.0
 grow_horizontal = 2
-pivot_offset = Vector2(0.5, 0.5)
 mouse_filter = 2
 script = ExtResource("6_v4j0p")
 inventory_grids_holder = NodePath("Panel")
@@ -280,7 +283,7 @@ is_persistent_window = false
 ui_name = "InventoryUI"
 metadata/_custom_type_script = "uid://d0wjd6ik205n2"
 
-[node name="Panel" type="Panel" parent="InventoryGrids"]
+[node name="Panel" type="Panel" parent="InventoryGrids" unique_id=936716818]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -288,7 +291,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GroundInventory" type="Control" parent="InventoryGrids/Panel" node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+[node name="GroundInventory" type="Control" parent="InventoryGrids/Panel" unique_id=1381460672 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 custom_minimum_size = Vector2(0, 50)
 anchors_preset = 0
 offset_top = 234.0
@@ -301,7 +304,7 @@ visual = NodePath("GridContainer")
 ui_name = "GroundUI"
 metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
 
-[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/GroundInventory"]
+[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/GroundInventory" unique_id=1295896530]
 custom_minimum_size = Vector2(0, 75)
 layout_mode = 1
 anchors_preset = 15
@@ -311,9 +314,10 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 8
 
-[node name="Backpack" type="Control" parent="InventoryGrids/Panel" node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+[node name="Backpack" type="Control" parent="InventoryGrids/Panel" unique_id=977599107 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -125.0
@@ -329,7 +333,7 @@ visual = NodePath("GridContainer")
 ui_name = "GroundUI"
 metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
 
-[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/Backpack"]
+[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/Backpack" unique_id=957137538]
 custom_minimum_size = Vector2(0, 75)
 layout_mode = 1
 anchors_preset = 15
@@ -339,8 +343,9 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 8
 
-[node name="MouseHeldInventory" type="Control" parent="." node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+[node name="MouseHeldInventory" type="Control" parent="." unique_id=549389804 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 layout_mode = 1
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -360,18 +365,18 @@ visual = NodePath("AspectRatioContainer")
 is_persistent_window = false
 metadata/_custom_type_script = "uid://dx5eic3uowker"
 
-[node name="MouseHeldInventory" type="Node" parent="MouseHeldInventory"]
+[node name="MouseHeldInventory" type="Node" parent="MouseHeldInventory" unique_id=199810184]
 script = ExtResource("8_v4j0p")
 inventory_grid_type = 8
 metadata/_custom_type_script = "uid://e3rapksgaklp"
 
-[node name="AspectRatioContainer" type="AspectRatioContainer" parent="MouseHeldInventory"]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="MouseHeldInventory" unique_id=1754656310]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 mouse_filter = 2
 
-[node name="ContextMenuUI" type="Control" parent="." node_paths=PackedStringArray("context_button_holder", "visual")]
+[node name="ContextMenuUI" type="Control" parent="." unique_id=501704735 node_paths=PackedStringArray("context_button_holder", "visual")]
 custom_minimum_size = Vector2(250, 0)
 anchors_preset = 0
 offset_right = 250.0
@@ -385,7 +390,7 @@ visual = NodePath("Panel")
 is_persistent_window = false
 metadata/_custom_type_script = "uid://7pg2k3prf8d4"
 
-[node name="Panel" type="Panel" parent="ContextMenuUI"]
+[node name="Panel" type="Panel" parent="ContextMenuUI" unique_id=545194766]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -393,15 +398,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel" unique_id=1142364073]
 layout_mode = 0
 offset_right = 250.0
 offset_bottom = 40.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="UIWindow" type="Control" parent="." node_paths=PackedStringArray("turn_label", "end_turn_button", "visual")]
+[node name="UIWindow" type="Control" parent="." unique_id=2144268231 node_paths=PackedStringArray("turn_label", "end_turn_button", "visual")]
 layout_mode = 1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -177.0
@@ -416,7 +422,7 @@ visual = NodePath("Panel")
 ui_name = "TurnUI"
 metadata/_custom_type_script = "uid://d26a3o4ljalyy"
 
-[node name="Panel" type="Panel" parent="UIWindow"]
+[node name="Panel" type="Panel" parent="UIWindow" unique_id=1010298774]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -424,7 +430,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIWindow/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIWindow/Panel" unique_id=424384073]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -432,7 +438,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="UIWindow/Panel/VBoxContainer"]
+[node name="Label" type="Label" parent="UIWindow/Panel/VBoxContainer" unique_id=1203048968]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 text = "Current Turn: Player"
@@ -440,7 +446,7 @@ label_settings = SubResource("LabelSettings_r7ian")
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="Button" type="Button" parent="UIWindow/Panel/VBoxContainer"]
+[node name="Button" type="Button" parent="UIWindow/Panel/VBoxContainer" unique_id=1089665751]
 layout_mode = 2
 size_flags_vertical = 3
 text = "End Turn"

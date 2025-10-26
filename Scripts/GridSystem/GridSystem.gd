@@ -374,25 +374,24 @@ func try_get_cells_in_cone(
 		push_error("try_get_cells_in_cone: fov_horizontal_degrees must be between 0 and 360.")
 		return result
 
-	# Cache frequently used values
+	
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 	var search_radius_cells = ceil(max_distance / cell_size.x) + 1
 	var origin_coords = origin_cell.grid_coordinates
 	var origin_position = origin_cell.world_position
 	var normalized_forward = forward_direction.normalized()
 	
-	# Pre-calculate cosine of half FOV angle for efficiency
+	
 	var half_fov_rad = deg_to_rad(fov_horizontal_degrees / 2.0)
 	var cos_half_fov = cos(half_fov_rad)
 	
 	# Pre-calculate squared max distance for efficient comparison
 	var max_distance_sq = max_distance * max_distance
 	
-	# Iterate through potential cells in a more optimized way
+	
 	for x in range(-search_radius_cells, search_radius_cells + 1):
 		for z in range(-search_radius_cells, search_radius_cells + 1):
 			for y in range(-search_radius_cells, search_radius_cells + 1):
-				# Calculate test coordinates
 				var test_coords = Vector3i(
 					origin_coords.x + x,
 					origin_coords.y + y,
@@ -402,8 +401,8 @@ func try_get_cells_in_cone(
 				# Get candidate cell
 				var candidate_cell: GridCell = get_grid_cell(test_coords)
 				
-				# Skip if no cell exists or it's the origin cell
-				if candidate_cell == null or candidate_cell == origin_cell:
+				# Skip if no cell exists
+				if candidate_cell == null:
 					continue
 				
 				# Get candidate position
@@ -434,17 +433,17 @@ func try_get_cells_in_cone(
 				# If all checks pass, add the cell to results
 				result["cells"][candidate_cell.grid_coordinates] = candidate_cell
 				
-				# Optional debug visualization (consider making this conditional)
-#				DebugDraw3D.draw_box(
-#					candidate_position, 
-#					Quaternion.IDENTITY,
-#					Vector3(cell_size.x, cell_size.y, cell_size.x), 
-#					Color.MAGENTA, 
-#					true, 
-#					5
-#				)
+			
+				if debug_mode:
+					DebugDraw3D.draw_box(
+						candidate_position, 
+						Quaternion.IDENTITY,
+						Vector3(cell_size.x, cell_size.y, cell_size.x), 
+						Color.MAGENTA, 
+						true, 
+						5
+					)
 
-	# Update success flag based on whether we found any cells
 	result["success"] = not result["cells"].is_empty()
 	
 	return result

@@ -9,8 +9,11 @@ var quick_target_buttons : Array[QuickTargetButton]
 
 
 func _setup():
-	GameManager.managers["UnitManager"].unit_selected.connect(UnitManager_UnitSelected)
-	GameManager.managers["UnitActionManager"].action_execution_finished.connect(UnitActionManager_action_execution_finished)
+	if not GameManager.managers["UnitManager"].unit_selected.is_connected(UnitManager_UnitSelected):
+		GameManager.managers["UnitManager"].unit_selected.connect(UnitManager_UnitSelected)
+		
+	if not GameManager.managers["UnitActionManager"].action_execution_finished.is_connected(UnitActionManager_action_execution_finished):
+		GameManager.managers["UnitActionManager"].action_execution_finished.connect(UnitActionManager_action_execution_finished)
 
 
 
@@ -22,6 +25,7 @@ func UnitActionManager_action_execution_finished(_current_action : BaseActionDef
 
 func UnitManager_UnitSelected(_new_unit : Unit, _old_unit : Unit):
 	update_quick_target_buttons()
+	
 
 
 func update_quick_target_buttons():

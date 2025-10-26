@@ -16,7 +16,7 @@ func _setup() -> void:
 
 
 
-func _execute() -> void:
+func _execute() -> bool:
 	
 	var path : Array[GridCell]
 	
@@ -32,7 +32,7 @@ func _execute() -> void:
 	var get_action_result  = owner.try_get_action_definition_by_type("MoveStepActionDefinition")
 	
 	if get_action_result["success"] ==  false:
-		return
+		return false
 		
 	var move_action_node : MoveStepActionDefinition = get_action_result["action_definition"]
 	for i in range(path.size() - 1):
@@ -47,11 +47,15 @@ func _execute() -> void:
 		var move_step_action = move_action_node.instantiate({"unit" : owner,"start_grid_cell" : from_cell,"target_grid_cell" : to_cell})
 		sub_actions.append(move_step_action)
 
-	await super._execute()
-			
-
+	return await super._execute()
+	
 
 func _action_complete() -> void:
 	owner.set_motion(Enums.UnitStance.STATIONARY)
 	owner.grid_position_data.set_grid_cell(target_grid_cell)
-	
+
+
+
+func action_cancel():
+	owner.set_motion(Enums.UnitStance.STATIONARY)
+	owner.grid_position_data.detect_grid_position()

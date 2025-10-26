@@ -8,6 +8,7 @@ var visibility_texture := ImageTexture3D.new()
 
 var visibility_images: Array[Image] = []
 
+signal visibility_updated(team : Enums.unitTeam, visibility_texture : ImageTexture3D)
 
 func setup(unit_manager : UnitManager) -> void:
 	unit_manager.Unit_spawned.connect(on_unit_spawned)
@@ -21,21 +22,25 @@ func setup(unit_manager : UnitManager) -> void:
 		return
 
 	var size_v3: Vector3i = terrain.get_map_cell_size()
-	var fow_dims = Vector2i(size_v3.x, size_v3.z)
+	
+	# --- FIX: Set dimensions to (X, Y) ---
+	var fow_dims = Vector2i(size_v3.x, size_v3.y)
 
 	visibility_images.clear()
-	for y in size_v3.y:
+	# --- FIX: Iterate over Z (depth) ---
+	for z in size_v3.z:
+		# --- FIX: Create images with size (X, Y) ---
 		var temp_image := Image.create(fow_dims.x, fow_dims.y, false, Image.FORMAT_RGB8)
 		temp_image.fill(Color.BLACK)
 		visibility_images.append(temp_image)
 
-	var error = visibility_texture.create(Image.FORMAT_RGB8, fow_dims.x, fow_dims.y, size_v3.y, false, visibility_images)
+	# --- FIX: Create texture with (Width=X, Height=Y, Depth=Z) ---
+	var error = visibility_texture.create(Image.FORMAT_RGB8, fow_dims.x, fow_dims.y, size_v3.z, false, visibility_images)
 	if error != OK:
 		push_error("Failed to create and initialize ImageTexture3D.")
 		return
 
 	update_team_visibility()
-
 
 func add_grid_object(grid_object: GridObject):
 	if grid_object == null or grid_objects["active"].has(grid_object):
@@ -83,10 +88,13 @@ func update_team_visibility():
 	var did_pixels_change := false
 	for cell_pos: Vector3i in updated_grid_cells:
 		var cell: GridCell = updated_grid_cells[cell_pos]
-		if cell_pos.y < 0 or cell_pos.y >= visibility_images.size():
+		
+		# --- FIX: Use Z for the image array index ---
+		if cell_pos.z < 0 or cell_pos.z >= visibility_images.size():
 			continue
 		
-		var image_slice: Image = visibility_images[cell_pos.y]
+		# --- FIX: Use Z for the image array index ---
+		var image_slice: Image = visibility_images[cell_pos.z]
 
 		var pixel_color: Color
 		match cell.fog_status:
@@ -97,13 +105,16 @@ func update_team_visibility():
 			_: # UNSEEN
 				pixel_color = Color.BLACK
 
-		if image_slice.get_pixel(cell_pos.x, cell_pos.z) != pixel_color:
-			image_slice.set_pixel(cell_pos.x, cell_pos.z, pixel_color)
+		# --- FIX: Use (X, Y) for setting the pixel ---
+		if image_slice.get_pixel(cell_pos.x, cell_pos.y) != pixel_color:
+			image_slice.set_pixel(cell_pos.x, cell_pos.y, pixel_color)
 			did_pixels_change = true
 
 	if did_pixels_change:
 		visibility_texture.update(visibility_images)
-
+	
+	
+	visibility_updated.emit(team, visibility_texture)
 	for grid_object in grid_objects["active"]:
 		grid_object.grid_position_data.update_parent_visability()
 
@@ -113,16 +124,22 @@ func get_grid_cell_visibility_data(grid_cell: GridCell) -> Dictionary:
 	if not grid_cell:
 		return return_value
 
-	var coords = grid_cell.grid_coordinates
-	if coords.y < 0 or coords.y >= visibility_images.size():
+	var coords = grid_cell.grid_coordinates 
+	
+	# --- FIX: Use Z for the image array index ---
+	if coords.z < 0 or coords.z >= visibility_images.size():
 		return return_value
 	
-	var image_slice: Image = visibility_images[coords.y]
-	if coords.x < 0 or coords.x >= image_slice.get_width() or coords.z < 0 or coords.z >= image_slice.get_height():
+	# --- FIX: Use Z for the image array index ---
+	var image_slice: Image = visibility_images[coords.z]
+	
+	# --- FIX: Use (X, Y) for bounds checking ---
+	if coords.x < 0 or coords.x >= image_slice.get_width() or coords.y < 0 or coords.y >= image_slice.get_height():
 		return return_value
 
 	# Read from the CPU-side image array for 100% accuracy.
-	var grid_cell_color: Color = image_slice.get_pixel(coords.x, coords.z)
+	# --- FIX: Use (X, Y) to get the pixel ---
+	var grid_cell_color: Color = image_slice.get_pixel(coords.x, coords.y)
 
 	if grid_cell_color.is_equal_approx(Color.WHITE):
 		return_value["cell_state"] = grid_cell.grid_cell_state

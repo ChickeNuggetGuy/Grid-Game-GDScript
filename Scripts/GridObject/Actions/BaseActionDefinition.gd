@@ -22,6 +22,8 @@ var action_script: Script
 
 @abstract func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell, float]
 
+@abstract func get_can_cancel_action() -> bool
+	
 func calculate_best_AI_action_score(starting_grid_cell : GridCell) -> Dictionary:
 	var ret_value = {"grid_cell" : null, "action_score" : -1.0}
 	var ai_action_scores = _get_AI_action_scores(starting_grid_cell)
@@ -44,6 +46,7 @@ func calculate_best_AI_action_score(starting_grid_cell : GridCell) -> Dictionary
 	return ret_value
 
 
+	
 func _init() -> void:
 	if script_path == null or script_path == "":
 		push_error("Script path for: " + self.action_name+ " is invalid!")

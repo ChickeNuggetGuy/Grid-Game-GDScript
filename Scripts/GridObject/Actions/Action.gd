@@ -7,7 +7,7 @@ var owner: GridObject = null
 var start_grid_cell: GridCell = null
 var target_grid_cell: GridCell = null
 var multiple_executions : bool
-
+var request_cancel_action : bool  = false
 
 var execution_parameters : Dictionary
 
@@ -25,11 +25,14 @@ func execute_call() -> void:
 	@warning_ignore("redundant_await")
 	await _setup()
 	@warning_ignore("redundant_await")
-	await _execute()
-	await _action_complete_call()
+	if await _execute():
+		await _action_complete_call()
+	else:
+		action_cancel_call()
+	
 	
 @abstract func _setup() -> void
-@abstract func _execute() -> void
+@abstract func _execute() -> bool
 
 
 
@@ -46,6 +49,13 @@ func _action_complete_call() -> void:
 
 
 @abstract func _action_complete()
+@abstract func action_cancel()
+
+func action_cancel_call():
+	
+	action_cancel()
+	var unit_action_manager : UnitActionManager = GameManager.managers["UnitActionManager"]
+	unit_action_manager.cancel_current_action()
 
 func _spend_unit_stats():
 	if costs == null:

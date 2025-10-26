@@ -163,7 +163,7 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 	
 	var start = start_pos
 	var end = end_pos
-	var cell_size =GameManager.managers[" MeshTerrainManager"].cell_size
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 
 	
 	if start.grid_cell_state & Enums.cellState.OBSTRUCTED or \

@@ -78,13 +78,12 @@ func _duplicate() -> Resource:
 func get_context_items() -> Dictionary[String,Callable]:
 	var ret_value :  Dictionary[String,Callable] = {}
 	
-	
 	for action in action_blueprints:
 		ret_value[action.action_name] = (Callable.create(self,"set_item_action").bind(action))
 	
 	return ret_value
 
 func set_item_action(action_def : BaseItemActionDefinition):
-	action_def.extra_parameters["item"] = self
-	action_def.extra_parameters["starting_inventory"] = self.current_inventory_grid
+	action_def.parent_item = self
+	action_def.starting_inventory = self.current_inventory_grid
 	GameManager.managers["UnitActionManager"].try_set_selected_action(action_def)

@@ -25,13 +25,13 @@ func _init(parameters : Dictionary) -> void:
 func _setup():
 	return
 
-func _execute() -> void:
+func _execute() -> bool:
 	if path != null:
 		var get_action_result  = owner.try_get_action_definition_by_type("MoveActionDefinition")
 	
 		if get_action_result["success"] ==  false:
 			push_error("Unit is missing MoveActionDefinition, cannot move for melee attack.")
-			return
+			return false
 		
 		var move_action_def : MoveActionDefinition = get_action_result["action_definition"]
 		
@@ -44,7 +44,8 @@ func _execute() -> void:
 			})
 		sub_actions.append(move_action)
 
-	await super._execute()
+	if not await super._execute():
+		return false
 
 	for i in range(item["extra_values"].get("attack_count", 1)):
 		var target_grid_object = target_grid_cell.grid_object
@@ -52,16 +53,19 @@ func _execute() -> void:
 		if target_grid_object != null:
 			var health_stat = target_grid_object.get_stat_by_name("Health")
 			if health_stat != null:
-				health_stat.try_remove_value(10) # Value was 100 but print says 10, adjusted for consistency
+				health_stat.try_remove_value(item["extra_values"].get("damage", 10)) # Value was 100 but print says 10, adjusted for consistency
 				print(
 					"damaged unit for 10 health. new health is " +
 					str(health_stat.current_value)
 				)
 
 		await owner.get_tree().create_timer(0.8).timeout
-	return
+	return true
 
 
 func _action_complete():
 	return
-	
+
+
+func action_cancel():
+	owner.grid_positiondata.detect_grid_position()

@@ -8,6 +8,7 @@ var is_shown : bool
 @export var input_key : Key
 @export var visual : Control
 @export var is_persistent_window = true
+@export var ui_elements : Array[UIElement]
 #endregion
 
 #region Functions
@@ -57,10 +58,14 @@ func toggle():
 
 func  _setup():
 	
-	var ui_elements : Array = UtilityMethods.find_children_by_type(self, "UIElement")
+	var temp_ui_elements : Array = UtilityMethods.get_all_children(self)
 	
-	
-	for element in ui_elements:
+
+	for element in temp_ui_elements:
+		if element is UIElement and not ui_elements.has(element):
+			ui_elements.append(element)
+		
+	for element in ui_elements:		
 		if element is UIElement:
 			element.setup_call()
 	

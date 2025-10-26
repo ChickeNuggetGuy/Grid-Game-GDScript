@@ -11,6 +11,12 @@ func _setup( _extra_params : Dictionary) -> void:
 	animation_tree = animation_player_holder.find_child("AnimationTree")
 	#animation_tree.advance_expression_base_node = parent_grid_object.get_path()
 	GameManager.managers["UnitActionManager"].connect("action_execution_finished",UnitActionManager_action_execution_finished)
+	GameManager.managers["UnitActionManager"].action_execution_canceled.connect(UnitActionManager_action_execution_canceled)
+
+
+func UnitActionManager_action_execution_canceled(_completed_action_definition : BaseActionDefinition, 
+		_execution_parameters : Dictionary):
+	return #var playback = animation_tree.get(locomotion_State_playback_path) as AnimationNodeStateMachinePlayback
 
 
 func UnitActionManager_action_execution_finished(_completed_action_definition : BaseActionDefinition, 

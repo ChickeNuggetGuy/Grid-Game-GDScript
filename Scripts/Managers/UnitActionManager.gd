@@ -3,6 +3,7 @@ class_name UnitActionManager
 #region Variables
 
 var selected_action: BaseActionDefinition
+var current_action : Action
 var action_params : Dictionary
 var is_busy: bool = false
 @export var is_busy_timer := 0.0
@@ -13,8 +14,13 @@ var is_busy: bool = false
 signal selected_action_changed(new_selected_action: BaseActionDefinition)
 signal is_busy_value_changed(current_value: bool)
 signal action_execution_started(current_action_definition: BaseActionDefinition, execution_parameters: Dictionary)
+
 signal action_execution_finished(current_action_definition: BaseActionDefinition, execution_parameters: Dictionary)
 signal any_action_execution_finished(current_action_definition: BaseActionDefinition, execution_parameters: Dictionary)
+
+
+signal action_execution_canceled(current_action_: Action )
+signal any_action_execution_canceled(current_action_: Action)
 
 #endregion
 
@@ -69,24 +75,35 @@ func _process(delta: float) -> void:
 	if is_busy:
 		is_busy_timer += delta
 		if is_busy_timer >= is_busy_timer_max:
-			set_is_busy(false)
+			set_is_busy(false, null)
 
-func set_is_busy(value: bool) -> void:
+func set_is_busy(value: bool, action : Action) -> void:
 	if is_busy == value:
 		return
+		
 	is_busy = value
 	if value:
 		is_busy_timer = 0.0
 	print("is_busy changed to: %s" % str(is_busy))
 	is_busy_value_changed.emit(is_busy)
+	current_action = action
 #endregion
 
 #region Input Handling
 func _unhandled_input(event) -> void:
 	if not execute_complete: return
-	if is_busy or GameManager.managers["UIManager"].blocking_input:
+	
+	if GameManager.managers["UIManager"].blocking_input:
 		return
-
+	
+	if is_busy:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT \
+		and selected_action.get_can_cancel_action():
+			#Attempt to cancel action
+			current_action.request_cancel_action = true
+			print("Cancel action")
+		else: return
+		
 	if event is InputEventMouseButton and event.pressed:
 		match event.button_index:
 			MOUSE_BUTTON_LEFT:
@@ -124,6 +141,7 @@ func try_execute_selected_action(grid_cell: GridCell) -> void:
 		return
 	try_execute_action(grid_cell, selected_unit, selected_action)
 
+
 func try_execute_action(grid_cell: GridCell, unit: Unit, action_to_execute: BaseActionDefinition) -> void:
 	if not unit or not action_to_execute:
 		print("Action execution failed: Missing unit or action.")
@@ -141,61 +159,63 @@ func try_execute_action(grid_cell: GridCell, unit: Unit, action_to_execute: Base
 
 	await _execute_action_internal(action_to_execute, params)
 
-func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
-		unit : Unit,
-		item: Item,
-		starting_inventory: InventoryGrid,
-		target_grid_cell : GridCell = null) -> Dictionary:
-	GameManager.managers["UIManager"].hide_non_persitent_windows()
-	GameManager.managers["UIManager"].try_block_input(null)
-	set_is_busy(true)
 
-	var ret_val = {"success": false, "Reasoning": "N/A"}
-
-
-	if not target_grid_cell:
-		target_grid_cell = GameManager.managers["GridInputManager"].currentGridCell
-		#ret_val["Reasoning"] = "Current grid cell is null!"
+#func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
+		#unit : Unit,
+		#item: Item,
+		#starting_inventory: InventoryGrid,
+		#target_grid_cell : GridCell = null) -> Dictionary:
+	#GameManager.managers["UIManager"].hide_non_persitent_windows()
+	#GameManager.managers["UIManager"].try_block_input(null)
+	#set_is_busy(true)
+#
+	#var ret_val = {"success": false, "Reasoning": "N/A"}
+#
+#
+	#if not target_grid_cell:
+		#target_grid_cell = GameManager.managers["GridInputManager"].currentGridCell
+		##ret_val["Reasoning"] = "Current grid cell is null!"
+		##print(ret_val["Reasoning"])
+		##set_is_busy(false)
+		#return ret_val
+#
+	#if not unit:
+		#ret_val["Reasoning"] = "Selected unit is null!"
 		#print(ret_val["Reasoning"])
 		#set_is_busy(false)
-		return ret_val
+		#return ret_val
+#
+	#if not action_to_execute:
+		#ret_val["Reasoning"] = "Action definition is null!"
+		#print(ret_val["Reasoning"])
+		#set_is_busy(false)
+		#return ret_val
+#
+	#if not item:
+		#ret_val["Reasoning"] = "Item is null!"
+		#print(ret_val["Reasoning"])
+		#set_is_busy(false)
+		#return ret_val
+#
+	#var params = {
+		#"unit": unit,
+		#"start_grid_cell": unit.grid_position_data.grid_cell,
+		#"target_grid_cell": target_grid_cell,
+		#"item": item,
+		#"action_definition": action_to_execute,
+		#"starting_inventory": starting_inventory
+	#}
+	#await _execute_action_internal(action_to_execute, params)
+	#GameManager.managers["UIManager"].unblock_input()
+	#return ret_val
 
-	if not unit:
-		ret_val["Reasoning"] = "Selected unit is null!"
-		print(ret_val["Reasoning"])
-		set_is_busy(false)
-		return ret_val
 
-	if not action_to_execute:
-		ret_val["Reasoning"] = "Action definition is null!"
-		print(ret_val["Reasoning"])
-		set_is_busy(false)
-		return ret_val
-
-	if not item:
-		ret_val["Reasoning"] = "Item is null!"
-		print(ret_val["Reasoning"])
-		set_is_busy(false)
-		return ret_val
-
-	var params = {
-		"unit": unit,
-		"start_grid_cell": unit.grid_position_data.grid_cell,
-		"target_grid_cell": target_grid_cell,
-		"item": item,
-		"action_definition": action_to_execute,
-		"starting_inventory": starting_inventory
-	}
-	await _execute_action_internal(action_to_execute, params)
-	GameManager.managers["UIManager"].unblock_input()
-	return ret_val
-
-# Core unified execution method
 func _execute_action_internal(action_def: BaseActionDefinition, params: Dictionary) -> void:
 	var result = action_def.can_execute(params)
+	
 	if not result.get("success", false):
 		print("Failed to execute action: " + result.get("reason", "Unknown reason"))
-		set_is_busy(false)
+		set_is_busy(false, null)
 		return
 
 	if result.get("extra_parameters", null) != null and result["extra_parameters"].size() > 0:
@@ -224,16 +244,29 @@ func _execute_action_internal(action_def: BaseActionDefinition, params: Dictiona
 	print("Executing action: %s, using %s Time units!" %
 		[action_def.action_name, str(result.get("costs", "?"))])
 
-	set_is_busy(true)
+	
 	action_execution_started.emit(action_def, params)
 
-	
-	await action_def.instantiate(params).execute_call()
+	var action :Action = action_def.instantiate(params)
+	set_is_busy(true, action)
+	await action.execute_call()
 	if not is_instance_valid(self):
 		return
 		
 	any_action_execution_finished.emit(action_def, params)
 	action_execution_finished.emit(action_def, params)
 	action_params.clear()
-	set_is_busy(false)
+	set_is_busy(false, null)
+
+
+func cancel_current_action():
+	if current_action == null:
+		print("Current action is null!")
+		return
+	
+	
+	any_action_execution_canceled.emit(current_action)
+	action_execution_canceled.emit(current_action)
+	action_params.clear()
+	set_is_busy(false, null)
 #endregion

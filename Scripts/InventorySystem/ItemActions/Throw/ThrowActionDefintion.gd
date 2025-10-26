@@ -16,7 +16,7 @@ func double_click_call(parameters : Dictionary) -> void:
 func double_click_clear(parameters : Dictionary) -> void:
 	return
 
-
+func get_can_cancel_action() -> bool: return false
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.GROUND | Enums.cellState.EMPTY
@@ -51,7 +51,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		temp_cost += 1 * result["rotation_steps"]
 	temp_cost += 8
 	
-	var calc_arc_result = Pathfinder.Instance.try_calculate_arc_path(parameters["start_grid_cell"], parameters["target_grid_cell"])
+	var calc_arc_result = Pathfinder.try_calculate_arc_path(parameters["start_grid_cell"], parameters["target_grid_cell"])
 		
 	if  calc_arc_result["success"]:
 		var previous_vector :Vector3 = calc_arc_result["vector3_path"][0]

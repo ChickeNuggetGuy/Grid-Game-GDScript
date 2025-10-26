@@ -31,6 +31,7 @@ var _grid_object_components : Array[GridObjectComponent]
 
 
 #region Signals
+signal inventories_ready()
 signal  gridObject_stat_changed(stat : GridObjectStat, snew_vaule : int)
 @warning_ignore("unused_signal")
 signal gridObject_moved(owner : Unit, new_grid_cell : GridCell)
@@ -79,21 +80,14 @@ func grid_object_dealth(_parent_grid_object : GridObject):
 
 
 func setup_inventory_grids():
-	var temp_melee_result = InventoryManager.try_gry_inventory_item("test_melee")
-	var temp_ranged_result = InventoryManager.try_gry_inventory_item("test_ranged")
-	
 	for inventory_type in inventory_grid_types:
 		
 		var result = InventoryManager.try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
-			if inventory_grids[inventory_type].inventory_type == Enums.inventoryType.RIGHTHAND:
-				if team == Enums.unitTeam.PLAYER:
-					inventory_grids[inventory_type].try_add_item(temp_ranged_result["inventory_item"])
-				else:
-					inventory_grids[inventory_type].try_add_item(temp_melee_result["inventory_item"])
+	emit_signal("inventories_ready")
 
-
+	
 
 func get_stat_by_name(stat_name: String) -> GridObjectStat:
 	# Assuming action_library is an Array of ActionNode objects

@@ -10,9 +10,9 @@ func _init(parameters : Dictionary) -> void:
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
-	arc_path_results = Pathfinder.Instance.try_calculate_arc_path(start_grid_cell, target_grid_cell)
-	item = parameters["item"]
-	starting_inventory = parameters["starting_inventory"]
+	arc_path_results = Pathfinder.try_calculate_arc_path(start_grid_cell, target_grid_cell)
+	item = parameters.get("item")
+	starting_inventory = parameters.get("starting_inventory")
 
 
 
@@ -21,7 +21,7 @@ func _setup() -> void:
 
 
 
-func _execute() -> void:
+func _execute() -> bool:
 	
 	
 	# Check if rotation is needed
@@ -34,7 +34,7 @@ func _execute() -> void:
 		var get_action_result = owner.try_get_action_definition_by_type("RotateActionDefinition")
 		
 		if get_action_result["success"] == false:
-			return
+			return false
 	
 		var rotate_action_node : RotateActionDefinition = get_action_result["action_definition"]
 		var rotate_action = rotate_action_node.instantiate({"unit" : owner, "start_grid_cell" : start_grid_cell,"target_grid_cell" : target_grid_cell})
@@ -55,10 +55,16 @@ func _execute() -> void:
 	
 	throw_visual.queue_free() 
 	
+	return true
 
 
 func _action_complete():
 	var end_grid_cell : GridCell =arc_path_results["grid_cell_path"][ arc_path_results["grid_cell_path"].size() - 1]
 	InventoryGrid.try_transfer_item(starting_inventory, 
-			end_grid_cell.inventory_grid,item)
+			end_grid_cell.inventory_grid, item)
+			
+	return
+
+
+func action_cancel():
 	return

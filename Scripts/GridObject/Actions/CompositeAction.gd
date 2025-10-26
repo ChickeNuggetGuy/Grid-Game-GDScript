@@ -14,11 +14,17 @@ func _init(parameters : Dictionary) -> void:
 	super._init(parameters)
 
 
-func _execute() -> void:
+func _execute() -> bool:
 	# execute each sub‐action in turn
+	if request_cancel_action:
+		return false
+		
 	for a in sub_actions:
+		if request_cancel_action:
+			return false
 		a.owner = owner
 		await a.execute_call()
 		print(a.action_name + " is being executed")
-
+	
+	return true
 @abstract func _setup()

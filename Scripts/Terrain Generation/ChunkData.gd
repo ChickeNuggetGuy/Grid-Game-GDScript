@@ -8,7 +8,7 @@ enum ChunkType {
 
 @export var chunk_coordinates: Vector2i = Vector2i.ZERO
 @export var chunk_type: int = ChunkType.PROCEDURAL
-@export var chunk_go_index: String = "ShipChunk"
+@export var chunk_go_index: String = "spawn_chunk"
 
 var chunk = null
 var chunk_node = null
@@ -34,4 +34,4 @@ func get_chunk_type() -> int:
 	return chunk_type
 
 func get_chunk_go_index() -> String:
-	return "ShipChunk"
+	return "spawn_chunk"

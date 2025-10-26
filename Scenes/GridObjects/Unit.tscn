@@ -336,7 +336,8 @@ shape = SubResource("ConcavePolygonShape3D_qwska")
 script = ExtResource("8_uv3na")
 stat_name = "stamina"
 current_value = 64
-min_max_values = Vector2i(0, 64)
+change_turn_behavior = 3
+change_amount = 0.2
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 
 [node name="Health" type="Node" parent="Stats" unique_id=1071235893]
@@ -351,12 +352,8 @@ metadata/_custom_type_script = "uid://d13d5i7vfxem3"
 script = ExtResource("8_uv3na")
 stat_name = "time_units"
 current_value = 80
-min_max_values = Vector2i(0, 80)
+change_turn_behavior = 2
 metadata/_custom_type_script = "uid://d13d5i7vfxem3"
-
-[node name="GridObjectSightArea" type="Node3D" parent="Stats/time_units" unique_id=958155339]
-script = ExtResource("9_7mmco")
-metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 
 [node name="Bravery" type="Node" parent="Stats" unique_id=492314847]
 script = ExtResource("8_uv3na")
@@ -775,8 +772,11 @@ anim_player = NodePath("../AnimationPlayer")
 
 [node name="GridObjectComponents" type="Node" parent="." unique_id=1798251923]
 
-[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" unique_id=1882307956]
+[node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" unique_id=1882307956 node_paths=PackedStringArray("parent_grid_object")]
 script = ExtResource("9_7mmco")
+sight_range_degrees = Vector2(90, 90)
+sight_depth = 8.0
+parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 
 [node name="GridObjectAnimation" type="Node3D" parent="GridObjectComponents" unique_id=393229149 node_paths=PackedStringArray("animation_player_holder", "animation_tree", "parent_grid_object")]

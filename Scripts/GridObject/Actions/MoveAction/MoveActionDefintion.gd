@@ -18,7 +18,7 @@ func double_click_call(_parameters : Dictionary) -> void:
 func double_click_clear(_parameters : Dictionary) -> void:
 	return
 
-
+func get_can_cancel_action() -> bool: return true
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	var walkable_empty_filter = Enums.cellState.WALKABLE

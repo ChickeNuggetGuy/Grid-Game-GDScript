@@ -16,6 +16,7 @@ func _setup():
 	var selected_unit : GridObject = GameManager.managers["UnitManager"].selectedUnit
 	if selected_unit == null:
 		_set_current_inventory_grid(null)
+		print("InventoryGridUI: selected Unit null")
 		return
 	
 	var new_inventory_grid : InventoryGrid = null
@@ -24,7 +25,7 @@ func _setup():
 		var current_grid_cell = selected_unit.grid_position_data.grid_cell
 		if current_grid_cell == null:
 			_set_current_inventory_grid(null)
-		
+			print("InventoryGridUI: selected grid null")
 			return
 		new_inventory_grid = current_grid_cell.inventory_grid
 	elif inventory_grid_type == Enums.inventoryType.MOUSEHELD:
@@ -54,13 +55,13 @@ func _set_current_inventory_grid(new_grid: InventoryGrid):
 	if inventory_grid == new_grid:
 		return
 
-	if inventory_grid != null and inventory_grid.is_connected("inventory_changed", Callable(self, "draw_inventory")):
-		inventory_grid.disconnect("inventory_changed", Callable(self, "draw_inventory"))
+	if inventory_grid != null and inventory_grid.inventory_changed.is_connected(draw_inventory):
+		inventory_grid.inventory_changed.disconnect(draw_inventory)
 	
 	inventory_grid = new_grid
 
 	if inventory_grid != null:
-		inventory_grid.connect("inventory_changed", Callable(self, "draw_inventory"))
+		inventory_grid.inventory_changed.connect(draw_inventory)
 	
 	_clear_slots()
 
@@ -94,7 +95,7 @@ func draw_inventory():
 			return
 		
 		if inventory_grid != current_grid_cell.inventory_grid:
-			inventory_grid = current_grid_cell.inventory_grid
+			_set_current_inventory_grid(current_grid_cell.inventory_grid)
 		
 	if inventory_slot_holder is GridContainer:
 		if inventory_grid.shape.grid_width != null and inventory_grid.shape.grid_width > 0:
@@ -190,19 +191,19 @@ func inventory_slot_pressed(grid_coords : Vector2i, is_left_click : bool):
 
 func item_try_transfer(grid_coords : Vector2i):
 	var item =  inventory_grid.has_item_at(grid_coords)
-	
-	var mouse_held_inventory = 	MainInventoryUI.intance.mouse_held_inventory_ui.inventory_grid
-	var mouse_held_inventory_ui =	MainInventoryUI.intance.mouse_held_inventory_ui
+	var main_inventory_ui : MainInventoryUI = GameManager.managers["UIManager"].main_inventory_ui
+	var mouse_held_inventory = 	main_inventory_ui.mouse_held_inventory_ui.inventory_grid
+	var mouse_held_inventory_ui =	main_inventory_ui.mouse_held_inventory_ui
 	var mouse_held_item = mouse_held_inventory.has_item_at(Vector2i(0,0))
 	
 	if item != null:
 		if InventoryGrid.try_transfer_item(inventory_grid, mouse_held_inventory, item):
-			MainInventoryUI.intance.mouse_held_inventory_ui.position = inventory_slots[grid_coords].global_position
-			MainInventoryUI.intance.mouse_held_inventory_ui.show_call()
+			main_inventory_ui.mouse_held_inventory_ui.position = inventory_slots[grid_coords].global_position
+			main_inventory_ui.mouse_held_inventory_ui.show_call()
 	elif mouse_held_item != null:
 		if InventoryGrid.try_transfer_item_at( mouse_held_inventory ,inventory_grid, mouse_held_item, grid_coords):
-			MainInventoryUI.intance.mouse_held_inventory_ui.position =  Vector2i(-10,-10)
-			MainInventoryUI.intance.mouse_held_inventory_ui.hide_call()
+			main_inventory_ui.mouse_held_inventory_ui.position =  Vector2i(-10,-10)
+			main_inventory_ui.mouse_held_inventory_ui.hide_call()
 
 
 func try_execute_item_action(grid_coords : Vector2i):
@@ -225,7 +226,7 @@ func try_execute_item_action(grid_coords : Vector2i):
 		return
 	
 	
-	#MainInventoryUI.intance.hide_call()
+	#main_inventory_ui.hide_call()
 	GameManager.managers["UIManager"].blocking_input = true
 	var selected_grid_cell: GridCell = await GameManager.managers["GridInputManager"].grid_cell_selected
 	
@@ -239,7 +240,7 @@ func try_execute_item_action(grid_coords : Vector2i):
 			inventory_grid,
 			GameManager.managers["GridInputManager"].currentGridCell)
 	
-	#MainInventoryUI.intance.show_call()
+	#main_inventory_ui.show_call()
 
 
 #func _unhandled_input(event):

@@ -2,15 +2,13 @@ class_name MainInventoryUI
 extends UIWindow
 
 #region Varibales
-static var intance : MainInventoryUI
 var inventory_ui_grids : Dictionary[Enums.inventoryType, InventoryGridUI] = {}
 @export var inventory_grids_holder : Control
-@export var mouse_held_inventory_ui : InventoryGridUI
+@export var mouse_held_inventory_ui : MouseHeldInventoryUI
 
 #endregion
 
 func _setup():
-	intance = self
 	GameManager.managers["UnitActionManager"].action_execution_started.connect(UnitActionManager_action_started)
 	for child in inventory_grids_holder.get_children():
 		if child is InventoryGridUI:
@@ -20,6 +18,7 @@ func _setup():
 			#TODO:determine  if I should setup the children inventoryGridUI's now or at a seperate time
 			inventory_ui.setup_call()
 	super._setup()
+	
 
 
 func _show():

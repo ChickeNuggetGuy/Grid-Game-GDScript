@@ -12,9 +12,9 @@ func _setup() -> void:
 	#owner.grid_object_animator.start_locomotion_animation(owner.get_stance(), Vector2(0.5,0))
 	return
 	
-func _execute() -> void:
+func _execute() -> bool:
 	if start_grid_cell == target_grid_cell:
-		return
+		return true
 	
 	# Check if rotation is needed
 	var dir_dictionary = RotationHelperFunctions.get_direction_between_cells(
@@ -26,7 +26,7 @@ func _execute() -> void:
 		var get_action_result = owner.try_get_action_definition_by_type("RotateActionDefinition")
 		
 		if get_action_result["success"] == false:
-			return
+			return false
 	
 		var rotate_action_node : RotateActionDefinition = get_action_result["action_definition"]
 		var rotate_action = rotate_action_node.instantiate({"unit" : owner,"start_grid_cell" : start_grid_cell,"target_grid_cell" : target_grid_cell})
@@ -37,8 +37,13 @@ func _execute() -> void:
 	var move_tween = owner.create_tween()
 	move_tween.tween_property(owner, "position", target_grid_cell.world_position, 0.5)
 	await move_tween.finished
+	return true
 
 func _action_complete() -> void:
 	
 	owner.grid_position_data.set_grid_cell(target_grid_cell)
 	owner.gridObject_moved.emit(owner, target_grid_cell)
+
+
+func action_cancel():
+	owner.grid_positiondata.detect_grid_position()

@@ -16,7 +16,7 @@ func double_click_call(parameters : Dictionary) -> void:
 func double_click_clear(parameters : Dictionary) -> void:
 	return
 
-
+func get_can_cancel_action() -> bool: return false
 
 func get_valid_grid_cells(_starting_grid_cell : GridCell) -> Array[GridCell]:
 	return []

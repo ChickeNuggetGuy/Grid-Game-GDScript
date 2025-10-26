@@ -184,6 +184,7 @@ func _place_item_at(item: Item, position: Vector2i) -> void:
 
 func try_add_item(item_to_add: Item) -> bool:
 	if item_to_add == null or item_to_add.shape == null:
+		print("Item was null")
 		return false
 
 	for y in range(shape.grid_height):

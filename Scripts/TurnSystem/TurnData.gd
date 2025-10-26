@@ -9,6 +9,8 @@ class_name TurnData
 signal turn_execution_started()
 signal turn_execution_finished()
 
+
+	
 func execute_turn_segments():
 	if turn_segments == null or turn_segments.size() < 1:
 		push_error("Turn segments array is invalid!")

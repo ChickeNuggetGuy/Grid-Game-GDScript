@@ -1,12 +1,12 @@
 extends Manager
 class_name UIManager
 
-var ui_holder : Control
+@export var ui_holder : Control
 var currentCellUI : Label
 var ui_windows : Dictionary[String, UIWindow] ={}
 var blocking_input : bool = false
 var blocking_window : UIElement = null
-
+@export var main_inventory_ui : MainInventoryUI
 
 
 func _get_manager_name() -> String: return "UIManager"
