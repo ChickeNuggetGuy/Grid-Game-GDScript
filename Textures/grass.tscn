@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://digr18vadswui"]
+
+[ext_resource type="PackedScene" uid="uid://bn8x5nxin78xp" path="res://Models/grass.blend" id="1_ghcsk"]
+[ext_resource type="Material" uid="uid://826b5wma1txf" path="res://Textures/grass.tres" id="2_bo5e8"]
+
+[node name="grass" unique_id=1933197604 instance=ExtResource("1_ghcsk")]
+
+[node name="Plane" parent="." index="0" unique_id=1821369078]
+transform = Transform3D(-0.5109181, 0.8596295, -2.4836936e-08, 4.3610164e-08, -2.9730438e-09, -1, -0.8596295, -0.5109181, -3.5969602e-08, -0.4265976, 0.9785376, -0.9364412)
+material_override = ExtResource("2_bo5e8")
+surface_material_override/0 = ExtResource("2_bo5e8")
+
+[node name="Plane_001" parent="." index="1" unique_id=1357001813]
+transform = Transform3D(-0.99939084, 0.03489945, -4.371139e-08, 4.368476e-08, -1.5255054e-09, -1, -0.03489945, -0.99939084, 1.9106855e-15, -0.86256206, 1.0107218, -0.016951928)
+material_override = ExtResource("2_bo5e8")
+
+[node name="Plane_002" parent="." index="2" unique_id=1489759363]
+transform = Transform3D(-0.3727933, -0.9279144, -1.0121115e-08, 4.3231257e-08, -6.4609496e-09, -1, 0.9279144, -0.3727933, 4.252351e-08, -0.400429, 0.8171679, 0.8383684)
+material_override = ExtResource("2_bo5e8")

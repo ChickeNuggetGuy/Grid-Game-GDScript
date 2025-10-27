@@ -18,7 +18,11 @@ func play_button_pressed():
 
 
 func quick_start_button_pressed():
-	map_settingsUI.show_call()
+	GameManager.spawn_counts = Vector2(2,4)
+				
+	GameManager.map_size = Vector2(2,2) 
+	
+	GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE)
 
 
 func start_button_pressed():

@@ -11,6 +11,8 @@ var grid_cell_state: Enums.cellState
 var inventory_grid: InventoryGrid
 var grid_object: GridObject
 
+var team_spawn : Enums.unitTeam = Enums.unitTeam.ANY
+
 #endregion
 
 #region Functions

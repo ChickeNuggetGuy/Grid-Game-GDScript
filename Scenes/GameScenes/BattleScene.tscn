@@ -37,6 +37,8 @@ metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
 
 [node name="GridSystem" type="Node" parent="Managers" unique_id=91070132]
 script = ExtResource("3_08jbg")
+colliderCheck = true
+colliderSize = Vector3(0.5, 1, 0.5)
 metadata/_custom_type_script = "uid://bjauxagwg8odf"
 
 [node name="UnitManager" type="Node" parent="Managers" unique_id=890527914]

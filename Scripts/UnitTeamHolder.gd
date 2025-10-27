@@ -11,6 +11,9 @@ var visibility_images: Array[Image] = []
 signal visibility_updated(team : Enums.unitTeam, visibility_texture : ImageTexture3D)
 
 func setup(unit_manager : UnitManager) -> void:
+	
+	grid_objects = {"active": [], "inactive": []}
+	
 	unit_manager.Unit_spawned.connect(on_unit_spawned)
 	var unit_action_system = GameManager.managers["UnitActionManager"]
 	if unit_action_system:
@@ -23,18 +26,16 @@ func setup(unit_manager : UnitManager) -> void:
 
 	var size_v3: Vector3i = terrain.get_map_cell_size()
 	
-	# --- FIX: Set dimensions to (X, Y) ---
+	
 	var fow_dims = Vector2i(size_v3.x, size_v3.y)
 
 	visibility_images.clear()
-	# --- FIX: Iterate over Z (depth) ---
+	
 	for z in size_v3.z:
-		# --- FIX: Create images with size (X, Y) ---
 		var temp_image := Image.create(fow_dims.x, fow_dims.y, false, Image.FORMAT_RGB8)
 		temp_image.fill(Color.BLACK)
 		visibility_images.append(temp_image)
-
-	# --- FIX: Create texture with (Width=X, Height=Y, Depth=Z) ---
+	
 	var error = visibility_texture.create(Image.FORMAT_RGB8, fow_dims.x, fow_dims.y, size_v3.z, false, visibility_images)
 	if error != OK:
 		push_error("Failed to create and initialize ImageTexture3D.")

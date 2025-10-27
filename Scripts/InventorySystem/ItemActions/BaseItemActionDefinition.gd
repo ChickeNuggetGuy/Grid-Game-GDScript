@@ -10,6 +10,7 @@ func instantiate(parameters : Dictionary) -> Action:
 		load_action_script()
 	
 	parameters["item"] = parent_item
+	parameters["starting_inventory"] = starting_inventory
 	var a: Action = action_script.new(parameters)
 	a.action_name  = self.resource_name
 	return a

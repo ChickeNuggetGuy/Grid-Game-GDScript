@@ -66,20 +66,20 @@ func _on_exit_tree() -> void:
 
 func spawn_unit(team : Enums.unitTeam):
 	
-	var grid_system : GridSystem =GameManager.managers["GridSystem"]
-	var result = grid_system.try_get_random_walkable_cell()
+	var grid_system : GridSystem = GameManager.managers["GridSystem"]
+	var result = grid_system.try_get_random_walkable_cell(team if team == Enums.unitTeam.PLAYER else Enums.unitTeam.ANY)
 	
-	if result["success"] == false || result["cell"] == null:
+	if result["success"] == false || result["grid_cell"] == null:
 		print("Could not find any valid grid cell. Returning prematurely")
 		return
 		
 	var spawneUnit : Unit = unitScene.instantiate()
-	spawneUnit.position = result["cell"].world_position
+	spawneUnit.position = result["grid_cell"].world_position
 	
 	
 	var team_holder : UnitTeamHolder = UnitTeams[team]
 	
-	spawneUnit._setup(result["cell"], Enums.facingDirection.NORTH, team)
+	spawneUnit._setup(result["grid_cell"], Enums.facingDirection.NORTH, team)
 	team_holder.add_grid_object(spawneUnit)
 	
 	Unit_spawned.emit(spawneUnit)
@@ -129,7 +129,7 @@ func _unhandled_input(event):
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			if GameManager.managers["GridInputManager"].currentGridCell != null:
-				var grid_object : Unit = GameManager.managers["GridInputManager"].currentGridCell.grid_object
+				var grid_object : GridObject = GameManager.managers["GridInputManager"].currentGridCell.grid_object
 				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].has(grid_object):
 					set_selected_unit(grid_object)
 #endregion

@@ -46,3 +46,5 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		ret_val["reason"] = "not enough stats"
 		return ret_val
 		
+
+func get_can_cancel_action() -> bool: return false

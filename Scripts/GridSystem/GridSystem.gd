@@ -1,8 +1,9 @@
 @tool
 extends Manager
 class_name GridSystem
-#region Varibles
+#region Variables
 var grid_cells: Dictionary[Vector3i,GridCell]
+var collected_grid_objects: Array[GridObject] = []  # New list for collected grid objects
 
 #region Grid Validation Settings
 @export var raycastCheck : bool = true
@@ -12,9 +13,8 @@ var grid_cells: Dictionary[Vector3i,GridCell]
 @export var  colliderCheck : bool = false
 @export var  colliderSize : Vector3
 @export var  collideroffset : Vector3
-@export var  colliderLength : float
 
-#@export var groundInventoryPrefab: InventoryGrid;
+@export var grid_cell_overrides : Array[GridCellStateOverride] = []
 #endregion
 #endregion
 
@@ -23,16 +23,24 @@ func _get_manager_name() -> String: return "GridSystem"
 
 func _setup_conditions(): return true
 
-
 func _setup(): 
 	setup_completed.emit()
 
 func _execute_conditions() -> bool: return true
 
 func _execute():
+	collected_grid_objects.clear()  # Clear the list before setup
 	await setup_grid()
+	
+	# Process collected grid objects after all grid cells are setup
+	await setup_collected_grid_objects()
+	
+	for override in get_tree().get_nodes_in_group("grid_cell_overrides"):
+		if override is GridCellStateOverride:
+			grid_cell_overrides.append(override)
+			override.set_cell_overrides()
+	
 	execution_completed.emit()
-
 
 func setup_grid():
 	grid_cells = {}
@@ -50,27 +58,107 @@ func setup_grid():
 				)
 
 				var result = determine_cell_state(spaceState, position, layer)
-
-				# Debug visualization
-				#visualize_cell(position, cell_state)
-
-				# Create/update grid cell
+				
 				var coords = Vector3i(x, layer, z)
 				create_or_update_cell(coords, result["position"], result["cell_state"])
 
 	print("Grid setup complete: ", grid_cells.size(), " cells")
 
+# New function to setup collected grid objects
+func setup_collected_grid_objects():
+	print("Setting up ", collected_grid_objects.size(), " collected grid objects")
+	
+	for grid_object in collected_grid_objects:
+		if grid_object == null or not is_instance_valid(grid_object):
+			continue
+			
+		# Get the grid object's world position
+		var world_pos = grid_object.global_position
+		
+		## Try to get the corresponding grid cell
+		var result = try_get_gridCell_from_world_position(world_pos, true)
+		if result["success"]:
+			var grid_cell: GridCell = result["grid_cell"]
+			
 
-func get_passable_data() -> Dictionary:
-	return {}
+			var direction = Enums.facingDirection.NORTH 
+			var team = Enums.unitTeam.ANY 
+			grid_object._setup(grid_cell, direction,team)
+			## If the grid object has methods to determine its direction/team, use those
+			#if grid_object.has_method("get_facing_direction"):
+				#direction = grid_object.get_facing_direction()
+			#if grid_object.has_method("get_team"):
+				#team = grid_object.get_team()
+			#
+			## Setup the grid object
+			#grid_object._setup(grid_cell, direction, team)
+			#print("Setup grid object at: ", grid_cell.grid_coordinates)
+		#else:
+			#print("Failed to find grid cell for grid object at: ", world_pos)
 
+func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vector3) -> bool:
+	var box = BoxShape3D.new()
+	box.size = colliderSize
+	
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
+	
+	var test_points = [
+		position + collideroffset,
+		position + collideroffset + Vector3(cell_size.x * 0.25, 0, cell_size.x * 0.25),
+		position + collideroffset + Vector3(-cell_size.x * 0.25, 0, cell_size.x * 0.25),
+		position + collideroffset + Vector3(cell_size.x * 0.25, 0, -cell_size.x * 0.25),
+		position + collideroffset + Vector3(-cell_size.x * 0.25, 0, -cell_size.x * 0.25)
+	]
+	
+	var is_obstructed = false
+	
+	for i in range(test_points.size()):
+		var test_point = test_points[i]
+		
+		var qp = PhysicsShapeQueryParameters3D.new()
+		qp.shape = box
+		qp.transform = Transform3D(Basis.IDENTITY, test_point)
+		qp.collide_with_bodies = true
+		qp.collide_with_areas = false
+		
+		var collision_mask = PhysicsLayer.TERRAIN | PhysicsLayer.OBSTACLE
+		qp.collision_mask = 0xFFFFFFFF
+		
+		var hits = spaceState.intersect_shape(qp)
+		
+		# Check each hit for GridObjects
+		for hit in hits:
+			var collider = hit.get("collider")
+			if collider != null:
+				# Check if the collider or its parent is a GridObject
+				var grid_object = find_grid_object_in_hierarchy(collider)
+				if grid_object != null and not collected_grid_objects.has(grid_object):
+					collected_grid_objects.append(grid_object)
+					print("Found GridObject during collision check: ", grid_object.name)
+		
+		if hits.size() > 1:
+			DebugDraw3D.draw_box(position, Quaternion.IDENTITY, box.size, Color.RED, true, 10)
+			is_obstructed = true
+	
+	return is_obstructed
 
+# Helper function to find GridObject in the node hierarchy
+func find_grid_object_in_hierarchy(node: Node) -> GridObject:
+	var current = node
+	
+	# Search up the hierarchy for a GridObject
+	while current != null:
+		if current is GridObject:
+			return current as GridObject
+		current = current.get_parent()
+	
+	return null
 
 func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Dictionary:
 	var return_value : Dictionary = {"cell_state": Enums.cellState.NONE, "position": position}
 	
-	# Multi-point collision detection for better hill detection
 	if colliderCheck and is_position_obstructed(spaceState, position):
+		print("Cell marked as OBSTRUCTED")
 		return_value["cell_state"] = Enums.cellState.OBSTRUCTED
 		return return_value
 	
@@ -79,34 +167,6 @@ func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vecto
 		return perform_enhanced_raycast_check(spaceState, position, layer)
 	
 	return return_value
-
-func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vector3) -> bool:
-	var box = BoxShape3D.new()
-	box.size = colliderSize
-	
-	var cell_size = GameManager.managers["MeshTerrainManager"].Instance.cell_size
-	# Test multiple points within the cell for better hill detection
-	var test_points = [
-		position + collideroffset,  # Center
-		position + collideroffset + Vector3(cell_size.x * 0.25, 0, cell_size.x * 0.25),  # Corner
-		position + collideroffset + Vector3(-cell_size.x * 0.25, 0, cell_size.x * 0.25), # Corner
-		position + collideroffset + Vector3(cell_size.x * 0.25, 0, -cell_size.x * 0.25), # Corner
-		position + collideroffset + Vector3(-cell_size.x * 0.25, 0, -cell_size.x * 0.25) # Corner
-	]
-	
-	for test_point in test_points:
-		var qp = PhysicsShapeQueryParameters3D.new()
-		qp.shape = box
-		qp.transform = Transform3D(Basis.IDENTITY, test_point)
-		qp.collide_with_bodies = true
-		qp.collide_with_areas = true
-		qp.collision_mask = PhysicsLayer.TERRAIN
-		
-		var hits = spaceState.intersect_shape(qp)
-		if hits.size() > 0:
-			return true
-	
-	return false
 
 func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Dictionary:
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
@@ -449,6 +509,96 @@ func try_get_cells_in_cone(
 	return result
 
 
+func try_get_grid_cells_in_area(area: Area3D, cell_state_filter: Enums.cellState = Enums.cellState.NONE) -> Dictionary:
+	var temp_grid_cells: Array[GridCell] = []
+	var result: Dictionary = {
+		"success": false,
+		"grid_cells": temp_grid_cells
+	}
+	
+	if area == null:
+		push_error("try_get_cells_in_area: area cannot be null.")
+		return result
+	
+	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
+	
+	var area_aabb := AABB()
+	var has_shapes := false
+	
+	for child in area.get_children():
+		if child is CollisionShape3D:
+			var collision_shape := child as CollisionShape3D
+			if collision_shape.shape != null:
+				var shape_aabb := collision_shape.shape.get_debug_mesh().get_aabb()
+				var transformed_aabb := collision_shape.global_transform * shape_aabb
+				
+				if not has_shapes:
+					area_aabb = transformed_aabb
+					has_shapes = true
+				else:
+					area_aabb = area_aabb.merge(transformed_aabb)
+	
+	if not has_shapes:
+		push_error("try_get_cells_in_area: area has no valid CollisionShape3D children.")
+		return result
+	
+	var min_coords := Vector3i(
+		int(floor(area_aabb.position.x / cell_size.x)),
+		int(floor(area_aabb.position.y / cell_size.y)),
+		int(floor(area_aabb.position.z / cell_size.x))
+	)
+	
+	var max_coords := Vector3i(
+		int(ceil(area_aabb.end.x / cell_size.x)),
+		int(ceil(area_aabb.end.y / cell_size.y)),
+		int(ceil(area_aabb.end.z / cell_size.x))
+	)
+	
+	var map_grid_size = GameManager.managers["MeshTerrainManager"].get_map_cell_size()
+	min_coords.x = clamp(min_coords.x, 0, map_grid_size.x - 1)
+	min_coords.y = clamp(min_coords.y, 0, map_grid_size.y - 1)
+	min_coords.z = clamp(min_coords.z, 0, map_grid_size.z - 1)
+	max_coords.x = clamp(max_coords.x, 0, map_grid_size.x - 1)
+	max_coords.y = clamp(max_coords.y, 0, map_grid_size.y - 1)
+	max_coords.z = clamp(max_coords.z, 0, map_grid_size.z - 1)
+	
+	for x in range(min_coords.x, max_coords.x + 1):
+		for y in range(min_coords.y, max_coords.y + 1):
+			for z in range(min_coords.z, max_coords.z + 1):
+				var test_coords := Vector3i(x, y, z)
+				var candidate_cell: GridCell = get_grid_cell(test_coords)
+				
+				if candidate_cell == null:
+					continue
+				
+				
+				if cell_state_filter != Enums.cellState.NONE:
+					if not (candidate_cell.grid_cell_state & cell_state_filter):
+						continue
+				
+				var cell_position := candidate_cell.world_position
+				
+				
+				var test_sphere := SphereShape3D.new()
+				test_sphere.radius = min(cell_size.x, cell_size.y) * 0.1 
+				
+				var space_state := area.get_world_3d().direct_space_state
+				var query := PhysicsShapeQueryParameters3D.new()
+				query.shape = test_sphere
+				query.transform = Transform3D(Basis.IDENTITY, cell_position)
+				query.collide_with_areas = true
+				query.collide_with_bodies = false
+				
+				var intersections := space_state.intersect_shape(query)
+				
+				for intersection in intersections:
+					if intersection.collider == area:
+						result["grid_cells"].append(candidate_cell)
+						break
+	
+	result["success"] = result["grid_cells"].size() > 0
+	return result
+
 # Returns the highest integer y‐layer in `grid`. Assumes y ≥ 0.
 func get_max_height() -> int:
 	var max_height := 0
@@ -541,22 +691,31 @@ func try_get_neighbors_in_radius(starting_grid_cell: GridCell,	radius: float,	gr
 	return ret_value
 
 
-func is_gridcell_walkable(cell: GridCell) -> bool:
-	return cell.grid_cell_state & Enums.cellState.WALKABLE
 
-
-func  try_get_random_walkable_cell() -> Dictionary:
-	var cell = UtilityMethods.get_random_value_with_condition(grid_cells.values(),is_gridcell_walkable)
+func try_get_random_walkable_cell(team_filter: Enums.unitTeam = Enums.unitTeam.ANY) -> Dictionary:
+	var ret_value: Dictionary = {"success": false, "grid_cell": null}
+	var valid_grid_cells: Array[GridCell] = []
 	
-	if cell == null:
-		return {"success": false, "cell": null}
-	else:
-		return {"success": true, "cell": cell}
+	for grid_cell in grid_cells.values():
+		if not grid_cell:
+			continue
+		
+		if not (grid_cell.grid_cell_state & Enums.cellState.WALKABLE):
+			continue
+		
+		if team_filter != Enums.unitTeam.ANY and grid_cell.team_spawn != team_filter:
+			continue
+		
+		valid_grid_cells.append(grid_cell)
 	
-	#var randomIndex = randi_range(0, filteredArray.size())
+	if valid_grid_cells.is_empty():
+		return ret_value
 	
-	#return filteredArray[randomIndex]
-
+	var random_grid_cell: GridCell = valid_grid_cells.pick_random()
+	
+	ret_value["success"] = true
+	ret_value["grid_cell"] = random_grid_cell
+	return ret_value
 
 func get_distance_between_grid_cells(from_grid_cell : GridCell, to_grid_cell : GridCell) -> float:
 	return from_grid_cell.world_position.distance_to(to_grid_cell.world_position)

@@ -2,7 +2,7 @@ class_name GridObject
 extends Node3D
 
 #region Variables
-var grid_position_data : GridPositionData
+@export var grid_position_data : GridPositionData
 @export var visual :  Node3D
 @export var collider :  StaticBody3D
 
@@ -43,14 +43,16 @@ func _ready() -> void:
 	collider.collision_layer =PhysicsLayersUtility.PLAYER
 
 func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam):
-	var data = GridPositionData.new()
-	data.setup_call(self, {"grid_cell" : gridCell,"direction" :  direction,"shape" : grid_shape,"height" :  grid_height})
-	add_child(data)
-	grid_position_data = data
+	
+	if not grid_position_data:
+		grid_position_data = GridPositionData.new()
+		add_child(grid_position_data)
+	grid_position_data.setup_call(self, {"grid_cell" : gridCell,"direction" :  direction,"shape" : grid_shape,"height" :  grid_height})
 	
 	team = unit_team
 	
-	stat_library.append_array(stat_holder.get_children())
+	if stat_holder:
+		stat_library.append_array(stat_holder.get_children())
 	
 	for stat in stat_library:
 		var grid_stat : GridObjectStat = stat
@@ -58,8 +60,8 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : 
 		if grid_stat.stat_name == "Health":
 			grid_stat.connect("stat_value_min", grid_object_dealth)
 	
-	
-	_grid_object_components.append_array(grid_object_component_holder.get_children())
+	if grid_object_component_holder:
+		_grid_object_components.append_array(grid_object_component_holder.get_children())
 	
 	for component in _grid_object_components:
 		var grid_object_component : GridObjectComponent = component

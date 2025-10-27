@@ -1,9 +1,10 @@
-[gd_scene load_steps=40 format=4 uid="uid://hhe7ab2xbje0"]
+[gd_scene load_steps=42 format=4 uid="uid://hhe7ab2xbje0"]
 
 [ext_resource type="Script" uid="uid://bu7ki2ekfvc8v" path="res://Scripts/GridObject/Unit.gd" id="1_33ww8"]
 [ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/BaseActionDefinition.gd" id="2_45onm"]
 [ext_resource type="Script" uid="uid://kvwmhrhi3w7q" path="res://Scripts/GridObject/Actions/MoveAction/MoveActionDefintion.gd" id="4_r2bin"]
 [ext_resource type="Script" uid="uid://cy7d6drefeg4t" path="res://Scripts/GridObject/Actions/MoveStep/MoveStepActionDefintion.gd" id="5_3ea33"]
+[ext_resource type="Script" uid="uid://bblv0tsronkfy" path="res://Scripts/GridObject/Actions/InteractAction/InteractActionDefinition.gd" id="6_3ea33"]
 [ext_resource type="Script" uid="uid://ov18vmu15p05" path="res://Scripts/GridObject/Actions/Rotate/RotateActionDefinition.gd" id="6_e636m"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="7_7mmco"]
 [ext_resource type="Script" uid="uid://caqcyrpsjdjhb" path="res://Scripts/GridObject/GridObjectComponents/GridObjectAnimation.gd" id="8_jq84y"]
@@ -28,6 +29,11 @@ metadata/_custom_type_script = "uid://cy7d6drefeg4t"
 script = ExtResource("6_e636m")
 action_name = "Rotate"
 metadata/_custom_type_script = "uid://ov18vmu15p05"
+
+[sub_resource type="Resource" id="Resource_e636m"]
+script = ExtResource("6_3ea33")
+show_in_ui = true
+metadata/_custom_type_script = "uid://bblv0tsronkfy"
 
 [sub_resource type="Resource" id="Resource_jq84y"]
 resource_local_to_scene = true
@@ -313,7 +319,7 @@ graph_offset = Vector2(30, 22)
 [node name="Unit" type="Node3D" unique_id=529937144 node_paths=PackedStringArray("visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
 script = ExtResource("1_33ww8")
 _stance = 1
-_action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat")])
+_action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat"), SubResource("Resource_e636m")])
 visual = NodePath("SK_Character_Dummy_Male_02")
 collider = NodePath("StaticBody3D")
 stat_holder = NodePath("Stats")

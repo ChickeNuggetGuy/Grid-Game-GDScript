@@ -160,54 +160,28 @@ func try_execute_action(grid_cell: GridCell, unit: Unit, action_to_execute: Base
 	await _execute_action_internal(action_to_execute, params)
 
 
-#func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
-		#unit : Unit,
-		#item: Item,
-		#starting_inventory: InventoryGrid,
-		#target_grid_cell : GridCell = null) -> Dictionary:
-	#GameManager.managers["UIManager"].hide_non_persitent_windows()
-	#GameManager.managers["UIManager"].try_block_input(null)
-	#set_is_busy(true)
-#
-	#var ret_val = {"success": false, "Reasoning": "N/A"}
-#
-#
-	#if not target_grid_cell:
-		#target_grid_cell = GameManager.managers["GridInputManager"].currentGridCell
-		##ret_val["Reasoning"] = "Current grid cell is null!"
-		##print(ret_val["Reasoning"])
-		##set_is_busy(false)
-		#return ret_val
-#
-	#if not unit:
-		#ret_val["Reasoning"] = "Selected unit is null!"
-		#print(ret_val["Reasoning"])
-		#set_is_busy(false)
-		#return ret_val
-#
-	#if not action_to_execute:
-		#ret_val["Reasoning"] = "Action definition is null!"
-		#print(ret_val["Reasoning"])
-		#set_is_busy(false)
-		#return ret_val
-#
-	#if not item:
-		#ret_val["Reasoning"] = "Item is null!"
-		#print(ret_val["Reasoning"])
-		#set_is_busy(false)
-		#return ret_val
-#
-	#var params = {
-		#"unit": unit,
-		#"start_grid_cell": unit.grid_position_data.grid_cell,
-		#"target_grid_cell": target_grid_cell,
-		#"item": item,
-		#"action_definition": action_to_execute,
-		#"starting_inventory": starting_inventory
-	#}
-	#await _execute_action_internal(action_to_execute, params)
-	#GameManager.managers["UIManager"].unblock_input()
-	#return ret_val
+func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
+		unit : Unit,
+		item: Item,
+		starting_inventory: InventoryGrid,
+		target_grid_cell : GridCell = null) -> Dictionary:
+	GameManager.managers["UIManager"].hide_non_persitent_windows()
+	GameManager.managers["UIManager"].try_block_input(null)
+
+	var ret_val = {"success": false, "Reasoning": "N/A"}
+
+	var params = {
+		"unit": unit,
+		"start_grid_cell": unit.grid_position_data.grid_cell,
+		"target_grid_cell": target_grid_cell,
+		"item": item,
+		"action_definition": action_to_execute,
+		"starting_inventory": starting_inventory
+	}
+	
+	await _execute_action_internal(action_to_execute, params)
+	GameManager.managers["UIManager"].unblock_input()
+	return ret_val
 
 
 func _execute_action_internal(action_def: BaseActionDefinition, params: Dictionary) -> void:

@@ -10,9 +10,9 @@ func _init(parameters : Dictionary) -> void:
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
+	starting_inventory = parameters["starting_inventory"]
 	arc_path_results = Pathfinder.try_calculate_arc_path(start_grid_cell, target_grid_cell)
 	item = parameters.get("item")
-	starting_inventory = parameters.get("starting_inventory")
 
 
 

@@ -234,6 +234,7 @@ func try_execute_item_action(grid_coords : Vector2i):
 		print("selected_grid_cell is null")
 		return
 	
+	print("try_execute_item_action")
 	await GameManager.managers["UnitActionManager"].try_execute_item_action(item_action,
 			GameManager.managers["UnitManager"].selectedUnit,
 			item,

@@ -9,11 +9,13 @@ extends Resource
 			grid_width = value
 			return
 		_internal_setting = true
+		_old_grid_width_for_setter = grid_width  # Store old value
 		grid_width = value
 		_resize_grid_internal(false, _old_grid_width_for_setter, grid_height)
 		_internal_setting = false
 		if Engine.is_editor_hint():
 			notify_property_list_changed()
+			emit_changed()  # Emit changed signal for editor
 
 @export var grid_height: int = 3:
 	set(value):
@@ -22,11 +24,13 @@ extends Resource
 			grid_height = value
 			return
 		_internal_setting = true
+		_old_grid_height_for_setter = grid_height  # Store old value
 		grid_height = value
 		_resize_grid_internal(false, grid_width, _old_grid_height_for_setter)
 		_internal_setting = false
 		if Engine.is_editor_hint():
 			notify_property_list_changed()
+			emit_changed()  # Emit changed signal for editor
 
 var _internal_setting: bool = false
 var _old_grid_width_for_setter: int = 0
