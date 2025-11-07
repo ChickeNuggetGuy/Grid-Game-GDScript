@@ -57,6 +57,7 @@ func _execute():
 	if UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].size() > 0:
 		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
 	execution_completed.emit()
+	execute_complete = true
 	
 	
 
@@ -117,6 +118,27 @@ func set_selected_unit_next():
 		nextIndex = 0
 
 	set_selected_unit(active[nextIndex])
+
+
+func _process(_delta: float) -> void:
+	if not execute_complete or selectedUnit == null:
+		return
+
+	var grid_system : GridSystem = GameManager.managers["GridSystem"]
+	var unit_cell = selectedUnit.grid_position_data.grid_cell
+	if unit_cell == null:
+		return
+	
+	var cells_in_range = grid_system.try_get_neighbors_in_radius(unit_cell, 10, Enums.cellState.WALKABLE)
+
+	if not cells_in_range["success"]:
+		print("Failed")
+		return
+
+	for cell in cells_in_range["grid_cells"]:
+		grid_system.visualize_cell(cell.grid_coordinates)
+
+
 
 func _unhandled_input(event):
 	if not execute_complete: return

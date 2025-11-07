@@ -19,6 +19,7 @@ func _init() -> void:
 	current_scene_type = sceneType.MAINMENU
 	scene_dictionary[sceneType.MAINMENU] = "res://Scenes/GameScenes/MainMenuScene.tscn"
 	scene_dictionary[sceneType.BATTLESCENE] = "res://Scenes/GameScenes/BattleScene.tscn"
+	scene_dictionary[sceneType.GLOBE] = "res://Scenes/GameScenes/GlobeScene.tscn"
 
 
 

@@ -20,10 +20,6 @@ var inventory_grids : Dictionary[Enums.inventoryType,InventoryGrid] = {}
 @export var grid_object_animator : GridObjectAnimation
 
 
-@export_category("Grid Shape") 
-@export var grid_height : int = 2
-@export var grid_shape : GridShape
-
 @export_category("Components")
 @export var grid_object_component_holder : Node
 var _grid_object_components : Array[GridObjectComponent]
@@ -47,7 +43,7 @@ func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : 
 	if not grid_position_data:
 		grid_position_data = GridPositionData.new()
 		add_child(grid_position_data)
-	grid_position_data.setup_call(self, {"grid_cell" : gridCell,"direction" :  direction,"shape" : grid_shape,"height" :  grid_height})
+	grid_position_data.setup_call(self, {"grid_cell" : gridCell,"direction" :  direction})
 	
 	team = unit_team
 	

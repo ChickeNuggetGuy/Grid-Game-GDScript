@@ -14,15 +14,17 @@ static  var Instance : MainMenuUI
 @export var map_y_text_field : SpinBox
 
 func play_button_pressed():
-	map_settingsUI.show_call()
+	#map_settingsUI.show_call()
+	GameManager.try_load_scene_by_type(GameManager.sceneType.GLOBE)
 
 
 func quick_start_button_pressed():
-	GameManager.spawn_counts = Vector2(2,4)
-				
-	GameManager.map_size = Vector2(2,2) 
-	
-	GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE)
+	map_settingsUI.show_call()
+	#GameManager.spawn_counts = Vector2(2,4)
+				#
+	#GameManager.map_size = Vector2(2,2) 
+	#
+	#GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE)
 
 
 func start_button_pressed():

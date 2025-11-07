@@ -25,7 +25,7 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	
 	var grid_object : GridObject = starting_grid_cell.grid_object
 	
-	var grid_cells : Array[GridCell] = result["grid_cells"].values()
+	var grid_cells : Array[GridCell] = result["grid_cells"]
 	for i in range(grid_cells.size() - 1, -1, -1):
 		if not grid_cells[i].has_grid_object():
 			grid_cells.remove_at(i)
@@ -77,13 +77,17 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		return ret_value
 		
 	var neighboring_cells : Array[GridCell] = GameManager.managers["GridSystem"].get_grid_cell_neighbors(parameters["target_grid_cell"], Enums.cellState.WALKABLE)
-
+	print("Neighboring cell count is: " + str(neighboring_cells.size()))
+	
+	for cell in neighboring_cells:
+		DebugDraw3D.draw_box(cell.world_position, Quaternion.IDENTITY, Vector3.ONE,Color.ORANGE, true, 10)
 	if neighboring_cells.is_empty():
 		ret_value["success"] = false
 		ret_value["reason"] = "No valid walkable neighbors found near target"
 		return ret_value
 		
 	if neighboring_cells.has(parameters["start_grid_cell"]):
+	
 		# Unit is already adjacent, no move needed. Check for rotation.
 		print("Does not Need to move")
 		var result = RotationHelperFunctions.get_rotation_info(parameters["unit"].grid_position_data.direction,
@@ -110,7 +114,7 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 		# Unit needs to move. Find the BEST adjacent cell to move to.
 		var best_neighbor_cell : GridCell = null
 		var shortest_path : Array[GridCell] = []
-		var shortest_path_length : int = INF # Use infinity to ensure the first path is always shorter
+		var shortest_path_length : int = INF
 
 		for neighbor_cell in neighboring_cells:
 			# Find the path from the unit's start to this potential destination
@@ -118,7 +122,6 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			
 			# If a path exists and is shorter than any we've found so far...
 			if not current_path.is_empty() and current_path.size() < shortest_path_length:
-				# ...this becomes our new best option.
 				shortest_path_length = current_path.size()
 				best_neighbor_cell = neighbor_cell
 				shortest_path = current_path

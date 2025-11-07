@@ -8,7 +8,23 @@ class_name CameraController
 @export var rotation_speed: float = 2.0
 @export var min_transposer_height: float = 0 
 
+
+@export var orbit_yaw_speed_deg: float = 120.0
+@export var orbit_pitch_speed_deg: float = 90.0
+@export var orbit_min_pitch_deg: float = -5.0
+@export var orbit_max_pitch_deg: float = 60.0
+@export var orbit_min_distance: float = 3.0
+@export var orbit_max_distance: float = 20.0
+@export var tilt_step_deg: float = 3.0
+
+var orbit_yaw_deg: float = 0.0
+var orbit_pitch_deg: float = 25.0
+var orbit_distance: float = 8.0
+
+
 @export var phantom_cameras : Dictionary[String, PhantomCamera3D]
+
+
 
 var current_camera : PhantomCamera3D
 
@@ -24,7 +40,19 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup():
-	GameManager.managers["UnitManager"].unit_selected.connect(_unitmanager_unitselected)
+	GameManager.managers["UnitManager"].unit_selected.connect(
+		_unitmanager_unitselected
+	)
+
+	if phantom_cameras.has("main"):
+		var pcam: PhantomCamera3D = phantom_cameras["main"]
+		pcam.follow_target = transposer
+		pcam.look_at_target = null
+		pcam.set_spring_length(orbit_distance)
+		pcam.set_third_person_rotation_degrees(
+			Vector3(orbit_pitch_deg, orbit_yaw_deg, 0.0)
+		)
+
 	execute_complete = true
 	setup_completed.emit()
 	return
@@ -33,9 +61,9 @@ func _setup():
 func _execute_conditions() -> bool: return true
 
 func _execute():
-	
-	
-	return
+	execute_complete = true
+	execution_completed.emit()
+	pass
 
 
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
@@ -48,12 +76,10 @@ func quick_switch_target(target: Node3D) -> void:
 		transposer.global_position = target.global_position
 
 func _physics_process(delta: float) -> void:
-	#if UiManager.blocking_input:
-		#return
-	#look_at_transposer()
+
 	_transposer_movement(delta)
 	_camera_zoom(delta)
-	#_transform_rotation(delta)
+	_transform_rotation(delta)
 	_transposer_height(delta)
 
 func _unhandled_input(event):
@@ -67,16 +93,22 @@ func _unhandled_input(event):
 
 func _transposer_movement(delta: float) -> void:
 	var move_dir := Vector3.ZERO
-	if Input.is_action_pressed("Camera_Right"):
-		move_dir += transposer.basis.x * delta
-	if Input.is_action_pressed("Camera_Left"):
-		move_dir -= transposer.basis.x * delta
-	if Input.is_action_pressed("Camera_Up"):
-		move_dir -= transposer.basis.z * delta
-	if Input.is_action_pressed("Camera_Down"):
-		move_dir += transposer.basis.z * delta
 
-	transposer.position += move_dir * move_speed
+	var yaw_rad := deg_to_rad(orbit_yaw_deg)
+	var forward := -Vector3.FORWARD.rotated(Vector3.UP, yaw_rad)
+	var right := Vector3.RIGHT.rotated(Vector3.UP, yaw_rad)
+
+	if Input.is_action_pressed("Camera_Right"):
+		move_dir += right
+	if Input.is_action_pressed("Camera_Left"):
+		move_dir -= right
+	if Input.is_action_pressed("Camera_Up"):
+		move_dir -= forward
+	if Input.is_action_pressed("Camera_Down"):
+		move_dir += forward
+
+	if move_dir != Vector3.ZERO:
+		transposer.position += move_dir.normalized() * move_speed * delta
 
 func _transposer_height(delta: float) -> void:
 	var spaceState = get_tree().root.world_3d.direct_space_state
@@ -120,34 +152,55 @@ func _transposer_height(delta: float) -> void:
 			transposer.position.y = max(new_y, min_transposer_height)
 
 func _camera_zoom(delta: float) -> void:
-	
-	var main_camera  = phantom_cameras["main"]
-	var zoom_dir := 0
-	if Input.is_action_just_pressed("Camera_Scroll_Up"):
-		zoom_dir -= 1
-	if Input.is_action_just_pressed("Camera_Scroll_Down"):
-		zoom_dir += 1
+	if not phantom_cameras.has("main"):
+		return
 
-	if zoom_dir != 0 and (camera_3d.position.y >= transposer.position.y or zoom_dir > 0):
-		# Calculate the change amount
-		var change = zoom_dir * zoom_speed * delta
-		
-		# Apply changes with proper clamping
-		main_camera.follow_offset.z = clampf(main_camera.follow_offset.z + change, 0, 20)
-		main_camera.follow_offset.y = clampf(main_camera.follow_offset.y + change, transposer.position.y, 20)
+	var dir := 0.0
+	if Input.is_action_just_pressed("Camera_Scroll_Up"):
+		dir -= 1.0
+	if Input.is_action_just_pressed("Camera_Scroll_Down"):
+		dir += 1.0
+
+	if dir != 0.0:
+		orbit_distance = clampf(
+			orbit_distance + dir * zoom_speed * delta,
+			orbit_min_distance,
+			orbit_max_distance
+		)
+		phantom_cameras["main"].set_spring_length(orbit_distance)
+
+
 
 func _transform_rotation(delta: float) -> void:
-	var rot_dir := 0
+	var yaw_dir := 0.0
 	if Input.is_action_pressed("Camera_Rotate_Right"):
-		rot_dir += 1
+		yaw_dir += 1.0
 	if Input.is_action_pressed("Camera_Rotate_Left"):
-		rot_dir -= 1
+		yaw_dir -= 1.0
 
-	if rot_dir != 0:
-		transposer.rotate_y(delta * rot_dir * rotation_speed)
+	# Wheel is impulse: use just_pressed for tilt
+	var tilt_impulse := 0.0
+	if Input.is_action_just_pressed("Camera_Tilt_Up"):
+		tilt_impulse += 1.0
+	if Input.is_action_just_pressed("Camera_Tilt_Down"):
+		tilt_impulse -= 1.0
 
-#func _on_unit_manager_selected_unit() -> void:
-	#quick_switch_target(UnitManager.instance.selected_unit)
+	if yaw_dir != 0.0:
+		orbit_yaw_deg = wrapf(
+			orbit_yaw_deg + yaw_dir * orbit_yaw_speed_deg * delta, 0.0, 360.0
+		)
+
+	if tilt_impulse != 0.0:
+		orbit_pitch_deg = clampf(
+			orbit_pitch_deg + tilt_impulse * tilt_step_deg,
+			orbit_min_pitch_deg,
+			orbit_max_pitch_deg
+		)
+
+	if phantom_cameras.has("main") and (yaw_dir != 0.0 or tilt_impulse != 0.0):
+		phantom_cameras["main"].set_third_person_rotation_degrees(
+			Vector3(orbit_pitch_deg, orbit_yaw_deg, 0.0)
+		)
 
 
 func UnitActionManager_action_execution_started(action_started : BaseActionDefinition, execution_parameters : Dictionary):

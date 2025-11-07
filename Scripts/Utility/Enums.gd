@@ -8,11 +8,11 @@ enum inventoryType {GROUND,BELT,BACKPACK,QUICKDRAW,RIGHTHAND,RIGHTLEG,LEFTHAND,L
 
 enum cellState {
 	NONE = 0,
-	AIR = 1 << 0,        # 1
-	GROUND = 1 << 1,     # 2
-	EMPTY = 1 << 2,      # 4
-	OBSTRUCTED = 1 << 3, # 8
-	WALKABLE = 1 << 4    # 16
+	AIR = 1 << 0,
+	GROUND = 1 << 1,
+	EMPTY = 1 << 2,
+	OBSTRUCTED = 1 << 3,
+	WALKABLE = 1 << 4 
 }
 
 

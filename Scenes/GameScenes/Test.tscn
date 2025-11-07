@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b4vijadlguk1j"]
 
-[ext_resource type="Script" uid="uid://c162lo8c68wbn" path="res://Scripts/Hex Grid Globe/GlobrCameraController.gd" id="3_0dy5s"]
+[ext_resource type="Script" uid="uid://c162lo8c68wbn" path="res://Scripts/Hex Grid Globe/GlobeCameraController.gd" id="3_0dy5s"]
 
 [node name="Node3D" type="Node3D"]
 

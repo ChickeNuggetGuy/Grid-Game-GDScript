@@ -27,7 +27,7 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	if result["success"] == false:
 		push_error(" no grid cells found that satisfy the current filter")
 	
-	var grid_cells : Array[GridCell] = result["grid_cells"].values()
+	var grid_cells : Array[GridCell] = result["grid_cells"]
 	for i in range(grid_cells.size() - 1, -1, -1):
 		if not Pathfinder.is_path_possible(starting_grid_cell, grid_cells[i]):
 			grid_cells.remove_at(i)
@@ -53,15 +53,15 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	var temp_costs = {"time_units" : 0, "stamina" : 0}
 	
 	# Check if path is possible first
-	if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
-		print("Path not possible!")
-		ret_val["success"] = false
-		ret_val["costs"]["time_units"] = -1
-		ret_val["costs"]["stamina"] = -1
-		ret_val["reason"] = "No path possible!"
-		return ret_val
-	
-	var path : Array[GridCell] = Pathfinder.find_path(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
+	#if not Pathfinder.is_path_possible(parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"] ):
+		#print("Path not possible from")
+		#ret_val["success"] = false
+		#ret_val["costs"]["time_units"] = -1
+		#ret_val["costs"]["stamina"] = -1
+		#ret_val["reason"] = "No path possible!"
+		#return ret_val
+	#
+	var path : Array[GridCell] = Pathfinder.find_path(parameters["start_grid_cell"], parameters["target_grid_cell"])
 	
 	if path == null or path.size() <= 1:  # Need at least 2 cells (start and target)
 		print("Path not found or too short!")

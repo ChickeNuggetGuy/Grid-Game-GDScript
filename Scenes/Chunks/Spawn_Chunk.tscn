@@ -1,9 +1,10 @@
-[gd_scene load_steps=16 format=4 uid="uid://bqs8t40a7oph0"]
+[gd_scene load_steps=22 format=4 uid="uid://bqs8t40a7oph0"]
 
 [ext_resource type="Script" uid="uid://d4hr6o3rcvuwi" path="res://Scripts/GridSystem/GridCellStateOverride.gd" id="1_vwmlq"]
 [ext_resource type="Script" uid="uid://tsvmqb5mbqtu" path="res://Scripts/GridObject/Interactables/Door.gd" id="2_7tomj"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="3_8dqx1"]
 [ext_resource type="Script" uid="uid://06anso1qbl48" path="res://Scripts/GridObject/GridPositionData.gd" id="4_3qync"]
+[ext_resource type="Script" uid="uid://4ha15fv3jgdt" path="res://Scripts/GridObject/Obstacle.gd" id="4_w0vs8"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_d1um5"]
 _surfaces = [{
@@ -20,28 +21,7 @@ _surfaces = [{
 data = PackedVector3Array(-8, -0.5, 8, -8, -0.5, -8, -8, 0.5, -8, 8, -0.5, -8, -8, -0.5, -8, -8, -0.5, 8, -8, 0.5, -8, -8, -0.5, -8, 8, -0.5, -8, -8, 0.5, -8, -8, 0.5, 8, -8, -0.5, 8, -8, -0.5, 8, -8, 0.5, 8, 8, 0.5, 8, 8, 0.5, 8, -8, 0.5, 8, -8, 0.5, -8, -8, -0.5, 8, 8, -0.5, 8, 8, -0.5, -8, 8, 0.5, 8, 8, -0.5, 8, -8, -0.5, 8, 8, -0.5, -8, 8, -0.5, 8, 8, 0.5, 8, 8, -0.5, -8, 8, 0.5, -8, -8, 0.5, -8, -8, 0.5, -8, 8, 0.5, -8, 8, 0.5, 8, 8, 0.5, 8, 8, 0.5, -8, 8, -0.5, -8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7tomj"]
-size = Vector3(5, 3, 5)
-
-[sub_resource type="Resource" id="Resource_3qync"]
-resource_local_to_scene = true
-script = ExtResource("3_8dqx1")
-grid_height = 1
-shape_grid = Array[int]([1, 1, 1])
-metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
-
-[sub_resource type="ArrayMesh" id="ArrayMesh_7tomj"]
-_surfaces = [{
-"aabb": AABB(-0.5, -1.25, -0.5, 1, 2.5, 1),
-"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
-"format": 34359738391,
-"primitive": 3,
-"uv_scale": Vector4(0, 0, 0, 0),
-"vertex_count": 36,
-"vertex_data": PackedByteArray("AAAAvwAAoL8AAAA/AAAAvwAAoL8AAAC/AAAAvwAAoD8AAAC/AAAAPwAAoL8AAAC/AAAAvwAAoL8AAAC/AAAAvwAAoL8AAAA/AAAAvwAAoD8AAAC/AAAAvwAAoL8AAAC/AAAAPwAAoL8AAAC/AAAAvwAAoD8AAAC/AAAAvwAAoD8AAAA/AAAAvwAAoL8AAAA/AAAAvwAAoL8AAAA/AAAAvwAAoD8AAAA/AAAAPwAAoD8AAAA/AAAAPwAAoD8AAAA/AAAAvwAAoD8AAAA/AAAAvwAAoD8AAAC/AAAAvwAAoL8AAAA/AAAAPwAAoL8AAAA/AAAAPwAAoL8AAAC/AAAAPwAAoD8AAAA/AAAAPwAAoL8AAAA/AAAAvwAAoL8AAAA/AAAAPwAAoL8AAAC/AAAAPwAAoL8AAAA/AAAAPwAAoD8AAAA/AAAAPwAAoL8AAAC/AAAAPwAAoD8AAAC/AAAAvwAAoD8AAAC/AAAAvwAAoD8AAAC/AAAAPwAAoD8AAAC/AAAAPwAAoD8AAAA/AAAAPwAAoD8AAAA/AAAAPwAAoD8AAAC/AAAAPwAAoL8AAAC/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
-}]
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_8dqx1"]
-data = PackedVector3Array(-0.5, -1.25, 0.5, -0.5, -1.25, -0.5, -0.5, 1.25, -0.5, 0.5, -1.25, -0.5, -0.5, -1.25, -0.5, -0.5, -1.25, 0.5, -0.5, 1.25, -0.5, -0.5, -1.25, -0.5, 0.5, -1.25, -0.5, -0.5, 1.25, -0.5, -0.5, 1.25, 0.5, -0.5, -1.25, 0.5, -0.5, -1.25, 0.5, -0.5, 1.25, 0.5, 0.5, 1.25, 0.5, 0.5, 1.25, 0.5, -0.5, 1.25, 0.5, -0.5, 1.25, -0.5, -0.5, -1.25, 0.5, 0.5, -1.25, 0.5, 0.5, -1.25, -0.5, 0.5, 1.25, 0.5, 0.5, -1.25, 0.5, -0.5, -1.25, 0.5, 0.5, -1.25, -0.5, 0.5, -1.25, 0.5, 0.5, 1.25, 0.5, 0.5, -1.25, -0.5, 0.5, 1.25, -0.5, -0.5, 1.25, -0.5, -0.5, 1.25, -0.5, 0.5, 1.25, -0.5, 0.5, 1.25, 0.5, 0.5, 1.25, 0.5, 0.5, 1.25, -0.5, 0.5, -1.25, -0.5)
+size = Vector3(3, 3, 5)
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_3qync"]
 _surfaces = [{
@@ -57,6 +37,61 @@ _surfaces = [{
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_3qync"]
 data = PackedVector3Array(-0.25, -1.25, 1, -0.25, -1.25, -1, -0.25, 1.25, -1, 0.25, -1.25, -1, -0.25, -1.25, -1, -0.25, -1.25, 1, -0.25, 1.25, -1, -0.25, -1.25, -1, 0.25, -1.25, -1, -0.25, 1.25, -1, -0.25, 1.25, 1, -0.25, -1.25, 1, -0.25, -1.25, 1, -0.25, 1.25, 1, 0.25, 1.25, 1, 0.25, 1.25, 1, -0.25, 1.25, 1, -0.25, 1.25, -1, -0.25, -1.25, 1, 0.25, -1.25, 1, 0.25, -1.25, -1, 0.25, 1.25, 1, 0.25, -1.25, 1, -0.25, -1.25, 1, 0.25, -1.25, -1, 0.25, -1.25, 1, 0.25, 1.25, 1, 0.25, -1.25, -1, 0.25, 1.25, -1, -0.25, 1.25, -1, -0.25, 1.25, -1, 0.25, 1.25, -1, 0.25, 1.25, 1, 0.25, 1.25, 1, 0.25, 1.25, -1, 0.25, -1.25, -1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_3qync"]
+size = Vector3(1.5, 2.5, 2)
+
+[sub_resource type="Resource" id="Resource_w0vs8"]
+resource_local_to_scene = true
+script = ExtResource("3_8dqx1")
+grid_width = 2
+grid_height = 1
+shape_grid = Array[int]([1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_w0vs8"]
+_surfaces = [{
+"aabb": AABB(-0.25, -1.25, -3.125, 0.5, 2.5, 6.25),
+"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
+"format": 34359738391,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 36,
+"vertex_data": PackedByteArray("AACAvgAAoL8AAEhAAACAvgAAoL8AAEjAAACAvgAAoD8AAEjAAACAPgAAoL8AAEjAAACAvgAAoL8AAEjAAACAvgAAoL8AAEhAAACAvgAAoD8AAEjAAACAvgAAoL8AAEjAAACAPgAAoL8AAEjAAACAvgAAoD8AAEjAAACAvgAAoD8AAEhAAACAvgAAoL8AAEhAAACAvgAAoL8AAEhAAACAvgAAoD8AAEhAAACAPgAAoD8AAEhAAACAPgAAoD8AAEhAAACAvgAAoD8AAEhAAACAvgAAoD8AAEjAAACAvgAAoL8AAEhAAACAPgAAoL8AAEhAAACAPgAAoL8AAEjAAACAPgAAoD8AAEhAAACAPgAAoL8AAEhAAACAvgAAoL8AAEhAAACAPgAAoL8AAEjAAACAPgAAoL8AAEhAAACAPgAAoD8AAEhAAACAPgAAoL8AAEjAAACAPgAAoD8AAEjAAACAvgAAoD8AAEjAAACAvgAAoD8AAEjAAACAPgAAoD8AAEjAAACAPgAAoD8AAEhAAACAPgAAoD8AAEhAAACAPgAAoD8AAEjAAACAPgAAoL8AAEjAAAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ehjeo"]
+size = Vector3(0.5, 2.5, 6.25)
+
+[sub_resource type="Resource" id="Resource_qbfbh"]
+resource_local_to_scene = true
+script = ExtResource("3_8dqx1")
+grid_width = 1
+grid_height = 6
+shape_grid = Array[int]([1, 1, 1, 1, 1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_ehjeo"]
+_surfaces = [{
+"aabb": AABB(-2.5, -1.25, -0.25, 5, 2.5, 0.5),
+"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/"),
+"format": 34359738391,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 36,
+"vertex_data": PackedByteArray("AAAgwAAAoL8AAIA+AAAgwAAAoL8AAIC+AAAgwAAAoD8AAIC+AAAgQAAAoL8AAIC+AAAgwAAAoL8AAIC+AAAgwAAAoL8AAIA+AAAgwAAAoD8AAIC+AAAgwAAAoL8AAIC+AAAgQAAAoL8AAIC+AAAgwAAAoD8AAIC+AAAgwAAAoD8AAIA+AAAgwAAAoL8AAIA+AAAgwAAAoL8AAIA+AAAgwAAAoD8AAIA+AAAgQAAAoD8AAIA+AAAgQAAAoD8AAIA+AAAgwAAAoD8AAIA+AAAgwAAAoD8AAIC+AAAgwAAAoL8AAIA+AAAgQAAAoL8AAIA+AAAgQAAAoL8AAIC+AAAgQAAAoD8AAIA+AAAgQAAAoL8AAIA+AAAgwAAAoL8AAIA+AAAgQAAAoL8AAIC+AAAgQAAAoL8AAIA+AAAgQAAAoD8AAIA+AAAgQAAAoL8AAIC+AAAgQAAAoD8AAIC+AAAgwAAAoD8AAIC+AAAgwAAAoD8AAIC+AAAgQAAAoD8AAIC+AAAgQAAAoD8AAIA+AAAgQAAAoD8AAIA+AAAgQAAAoD8AAIC+AAAgQAAAoL8AAIC+AAD/f/9//n8AAP9//3/+fwAA/3//f/5//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//////AAD/f/////8AAP9//////wAA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5/")
+}]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qbfbh"]
+size = Vector3(5, 2.5, 0.5)
+
+[sub_resource type="Resource" id="Resource_5g01e"]
+resource_local_to_scene = true
+script = ExtResource("3_8dqx1")
+grid_width = 5
+grid_height = 1
+shape_grid = Array[int]([1, 1, 1, 1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
 [sub_resource type="ArrayMesh" id="ArrayMesh_8dqx1"]
 _surfaces = [{
 "aabb": AABB(-0.5, -1.25, -0.5, 1, 2.5, 1),
@@ -71,8 +106,13 @@ _surfaces = [{
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_w0vs8"]
 data = PackedVector3Array(-0.5, -1.25, 0.5, -0.5, -1.25, -0.5, -0.5, 1.25, -0.5, 0.5, -1.25, -0.5, -0.5, -1.25, -0.5, -0.5, -1.25, 0.5, -0.5, 1.25, -0.5, -0.5, -1.25, -0.5, 0.5, -1.25, -0.5, -0.5, 1.25, -0.5, -0.5, 1.25, 0.5, -0.5, -1.25, 0.5, -0.5, -1.25, 0.5, -0.5, 1.25, 0.5, 0.5, 1.25, 0.5, 0.5, 1.25, 0.5, -0.5, 1.25, 0.5, -0.5, 1.25, -0.5, -0.5, -1.25, 0.5, 0.5, -1.25, 0.5, 0.5, -1.25, -0.5, 0.5, 1.25, 0.5, 0.5, -1.25, 0.5, -0.5, -1.25, 0.5, 0.5, -1.25, -0.5, 0.5, -1.25, 0.5, 0.5, 1.25, 0.5, 0.5, -1.25, -0.5, 0.5, 1.25, -0.5, -0.5, 1.25, -0.5, -0.5, 1.25, -0.5, 0.5, 1.25, -0.5, 0.5, 1.25, 0.5, 0.5, 1.25, 0.5, 0.5, 1.25, -0.5, 0.5, -1.25, -0.5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_3qync"]
-size = Vector3(1.5, 2.5, 2)
+[sub_resource type="Resource" id="Resource_ehjeo"]
+resource_local_to_scene = true
+script = ExtResource("3_8dqx1")
+grid_width = 2
+grid_height = 1
+shape_grid = Array[int]([1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
 
 [node name="SpawnChunk" type="Node3D" unique_id=584262143]
 
@@ -87,7 +127,7 @@ collision_layer = 3
 shape = SubResource("ConcavePolygonShape3D_vwmlq")
 
 [node name="GridCellStateOverride" type="Area3D" parent="." unique_id=1015512573 groups=["grid_cell_overrides"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 3.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, 0, 3.25)
 monitoring = false
 monitorable = false
 script = ExtResource("1_vwmlq")
@@ -97,61 +137,181 @@ team_spawn_state_filter = 16
 metadata/_custom_type_script = "uid://d4hr6o3rcvuwi"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GridCellStateOverride" unique_id=339594350]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 2.5, 0)
 shape = SubResource("BoxShape3D_7tomj")
 debug_color = Color(0, 0, 0, 1)
 
 [node name="Door" type="Node3D" parent="." unique_id=1287395831 node_paths=PackedStringArray("grid_cell_override", "grid_position_data", "visual", "collider")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.5, 1.5, 7.5)
+transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 1, 1.5, 6.25)
 script = ExtResource("2_7tomj")
 grid_cell_override = NodePath("GridCellStateOverride")
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Door")
 collider = NodePath("Door/StaticBody3D")
-grid_shape = SubResource("Resource_3qync")
 metadata/_custom_type_script = "uid://tsvmqb5mbqtu"
 
-[node name="Pillar" type="MeshInstance3D" parent="Door" unique_id=575261494]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
-mesh = SubResource("ArrayMesh_7tomj")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Door/Pillar" unique_id=2029951632]
-collision_layer = 8
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Door/Pillar/StaticBody3D" unique_id=807141907]
-shape = SubResource("ConcavePolygonShape3D_8dqx1")
-
 [node name="Door" type="MeshInstance3D" parent="Door" unique_id=89840025]
-transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 1.5)
+transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 1, -0.41666603, 0.75, 2)
 mesh = SubResource("ArrayMesh_3qync")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Door/Door" unique_id=112126162]
-collision_layer = 9
+collision_layer = 8
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Door/Door/StaticBody3D" unique_id=526224324]
 shape = SubResource("ConcavePolygonShape3D_3qync")
 
-[node name="Pillar2" type="MeshInstance3D" parent="Door" unique_id=1102013245]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 3)
-mesh = SubResource("ArrayMesh_8dqx1")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Door/Pillar2" unique_id=1970592160]
-collision_layer = 9
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Door/Pillar2/StaticBody3D" unique_id=52754927]
-shape = SubResource("ConcavePolygonShape3D_w0vs8")
-
-[node name="GridPositionData" type="Node3D" parent="Door" unique_id=835696294]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -0.5)
-script = ExtResource("4_3qync")
-metadata/_custom_type_script = "uid://06anso1qbl48"
-
-[node name="GridCellStateOverride" type="Area3D" parent="Door" unique_id=847712132]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.75, 0.5)
+[node name="GridCellStateOverride" type="Area3D" parent="Door" unique_id=847712132 groups=["grid_cell_overrides"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.75, 1.5)
 script = ExtResource("1_vwmlq")
 state_override = true
+cell_state_override = 16
+cell_state_filter = 2
 metadata/_custom_type_script = "uid://d4hr6o3rcvuwi"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Door/GridCellStateOverride" unique_id=416190796]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0.25)
 shape = SubResource("BoxShape3D_3qync")
+
+[node name="GridPositionData" type="Node3D" parent="Door" unique_id=1866243594]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 1)
+script = ExtResource("4_3qync")
+grid_height = 3
+grid_shape = SubResource("Resource_w0vs8")
+metadata/_custom_type_script = "uid://06anso1qbl48"
+
+[node name="Wall" type="Node3D" parent="." unique_id=2046032187 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, 0.25)
+script = ExtResource("4_w0vs8")
+grid_position_data = NodePath("GridPositionData")
+visual = NodePath("Wall")
+collider = NodePath("Wall/StaticBody3D")
+metadata/_custom_type_script = "uid://4ha15fv3jgdt"
+
+[node name="Wall" type="MeshInstance3D" parent="Wall" unique_id=1105552751]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 3.125)
+mesh = SubResource("ArrayMesh_w0vs8")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Wall/Wall" unique_id=329004956]
+collision_layer = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall/Wall/StaticBody3D" unique_id=1045374626]
+shape = SubResource("BoxShape3D_ehjeo")
+
+[node name="GridPositionData" type="Node3D" parent="Wall" unique_id=1990758109 node_paths=PackedStringArray("parent_grid_object")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("4_3qync")
+grid_height = 3
+grid_shape = SubResource("Resource_qbfbh")
+direction = 1
+parent_grid_object = NodePath("..")
+metadata/_custom_type_script = "uid://06anso1qbl48"
+
+[node name="Wall3" type="Node3D" parent="Wall" unique_id=815624822 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, 0)
+visible = false
+script = ExtResource("4_w0vs8")
+grid_position_data = NodePath("GridPositionData")
+visual = NodePath("CSGBakedMeshInstance3D2")
+collider = NodePath("CSGBakedMeshInstance3D2/StaticBody3D")
+metadata/_custom_type_script = "uid://4ha15fv3jgdt"
+
+[node name="CSGBakedMeshInstance3D2" type="MeshInstance3D" parent="Wall/Wall3" unique_id=245853730]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6749725, 2.25, 0.21408105)
+mesh = SubResource("ArrayMesh_ehjeo")
+skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Wall/Wall3/CSGBakedMeshInstance3D2" unique_id=913295806]
+collision_layer = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall/Wall3/CSGBakedMeshInstance3D2/StaticBody3D" unique_id=1307526163]
+shape = SubResource("BoxShape3D_qbfbh")
+
+[node name="GridPositionData" type="Node3D" parent="Wall/Wall3" unique_id=1546557970]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("4_3qync")
+grid_height = 3
+grid_shape = SubResource("Resource_5g01e")
+metadata/_custom_type_script = "uid://06anso1qbl48"
+
+[node name="Wall2" type="Node3D" parent="." unique_id=1737611515 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.25)
+script = ExtResource("4_w0vs8")
+grid_position_data = NodePath("GridPositionData")
+visual = NodePath("Wall")
+collider = NodePath("Wall/StaticBody3D")
+metadata/_custom_type_script = "uid://4ha15fv3jgdt"
+
+[node name="Wall" type="MeshInstance3D" parent="Wall2" unique_id=516393551]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 3.125)
+mesh = SubResource("ArrayMesh_w0vs8")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Wall2/Wall" unique_id=1581884753]
+collision_layer = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall2/Wall/StaticBody3D" unique_id=1357401250]
+shape = SubResource("BoxShape3D_ehjeo")
+
+[node name="GridPositionData" type="Node3D" parent="Wall2" unique_id=126024847 node_paths=PackedStringArray("parent_grid_object")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("4_3qync")
+grid_height = 3
+grid_shape = SubResource("Resource_qbfbh")
+direction = 1
+parent_grid_object = NodePath("..")
+metadata/_custom_type_script = "uid://06anso1qbl48"
+
+[node name="Wall5" type="Node3D" parent="." unique_id=1748691242 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.25, 1.5, 6.25)
+script = ExtResource("4_w0vs8")
+grid_position_data = NodePath("GridPositionData")
+visual = NodePath("Pillar2")
+collider = NodePath("Pillar2/StaticBody3D")
+metadata/_custom_type_script = "uid://4ha15fv3jgdt"
+
+[node name="Pillar2" type="MeshInstance3D" parent="Wall5" unique_id=476004943]
+transform = Transform3D(1, 0, 4.2632564e-14, 0, 1, 0, 0, 0, 1.9, 0.25, 0.75, -0.75)
+mesh = SubResource("ArrayMesh_8dqx1")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Wall5/Pillar2" unique_id=190569729]
+collision_layer = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall5/Pillar2/StaticBody3D" unique_id=859522992]
+shape = SubResource("ConcavePolygonShape3D_w0vs8")
+
+[node name="GridPositionData" type="Node3D" parent="Wall5" unique_id=1632870477 node_paths=PackedStringArray("parent_grid_object")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0.25000024)
+script = ExtResource("4_3qync")
+grid_height = 3
+grid_shape = SubResource("Resource_ehjeo")
+parent_grid_object = NodePath("../../Door")
+metadata/_custom_type_script = "uid://06anso1qbl48"
+
+[node name="Wall4" type="Node3D" parent="." unique_id=663447707 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
+transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 5.25, 1.5, 6.25)
+script = ExtResource("4_w0vs8")
+grid_position_data = NodePath("GridPositionData")
+visual = NodePath("Pillar2")
+collider = NodePath("Pillar2/StaticBody3D")
+metadata/_custom_type_script = "uid://4ha15fv3jgdt"
+
+[node name="Pillar2" type="MeshInstance3D" parent="Wall4" unique_id=1102013245]
+transform = Transform3D(1, 0, 7.1054274e-14, 0, 1, 0, 0, 0, 1.9, -0.41666698, 0.75, -0.25)
+mesh = SubResource("ArrayMesh_8dqx1")
+skeleton = NodePath("../../Door")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Wall4/Pillar2" unique_id=1970592160]
+collision_layer = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall4/Pillar2/StaticBody3D" unique_id=52754927]
+shape = SubResource("ConcavePolygonShape3D_w0vs8")
+
+[node name="GridPositionData" type="Node3D" parent="Wall4" unique_id=835696294 node_paths=PackedStringArray("parent_grid_object")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -1.2499998)
+script = ExtResource("4_3qync")
+grid_height = 3
+grid_shape = SubResource("Resource_ehjeo")
+parent_grid_object = NodePath("../../Door")
+metadata/_custom_type_script = "uid://06anso1qbl48"

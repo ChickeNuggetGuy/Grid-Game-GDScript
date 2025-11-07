@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=4 uid="uid://hhe7ab2xbje0"]
+[gd_scene load_steps=43 format=4 uid="uid://hhe7ab2xbje0"]
 
 [ext_resource type="Script" uid="uid://bu7ki2ekfvc8v" path="res://Scripts/GridObject/Unit.gd" id="1_33ww8"]
 [ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/BaseActionDefinition.gd" id="2_45onm"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://dla7ye6ylllyd" path="res://Scripts/GridObject/GridObjectComponents/GridObjetSightArea.gd" id="9_7mmco"]
 [ext_resource type="AnimationLibrary" uid="uid://dg1sgsvuh088q" path="res://Data/Unit.res" id="9_jq84y"]
 [ext_resource type="Script" uid="uid://cd41g8c45qgxd" path="res://Scripts/GridObject/GridObjectComponents/GridObjectWorldTarget.gd" id="11_r2bin"]
+[ext_resource type="Script" uid="uid://06anso1qbl48" path="res://Scripts/GridObject/GridPositionData.gd" id="12_e636m"]
 
 [sub_resource type="Resource" id="Resource_lwuqk"]
 script = ExtResource("4_r2bin")
@@ -34,14 +35,6 @@ metadata/_custom_type_script = "uid://ov18vmu15p05"
 script = ExtResource("6_3ea33")
 show_in_ui = true
 metadata/_custom_type_script = "uid://bblv0tsronkfy"
-
-[sub_resource type="Resource" id="Resource_jq84y"]
-resource_local_to_scene = true
-script = ExtResource("7_7mmco")
-grid_width = 1
-grid_height = 1
-shape_grid = Array[int]([1])
-metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_qwska"]
 data = PackedVector3Array(-0.3536, -1, -0.3536, -0.5, -1, 0, 0, -1, 0, -0.5, -1, 0, -0.3536, -1, -0.3536, -0.3536, 1, -0.3536, 0, -1, -0.5, -0.3536, -1, -0.3536, 0, -1, 0, -0.3536, -1, -0.3536, 0, -1, -0.5, 0, 1, -0.5, -0.5, -1, 0, -0.3536, -1, 0.3536, 0, -1, 0, -0.3536, -1, 0.3536, -0.5, -1, 0, -0.5, 1, 0, -0.3536, -1, 0.3536, 0, -1, 0.5, 0, -1, 0, 0, -1, 0.5, -0.3536, -1, 0.3536, -0.3536, 1, 0.3536, -0.3536, 1, -0.3536, -0.5, 1, 0, -0.5, -1, 0, -0.5, 1, 0, -0.3536, 1, -0.3536, 0, 1, 0, 0, 1, -0.5, -0.3536, 1, -0.3536, -0.3536, -1, -0.3536, -0.3536, 1, -0.3536, 0, 1, -0.5, 0, 1, 0, -0.5, 1, 0, -0.3536, 1, 0.3536, -0.3536, -1, 0.3536, -0.3536, 1, 0.3536, -0.5, 1, 0, 0, 1, 0, -0.3536, 1, 0.3536, 0, 1, 0.5, 0, -1, 0.5, 0, 1, 0.5, -0.3536, 1, 0.3536, 0, 1, 0, 0.3536, -1, -0.3536, 0, -1, -0.5, 0, -1, 0, 0, -1, -0.5, 0.3536, -1, -0.3536, 0.3536, 1, -0.3536, 0.5, -1, 0, 0.3536, -1, -0.3536, 0, -1, 0, 0.3536, -1, -0.3536, 0.5, -1, 0, 0.5, 1, 0, 0, -1, 0.5, 0.3536, -1, 0.3536, 0, -1, 0, 0.3536, -1, 0.3536, 0, -1, 0.5, 0, 1, 0.5, 0.3536, -1, 0.3536, 0.5, -1, 0, 0, -1, 0, 0.5, -1, 0, 0.3536, -1, 0.3536, 0.3536, 1, 0.3536, 0.3536, 1, -0.3536, 0, 1, -0.5, 0, -1, -0.5, 0, 1, -0.5, 0.3536, 1, -0.3536, 0, 1, 0, 0.5, 1, 0, 0.3536, 1, -0.3536, 0.3536, -1, -0.3536, 0.3536, 1, -0.3536, 0.5, 1, 0, 0, 1, 0, 0, 1, 0.5, 0.3536, 1, 0.3536, 0.3536, -1, 0.3536, 0.3536, 1, 0.3536, 0, 1, 0.5, 0, 1, 0, 0.3536, 1, 0.3536, 0.5, 1, 0, 0.5, -1, 0, 0.5, 1, 0, 0.3536, 1, 0.3536, 0, 1, 0)
@@ -316,16 +309,24 @@ states/walking/position = Vector2(657.5, 92.875)
 transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_vnaax"), "idle", "walking", SubResource("AnimationNodeStateMachineTransition_jpqeb"), "walking", "idle", SubResource("AnimationNodeStateMachineTransition_0dq7h")]
 graph_offset = Vector2(30, 22)
 
-[node name="Unit" type="Node3D" unique_id=529937144 node_paths=PackedStringArray("visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
+[sub_resource type="Resource" id="Resource_a1mpc"]
+resource_local_to_scene = true
+script = ExtResource("7_7mmco")
+grid_width = 1
+grid_height = 1
+shape_grid = Array[int]([1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[node name="Unit" type="Node3D" unique_id=529937144 node_paths=PackedStringArray("grid_position_data", "visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
 script = ExtResource("1_33ww8")
 _stance = 1
 _action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat"), SubResource("Resource_e636m")])
+grid_position_data = NodePath("GridPositionData")
 visual = NodePath("SK_Character_Dummy_Male_02")
 collider = NodePath("StaticBody3D")
 stat_holder = NodePath("Stats")
 inventory_grid_types = Array[int]([1, 2, 4, 6])
 grid_object_animator = NodePath("GridObjectComponents/GridObjectAnimation")
-grid_shape = SubResource("Resource_jq84y")
 grid_object_component_holder = NodePath("GridObjectComponents")
 metadata/_custom_type_script = "uid://bu7ki2ekfvc8v"
 
@@ -811,3 +812,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 1.1569839, -0.07811797)
 
 [node name="action_camera_position" type="Node3D" parent="." unique_id=1778791977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0.47130597, 1.7167535, -0.07811797)
+
+[node name="GridPositionData" type="Node3D" parent="." unique_id=762319901 node_paths=PackedStringArray("parent_grid_object")]
+script = ExtResource("12_e636m")
+grid_shape = SubResource("Resource_a1mpc")
+parent_grid_object = NodePath("..")
+metadata/_custom_type_script = "uid://06anso1qbl48"

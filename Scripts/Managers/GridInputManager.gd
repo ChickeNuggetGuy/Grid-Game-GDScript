@@ -91,6 +91,7 @@ func _setup_conditions() -> bool: return true
 func _setup(): 
 	gridSystem = GameManager.managers["GridSystem"]
 	visual = CSGBox3D.new()
+	visual.use_collision =false 
 	add_child(visual)
 	setup_completed.emit()
 

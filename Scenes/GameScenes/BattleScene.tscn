@@ -37,8 +37,11 @@ metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
 
 [node name="GridSystem" type="Node" parent="Managers" unique_id=91070132]
 script = ExtResource("3_08jbg")
+max_step_height_ratio = 65.0
+connection_raycast_height_offset = 0.2
+connection_collision_mask = 0
 colliderCheck = true
-colliderSize = Vector3(0.5, 1, 0.5)
+colliderSize = Vector3(0.7, 0.7, 0.7)
 metadata/_custom_type_script = "uid://bjauxagwg8odf"
 
 [node name="UnitManager" type="Node" parent="Managers" unique_id=890527914]
@@ -119,13 +122,15 @@ metadata/_custom_type_script = "uid://c0303oxw6al88"
 script = ExtResource("1_bejc1")
 camera_3d = NodePath("Camera3D")
 transposer = NodePath("../../Transposer")
+min_transposer_height = 2.0
+orbit_min_pitch_deg = -70.0
 phantom_cameras = {
 "main": NodePath("../../PhantomCamera3D")
 }
 metadata/_custom_type_script = "uid://dp870a6rqd874"
 
 [node name="Camera3D" type="Camera3D" parent="Managers/CameraController" unique_id=1485395086]
-transform = Transform3D(0.9999976, 0, 0, 0, 0.8943163, 0.44715765, 0, -0.44715816, 0.8943153, 0, 6.291656, 12.146173)
+transform = Transform3D(1, 0, 0, 0, 0.999833, 0.018275706, 0, -0.018275706, 0.999833, 0, 5.844498, 12.251857)
 
 [node name="PhantomCameraHost" type="Node" parent="Managers/CameraController/Camera3D" unique_id=1188668176]
 process_priority = 300
@@ -138,11 +143,10 @@ transform = Transform3D(-0.056623124, 0.85537, -0.5149137, 0, 0.5157411, 0.85674
 light_energy = 2.0
 
 [node name="PhantomCamera3D" type="Node3D" parent="." unique_id=44587506 node_paths=PackedStringArray("follow_target", "look_at_target")]
-transform = Transform3D(0.9999976, 0, 0, 0, 0.8943163, 0.44715765, 0, -0.44715816, 0.8943153, 0, 6.291656, 12.146173)
-top_level = true
+transform = Transform3D(1, 0, 0, 0, 0.999833, 0.018275706, 0, -0.018275706, 0.999833, 0, 5.844498, 12.251857)
 script = ExtResource("3_o5x0x")
 priority = 1
-follow_mode = 5
+follow_mode = 6
 follow_target = NodePath("../Transposer")
 look_at_mode = 2
 look_at_target = NodePath("../Transposer")
