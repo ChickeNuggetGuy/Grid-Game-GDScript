@@ -130,7 +130,7 @@ phantom_cameras = {
 metadata/_custom_type_script = "uid://dp870a6rqd874"
 
 [node name="Camera3D" type="Camera3D" parent="Managers/CameraController" unique_id=1485395086]
-transform = Transform3D(1, 0, 0, 0, 0.999833, 0.018275706, 0, -0.018275706, 0.999833, 0, 5.844498, 12.251857)
+transform = Transform3D(1, 0, 0, 0, 0.99985725, 0.016895354, 0, -0.016895354, 0.99985725, 0, 5.844498, 12.251857)
 
 [node name="PhantomCameraHost" type="Node" parent="Managers/CameraController/Camera3D" unique_id=1188668176]
 process_priority = 300
@@ -143,7 +143,7 @@ transform = Transform3D(-0.056623124, 0.85537, -0.5149137, 0, 0.5157411, 0.85674
 light_energy = 2.0
 
 [node name="PhantomCamera3D" type="Node3D" parent="." unique_id=44587506 node_paths=PackedStringArray("follow_target", "look_at_target")]
-transform = Transform3D(1, 0, 0, 0, 0.999833, 0.018275706, 0, -0.018275706, 0.999833, 0, 5.844498, 12.251857)
+transform = Transform3D(1, 0, 0, 0, 0.99985725, 0.016895354, 0, -0.016895354, 0.99985725, 0, 5.844498, 12.251857)
 script = ExtResource("3_o5x0x")
 priority = 1
 follow_mode = 6
