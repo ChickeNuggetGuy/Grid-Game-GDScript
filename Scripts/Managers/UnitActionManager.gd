@@ -44,6 +44,22 @@ func _execute_conditions() -> bool:
 
 func _execute() -> void:
 	execution_completed.emit()
+
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+		"selected_action" : selected_action
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
+
+
 #endregion
 
 #region Selected Action Management

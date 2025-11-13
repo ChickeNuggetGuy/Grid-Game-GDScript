@@ -29,11 +29,21 @@ var orbit_distance: float = 8.0
 var current_camera : PhantomCamera3D
 
 
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
 func get_manager_data() -> Dictionary:
 	return {}
 
 func _get_manager_name() -> String: return "CameraController"
-
 
 
 func _setup_conditions() -> bool: return true
@@ -59,6 +69,7 @@ func _setup():
 
 
 func _execute_conditions() -> bool: return true
+
 
 func _execute():
 	execute_complete = true
@@ -170,7 +181,6 @@ func _camera_zoom(delta: float) -> void:
 		phantom_cameras["main"].set_spring_length(orbit_distance)
 
 
-
 func _transform_rotation(delta: float) -> void:
 	var yaw_dir := 0.0
 	if Input.is_action_pressed("Camera_Rotate_Right"):
@@ -208,10 +218,12 @@ func UnitActionManager_action_execution_started(action_started : BaseActionDefin
 	if action_started is RangedAttackActionDefinition:
 		switch_active_camera("ranged_camera", execution_parameters["unit"], execution_parameters["target_grid_cell"].world_position)
 
+
 func UnitActionManager_action_execution_finished(action_finished : BaseActionDefinition, execution_parameters : Dictionary):
 	
 	if action_finished is RangedAttackActionDefinition:
 		switch_active_camera("main",execution_parameters["unit"], execution_parameters["target_grid_cell"].world_position)
+
 
 func switch_active_camera(camera_key,unit : Unit, target_position : Vector3):
 	
@@ -249,4 +261,3 @@ func switch_active_camera(camera_key,unit : Unit, target_position : Vector3):
 		
 		phantom_cameras[camera_key].priority = 10
 		current_camera = phantom_cameras[camera_key]
-	

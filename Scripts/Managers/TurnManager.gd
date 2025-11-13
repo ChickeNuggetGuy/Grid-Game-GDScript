@@ -9,7 +9,7 @@ var is_busy = false
 signal  turn_changed(current_turn : TurnData)
 
 
-func _get_manager_name() -> String: return "Turn Manager"
+func _get_manager_name() -> String: return "TurnManager"
 
 
 func _setup_conditions() -> bool: return true
@@ -35,6 +35,21 @@ func _setup():
 	
 	setup_completed.emit()
 	return
+
+
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
+
 
 
 func _execute_conditions() -> bool: return true

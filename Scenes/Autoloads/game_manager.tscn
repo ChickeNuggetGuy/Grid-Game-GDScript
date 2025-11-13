@@ -1,7 +1,39 @@
-[gd_scene load_steps=2 format=3 uid="uid://ygbi07ro36so"]
+[gd_scene load_steps=4 format=3 uid="uid://ygbi07ro36so"]
 
 [ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/GameManager.gd" id="1_4fq26"]
+[ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/ContextMenuUI.gd" id="2_0bwh0"]
+[ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="3_k44kv"]
 
 [node name="GameManager" type="Node" unique_id=100973003]
 script = ExtResource("1_4fq26")
 metadata/_custom_type_script = "uid://mg5g38d61gap"
+
+[node name="ContextMenuUI" type="Control" parent="." unique_id=1502018772 node_paths=PackedStringArray("context_button_holder", "visual")]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 250.0
+offset_bottom = 100.0
+script = ExtResource("2_0bwh0")
+context_button_scene = ExtResource("3_k44kv")
+context_button_holder = NodePath("Panel/VBoxContainer")
+start_hidden = true
+block_inputs = true
+visual = NodePath("Panel")
+is_persistent_window = false
+metadata/_custom_type_script = "uid://7pg2k3prf8d4"
+
+[node name="Panel" type="Panel" parent="ContextMenuUI" unique_id=626700410]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContextMenuUI/Panel" unique_id=1803649567]
+layout_mode = 0
+offset_right = 250.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3

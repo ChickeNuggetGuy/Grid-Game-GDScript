@@ -1,5 +1,6 @@
-[gd_scene load_steps=22 format=4 uid="uid://bqs8t40a7oph0"]
+[gd_scene load_steps=23 format=4 uid="uid://bqs8t40a7oph0"]
 
+[ext_resource type="Material" uid="uid://dqvadbsa7g3b8" path="res://Shaders/FOW.tres" id="1_ehjeo"]
 [ext_resource type="Script" uid="uid://d4hr6o3rcvuwi" path="res://Scripts/GridSystem/GridCellStateOverride.gd" id="1_vwmlq"]
 [ext_resource type="Script" uid="uid://tsvmqb5mbqtu" path="res://Scripts/GridObject/Interactables/Door.gd" id="2_7tomj"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="3_8dqx1"]
@@ -118,6 +119,7 @@ metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
 
 [node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="." unique_id=27549701]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
+material_override = ExtResource("1_ehjeo")
 mesh = SubResource("ArrayMesh_d1um5")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="CSGBakedMeshInstance3D" unique_id=2078256922]
@@ -309,7 +311,7 @@ collision_layer = 8
 shape = SubResource("ConcavePolygonShape3D_w0vs8")
 
 [node name="GridPositionData" type="Node3D" parent="Wall4" unique_id=835696294 node_paths=PackedStringArray("parent_grid_object")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -1.2499998)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.41666698, -0.5, -1)
 script = ExtResource("4_3qync")
 grid_height = 3
 grid_shape = SubResource("Resource_ehjeo")

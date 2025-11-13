@@ -1,65 +1,51 @@
 extends Manager
 
-enum sceneType {MAINMENU, BATTLESCENE, GLOBE}
+enum sceneType {NONE = 0,MAINMENU, BATTLESCENE, GLOBE}
 
 @export var scene_dictionary: Dictionary[sceneType, String]
-
-
 @export var current_scene_node: Node
 @export var current_scene_type: sceneType
 @onready var managers_node
 var managers : Dictionary[String, Manager] = {}
 var map_size : Vector2i
 var spawn_counts : Vector2i
+var current_save_file : String
+var save_directory := "/Users/malikhawkins/Godot Projects /Grid-Game-GDScript/testSaves/"
 
 signal current_scene_changed(current_scene : Node)
-
+signal save_games_changed()
 
 func _init() -> void:
+	add_to_group("manager")
 	current_scene_type = sceneType.MAINMENU
 	scene_dictionary[sceneType.MAINMENU] = "res://Scenes/GameScenes/MainMenuScene.tscn"
 	scene_dictionary[sceneType.BATTLESCENE] = "res://Scenes/GameScenes/BattleScene.tscn"
 	scene_dictionary[sceneType.GLOBE] = "res://Scenes/GameScenes/GlobeScene.tscn"
 
+func _ready() -> void:
+	current_scene_changed.connect(on_scene_changed)
+	await get_tree().process_frame
+	try_load_scene_by_type(sceneType.MAINMENU, {})
 
-
-
-#region Manager Lifecycle
 func _get_manager_name() -> String: 
 	return "GameManager"
-
 
 func _setup_conditions() -> bool:
 	return true
 
-
 func _setup():
-	
-	#if passable_parameters.size() > 0:
-		#print("test : " + str(passable_parameters["current_scene_type"]))
-		#current_scene_node = passable_parameters["current_scene_node"]
-		#current_scene_type = passable_parameters["current_scene_type"]
-		##scene_dictionary = passable_parameters["scene_directory"] as Dictionary[sceneType, String]
 	if managers_node == null:
 		managers_node = get_tree().get_first_node_in_group("Managers")
 
 	if current_scene_node != null:
-		#current_scene_name = scene_dictionary.find_key(initial_path)# if scene_dictionary.find_key(initial_path) != null else ""
-		print(
-			"GameManager: Initial scene identified as '",
-			current_scene_type,
-			"'"
-		)
+		print("GameManager: Initial scene identified as '", current_scene_type, "'")
 	else:
 		push_warning("GameManager: SceneContainer is empty on startup.")
 		
-	
 	setup_completed.emit()
-
 
 func _execute_conditions() -> bool:
 	return true
-
 
 func _execute():
 	var nodes : Array[Node] = get_tree().get_first_node_in_group("Managers").get_children()
@@ -67,67 +53,52 @@ func _execute():
 	print("Nodes length: " + str(nodes.size()))
 	for node in nodes:
 		if node is Manager and node != self:
-			managers[node.name] = node
+			managers[node._get_manager_name()] = node
 			var manager_instance: Manager = node
 			await manager_instance.setup_manager_flow()
-			print(manager_instance.name + " setup finished!")
+			print(manager_instance._get_manager_name() + " setup finished!")
 
-	for manmager in managers.values():
-		if manmager != self:
-			await manmager.execute_manager_flow()
-			print(manmager.name + " execute finished!")
+	for manager_name in managers:
+		var manager = managers[manager_name]
+		if manager != self:
+			await manager.execute_manager_flow()
+			print(manager._get_manager_name() + " execute finished!")
 
 	execution_completed.emit()
 
 func sort_manager_priority(manager_a : Manager, manager_b : Manager) -> bool:
-	return manager_a.priority <  manager_b.priority
-
+	return manager_a.priority < manager_b.priority
 
 func on_scene_changed(new_scene: Node = null) -> void:
 	print("on_scene_changed called")
-	var ns := new_scene
-	if ns == null:
-		ns = get_tree().current_scene
-	if ns == null:
-		push_warning("on_scene_changed: current_scene is still null; retrying next frame.")
-		call_deferred("on_scene_changed") # will re-fetch from the tree
-		return
 
-	managers.clear()
-	managers_node = get_tree().get_first_node_in_group("Managers") # remove the '%'
-	print("current_scene_name ", ns.name)
-	
-	await setup_manager_flow()
-	await execute_manager_flow()
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+		"current_scene_node" : current_scene_node,
+		"map_size": map_size,
+		"spawn_counts" :  spawn_counts,
+		"current_save_file" : current_save_file,
+		"current_scene_type" : current_scene_type
+	}
+	return save_dict
 
+func load_data(data : Dictionary):
+	pass
 
-func get_passable_data() -> Dictionary:
-	var data : Dictionary = {}
-	
-	data["scene_dictionary"] = scene_dictionary
-	data["map_size"] = Vector2(2,2)
-	data["spawn_counts"] = Vector2(1,1)
-	return data
+func quit_game():
+	get_tree().quit()
 
-
-func set_passable_data(data : Dictionary):
-	scene_dictionary = data["scene_dictionary"]
-	map_size = data["map_size"]
-	spawn_counts = data["spawn_counts"]
-
-
-#endregion
-
-#region Execution
-
-#endregion
-
-
-#region Scene Management
-func change_scene(scene_type: sceneType) -> bool:
+func change_scene(scene_type: sceneType, data_to_load: Dictionary) -> bool:
 	if scene_type not in scene_dictionary:
 		push_error("Scene not found in dictionary: " + str(scene_type))
 		return false
+
+	var save_data = save_scene_change_data()
+	if not data_to_load.is_empty():
+		for key in data_to_load:
+			save_data[key] = data_to_load[key]
 
 	var scene_path := scene_dictionary[scene_type]
 	current_scene_type = scene_type
@@ -137,10 +108,8 @@ func change_scene(scene_type: sceneType) -> bool:
 		push_error("Failed to change scene to: %s" % scene_path)
 		return false
 
-	# Wait for scene change to complete
 	await get_tree().process_frame
 	
-	# More robust waiting for current_scene
 	var timeout = 60
 	while get_tree().current_scene == null and timeout > 0:
 		await get_tree().process_frame
@@ -151,40 +120,209 @@ func change_scene(scene_type: sceneType) -> bool:
 		push_error("Timed out waiting for current_scene after change.")
 		return false
 
-	# Wait for the scene to be completely ready
 	if not new_root.is_node_ready():
 		await new_root.ready
 	
-	# Additional safety wait
 	await get_tree().process_frame
 	
 	current_scene_node = new_root
-	current_scene_changed.emit(new_root)
+	await handle_scene_change_complete(save_data)
 	
 	return true
 
-func _ready() -> void:
-	current_scene_changed.connect(on_scene_changed)
-	await get_tree().process_frame
-	try_load_scene_by_type(sceneType.MAINMENU)
+func handle_scene_change_complete(data_to_load: Dictionary):
+	managers.clear()
+	managers_node = get_tree().get_first_node_in_group("Managers")
+	
+	if managers_node == null:
+		push_warning("No Managers group found in new scene")
+		current_scene_changed.emit(current_scene_node)
+		return
+	
+	var nodes: Array[Node] = managers_node.get_children()
+	print("Discovered " + str(nodes.size()) + " manager nodes")
+	
+	for node in nodes:
+		if node is Manager and node != self:
+			managers[node._get_manager_name()] = node
+	
+	for manager_name in managers:
+		var manager: Manager = managers[manager_name]
+		await manager.setup_manager_flow()
+		print(manager_name + " setup finished!")
+	
+	for manager_name in managers:
+		var manager: Manager = managers[manager_name]
+		if manager != self:
+			await manager.execute_manager_flow()
+			print(manager_name + " execute finished!")
+	
+	if not data_to_load.is_empty():
+		load_current_game_data(data_to_load)
+	
+	current_scene_changed.emit(current_scene_node)
 
+func save_scene_change_data() -> Dictionary:
+	var save_dictionary: Dictionary = {}
+	
+	var manager_nodes = get_tree().get_nodes_in_group("manager")
+	
+	for node in manager_nodes:
+		if not node is Manager:
+			continue
+		var manager: Manager = node as Manager
+		
+		if manager.save_on_scene_change:
+			print("Saving scene change data for: " + manager._get_manager_name())
+			save_dictionary[manager._get_manager_name()] = manager.save_data()
+	
+	return save_dictionary
 
-# The 'try_load' functions are now wrappers around the new 'change_scene'.
-func try_load_scene_by_type(scene_type: sceneType) -> bool:
-	return await change_scene(scene_type)
-
-#
-#func try_load_scene_by_path(scene_path: String) -> bool:
-	#var scene_name = scene_dictionary.find_key(scene_path)
-	#if scene_name == null:
-		#push_error("Scene path '%s' not found in dictionary." % scene_path)
-		#return false
-	#return change_scene(scene_name)
-
+func try_load_scene_by_type(scene_type: sceneType, data: Dictionary) -> bool:
+	return await change_scene(scene_type, data)
 
 func _on_scene_exit():
-	# This runs after the old scene is freed but before the new one is ready
-	await get_tree().process_frame  # Wait one frame for new scene to be ready
+	await get_tree().process_frame
 	current_scene_node = get_tree().current_scene
 	current_scene_changed.emit(current_scene_node)
-#endregion
+
+func get_current_scene_data() -> Dictionary:
+	var save_dictionary : Dictionary = {}
+	
+	var manager_nodes = get_tree().get_nodes_in_group("manager")
+	
+	for node in manager_nodes:
+		if not node is Manager:
+			continue
+		var manager : Manager = node as Manager
+		print("Saving data for: " + manager._get_manager_name())
+		
+		save_dictionary[manager._get_manager_name()] = manager.save_data()
+	
+	if current_save_file == "":
+		current_save_file = "new save file"
+	
+	return save_dictionary
+
+func load_current_game_data(data: Dictionary):
+	if data.is_empty():
+		print("No data to load")
+		return
+		
+	for manager_name in data:
+		if managers.has(manager_name):
+			var manager: Manager = managers[manager_name]
+			print("Loading data for: " + manager_name)
+			manager.load_data_call(data[manager_name])
+		else:
+			print("Manager not found for loading data: " + manager_name)
+
+func get_game_data_from_save(save_name : String) -> Dictionary:
+	if save_name.is_empty():
+		if current_save_file.is_empty():
+			print("Save file name empty!")
+			return {}
+		else:
+			save_name = current_save_file
+	
+	var full_path = save_directory.path_join(save_name)
+	var save_file: FileAccess = FileAccess.open(full_path, FileAccess.READ)
+	
+	if not save_file:
+		print("Error: Could not open save file: ", full_path)
+		return {}
+	
+	var json_string = save_file.get_as_text()
+	save_file.close()
+	
+	var json = JSON.new()
+	var parse_result = json.parse(json_string)
+	
+	if parse_result != OK:
+		print("JSON Parse Error: ", json.get_error_message())
+		return {}
+	
+	var data = json.data
+	return data
+
+func create_save_directory():
+	var dir = DirAccess.open("user://")
+	if not dir.dir_exists("saves"):
+		var err = dir.make_dir("saves")
+		if err != OK:
+			print("Failed to create saves directory: ", error_string(err))
+			return
+	save_games_changed.emit()
+
+func save_game_data(data_to_save: Dictionary, save_name: String, load_file : bool = false):
+	if save_name.is_empty():
+		print("Error: Save name cannot be empty")
+		return false
+	
+	if not save_name.ends_with(".json"):
+		save_name += ".json"
+	
+	var invalid_chars = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"]
+	for char in invalid_chars:
+		if save_name.contains(char):
+			print("Error: Invalid character in filename: ", char)
+			return false
+	
+	var full_path = save_directory.path_join(save_name)
+	var file: FileAccess = FileAccess.open(full_path, FileAccess.WRITE)
+	
+	if file:
+		file.store_string(JSON.stringify(data_to_save, "\t")) 
+		file.close()
+		save_games_changed.emit()
+		print("Data saved successfully to: ", full_path)
+		
+		if load_file:
+			try_load_scene_by_type(current_scene_type,{})
+		return true
+	else:
+		print("Error saving data to: ", full_path)
+		return false
+
+func load_game_data(save_name: String):
+	var data = get_game_data_from_save(save_name)
+	var target_scene: sceneType = data[_get_manager_name()]["current_scene_type"]
+	await change_scene(target_scene, data)
+
+func delete_save_file_absolute(file_name: String):
+	var path = save_directory.path_join(file_name)
+
+	if FileAccess.file_exists(path):
+		var error = DirAccess.remove_absolute(path)
+		if error == OK:
+			print("Successfully deleted save file: " + path)
+			save_games_changed.emit()
+		else:
+			print("Error deleting file: ", error_string(error))
+	else:
+		print("Save file not found, nothing to delete: " + path)
+
+func try_load_save_game_files() -> Dictionary:
+	var save_files: Array = []
+	var ret_val = {"success": false, "save_files": save_files}
+
+	var dir = DirAccess.open(save_directory)
+	if not dir:
+		print("Could not access directory: ", save_directory)
+		return ret_val
+
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+
+	while file_name != "":
+		if not dir.current_is_dir():
+			if file_name.get_extension().to_lower() == "json":
+				save_files.append(file_name)
+		file_name = dir.get_next()
+
+	dir.list_dir_end()
+	
+	if not save_files.is_empty():
+		ret_val["success"] = true
+
+	return ret_val

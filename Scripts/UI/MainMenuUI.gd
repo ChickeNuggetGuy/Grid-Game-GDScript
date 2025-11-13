@@ -13,9 +13,12 @@ static  var Instance : MainMenuUI
 @export var map_x_text_field : SpinBox
 @export var map_y_text_field : SpinBox
 
+
+@export var save_game_ui : UIWindow
+
 func play_button_pressed():
 	#map_settingsUI.show_call()
-	GameManager.try_load_scene_by_type(GameManager.sceneType.GLOBE)
+	GameManager.try_load_scene_by_type(GameManager.sceneType.GLOBE,GameManager.get_game_data_from_save(""))
 
 
 func quick_start_button_pressed():
@@ -37,7 +40,7 @@ func start_button_pressed():
 				map_x_text_field.value,
 				map_y_text_field.value) 
 	
-	GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE)
+	GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE, {})
 
 
 func _setup():
@@ -50,3 +53,7 @@ func _setup():
 		
 	if not start_button.pressed.is_connected(start_button_pressed):
 		start_button.pressed.connect(start_button_pressed)
+
+
+func _on_new_game_button_pressed() -> void:
+	save_game_ui.toggle()

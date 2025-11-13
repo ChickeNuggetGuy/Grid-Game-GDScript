@@ -27,7 +27,7 @@ script = ExtResource("4_1qdt5")
 [node name="Managers" type="Node" parent="." unique_id=796496814 groups=["Managers"]]
 unique_name_in_owner = true
 
-[node name="MeshTerrainManager" type="Node" parent="Managers" unique_id=1190442110]
+[node name="MeshTerrainManager" type="Node" parent="Managers" unique_id=1190442110 groups=["manager"]]
 script = ExtResource("2_ge2b7")
 material = ExtResource("13_6ppp3")
 edge_blend_width = 7
@@ -35,7 +35,7 @@ raycast_start_height = 250.0
 raycast_inset = 0.5
 metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
 
-[node name="GridSystem" type="Node" parent="Managers" unique_id=91070132]
+[node name="GridSystem" type="Node" parent="Managers" unique_id=91070132 groups=["manager"]]
 script = ExtResource("3_08jbg")
 max_step_height_ratio = 65.0
 connection_raycast_height_offset = 0.2
@@ -44,7 +44,7 @@ colliderCheck = true
 colliderSize = Vector3(0.7, 0.7, 0.7)
 metadata/_custom_type_script = "uid://bjauxagwg8odf"
 
-[node name="UnitManager" type="Node" parent="Managers" unique_id=890527914]
+[node name="UnitManager" type="Node" parent="Managers" unique_id=890527914 groups=["manager"]]
 script = ExtResource("5_7nbcx")
 metadata/_custom_type_script = "uid://cerynvxcca4bv"
 
@@ -58,7 +58,7 @@ script = ExtResource("6_bejc1")
 team = 2
 metadata/_custom_type_script = "uid://coshpv2sr0u8e"
 
-[node name="UIManager" type="Node" parent="Managers" unique_id=1608853182 node_paths=PackedStringArray("ui_holder", "main_inventory_ui")]
+[node name="UIManager" type="Node" parent="Managers" unique_id=1608853182 node_paths=PackedStringArray("ui_holder", "main_inventory_ui") groups=["manager"]]
 script = ExtResource("4_e0ivd")
 ui_holder = NodePath("Control")
 main_inventory_ui = NodePath("Control/InventoryGrids")
@@ -101,36 +101,34 @@ offset_top = 0.0
 offset_right = 0.0
 offset_bottom = 70.0
 
-[node name="GridInputManager" type="Node" parent="Managers" unique_id=1754522285]
+[node name="GridInputManager" type="Node" parent="Managers" unique_id=1754522285 groups=["manager"]]
 script = ExtResource("6_01obq")
 metadata/_custom_type_script = "uid://b37fgk4b3tfnn"
 
-[node name="UnitActionManager" type="Node" parent="Managers" unique_id=175914347]
+[node name="UnitActionManager" type="Node" parent="Managers" unique_id=175914347 groups=["manager"]]
 script = ExtResource("7_86i4a")
 metadata/_custom_type_script = "uid://qbdewo8k424a"
 
-[node name="TurnManager" type="Node" parent="Managers" unique_id=1048450889]
+[node name="TurnManager" type="Node" parent="Managers" unique_id=1048450889 groups=["manager"]]
 script = ExtResource("8_6ppp3")
 metadata/_custom_type_script = "uid://swicsbxj3n2f"
 
-[node name="FogManager" type="Node" parent="Managers" unique_id=18750102]
+[node name="FogManager" type="Node" parent="Managers" unique_id=18750102 groups=["manager"]]
 script = ExtResource("17_6fjuf")
 fow_material = ExtResource("13_6ppp3")
 metadata/_custom_type_script = "uid://c0303oxw6al88"
 
-[node name="CameraController" type="Node" parent="Managers" unique_id=793812520 node_paths=PackedStringArray("camera_3d", "transposer", "phantom_cameras")]
+[node name="CameraController" type="Node" parent="Managers" unique_id=793812520 node_paths=PackedStringArray("camera_3d", "transposer") groups=["manager"]]
 script = ExtResource("1_bejc1")
 camera_3d = NodePath("Camera3D")
 transposer = NodePath("../../Transposer")
-min_transposer_height = 2.0
-orbit_min_pitch_deg = -70.0
-phantom_cameras = {
-"main": NodePath("../../PhantomCamera3D")
-}
+min_transposer_height = 1.0
+orbit_min_distance = 5.0
+orbit_max_distance = 25.0
 metadata/_custom_type_script = "uid://dp870a6rqd874"
 
 [node name="Camera3D" type="Camera3D" parent="Managers/CameraController" unique_id=1485395086]
-transform = Transform3D(1, 0, 0, 0, 0.99985725, 0.016895354, 0, -0.016895354, 0.99985725, 0, 5.844498, 12.251857)
+transform = Transform3D(1, 0, 0, 0, 0.9103665, 0.4138029, 0, -0.4138029, 0.9103665, 0, 5.844498, 12.251857)
 
 [node name="PhantomCameraHost" type="Node" parent="Managers/CameraController/Camera3D" unique_id=1188668176]
 process_priority = 300
@@ -143,7 +141,7 @@ transform = Transform3D(-0.056623124, 0.85537, -0.5149137, 0, 0.5157411, 0.85674
 light_energy = 2.0
 
 [node name="PhantomCamera3D" type="Node3D" parent="." unique_id=44587506 node_paths=PackedStringArray("follow_target", "look_at_target")]
-transform = Transform3D(1, 0, 0, 0, 0.99985725, 0.016895354, 0, -0.016895354, 0.99985725, 0, 5.844498, 12.251857)
+transform = Transform3D(1, 0, 0, 0, 0.9103665, 0.4138029, 0, -0.4138029, 0.9103665, 0, 5.844498, 12.251857)
 script = ExtResource("3_o5x0x")
 priority = 1
 follow_mode = 6
@@ -152,8 +150,6 @@ look_at_mode = 2
 look_at_target = NodePath("../Transposer")
 tween_resource = SubResource("Resource_lcfwl")
 follow_offset = Vector3(0, 5, 10)
-follow_damping = true
-look_at_damping = true
 metadata/_custom_type_script = "uid://csjccrhj5wnx7"
 
 [node name="Transposer" type="Node3D" parent="." unique_id=1921818617]

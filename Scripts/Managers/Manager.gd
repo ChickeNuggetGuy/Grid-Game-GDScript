@@ -3,6 +3,7 @@ class_name Manager
 extends Node
 
 @export var debug_mode : bool = false
+@export var save_on_scene_change : bool = false
 var setup_complete : bool
 var execute_complete : bool
 #region Signals
@@ -13,9 +14,23 @@ signal execution_completed()
 
 #region Initialization and Setup
 
+
+func _init() -> void:
+	add_to_group("manager")
 # Abstract method for the manager's name.
 @abstract func _get_manager_name() -> String
 
+@abstract func save_data() -> Dictionary
+
+
+func load_data_call(data_dict : Dictionary):
+	for data in data_dict.keys():
+		self.set(data, data_dict[data])
+	
+	load_data(data_dict)
+
+
+@abstract func load_data(data : Dictionary)
 
 
 # Orchestrates the manager's setup phase.

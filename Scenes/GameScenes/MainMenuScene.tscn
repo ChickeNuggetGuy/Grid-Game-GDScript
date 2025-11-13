@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://dksvn0rdbvqwb"]
+[gd_scene load_steps=9 format=3 uid="uid://dksvn0rdbvqwb"]
 
 [ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/UIManager.gd" id="1_abbdw"]
 [ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scripts/UI/MainMenuUI.gd" id="1_ibpp6"]
 [ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="2_h3486"]
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_eembx"]
+[ext_resource type="Script" uid="uid://bq6tin77ek38e" path="res://Scripts/UI/GameSavesUI.gd" id="5_ibpp6"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_47rn7"]
 font_size = 50
@@ -11,13 +12,16 @@ font_size = 50
 [sub_resource type="LabelSettings" id="LabelSettings_yf2vi"]
 font_size = 12
 
+[sub_resource type="LabelSettings" id="LabelSettings_abbdw"]
+font_size = 30
+
 [node name="Managers" type="Node" unique_id=1913442400 groups=["Managers"]]
 
-[node name="UIManager" type="Node" parent="." unique_id=792269168]
+[node name="UIManager" type="Node" parent="." unique_id=792269168 groups=["manager"]]
 script = ExtResource("1_abbdw")
 metadata/_custom_type_script = "uid://cq3ef3ssfwu7w"
 
-[node name="Control" type="Control" parent="UIManager" unique_id=1331450721 node_paths=PackedStringArray("play_button", "quick_start_button", "start_button", "quit_button", "map_settingsUI", "player_text_field", "enemy_text_field", "map_x_text_field", "map_y_text_field", "visual")]
+[node name="Control" type="Control" parent="UIManager" unique_id=1331450721 node_paths=PackedStringArray("play_button", "quick_start_button", "start_button", "quit_button", "map_settingsUI", "player_text_field", "enemy_text_field", "map_x_text_field", "map_y_text_field", "save_game_ui", "visual")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,7 +29,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ibpp6")
-play_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Play Button")
+play_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/New Game Button")
 quick_start_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Quick Play Button")
 start_button = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/Button")
 quit_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Quit Button")
@@ -34,6 +38,7 @@ player_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBo
 enemy_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer/TextEdit2")
 map_x_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2/TextEdit")
 map_y_text_field = NodePath("UIWindow/UIWindow/UIWindow/Panel/VBoxContainer/HBoxContainer2/TextEdit2")
+save_game_ui = NodePath("UIWindow/UIWindow/SaveGameUI")
 visual = NodePath("UIWindow")
 metadata/_custom_type_script = "uid://dwvn62nyw6f8x"
 
@@ -91,10 +96,35 @@ autowrap_mode = 3
 autowrap_trim_flags = 0
 clip_text = true
 
-[node name="Play Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=2039408630]
+[node name="New Game Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=2039408630]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Play"
+text = "New Game"
+icon = ExtResource("3_eembx")
+autowrap_trim_flags = 0
+expand_icon = true
+
+[node name="HSeparator5" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=401244224]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="load Game Button2" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=122539265]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Load Game"
+icon = ExtResource("3_eembx")
+autowrap_trim_flags = 0
+expand_icon = true
+
+[node name="HSeparator6" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=388025289]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Battle Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=527455301]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Quick Battle
+"
 icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
@@ -126,6 +156,7 @@ autowrap_trim_flags = 0
 expand_icon = true
 
 [node name="UIWindow" type="Control" parent="UIManager/Control/UIWindow/UIWindow" unique_id=373953530 node_paths=PackedStringArray("visual")]
+visible = false
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 1
 anchors_preset = 6
@@ -242,3 +273,87 @@ layout_mode = 2
 [node name="Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=565426123]
 layout_mode = 2
 text = "Start"
+
+[node name="SaveGameUI" type="Control" parent="UIManager/Control/UIWindow/UIWindow" unique_id=55383579 node_paths=PackedStringArray("save_game_list", "new_save_button", "load_save_button", "delete_save_button", "text_edit_field", "visual")]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 35.0
+offset_right = 459.0
+offset_bottom = -35.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("5_ibpp6")
+save_game_list = NodePath("Panel/VBoxContainer/ItemList")
+new_save_button = NodePath("Panel/VBoxContainer/HBoxContainer/New Save Button")
+load_save_button = NodePath("Panel/VBoxContainer/HBoxContainer/Load Button2")
+delete_save_button = NodePath("Panel/VBoxContainer/HBoxContainer/Delete Button")
+text_edit_field = NodePath("Panel/VBoxContainer/TextEdit")
+save_icon = ExtResource("3_eembx")
+start_hidden = true
+visual = NodePath("Panel")
+metadata/_custom_type_script = "uid://bq6tin77ek38e"
+
+[node name="Panel" type="Panel" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI" unique_id=967700215]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel" unique_id=377547210]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=1615844985]
+layout_mode = 2
+text = "Saves "
+label_settings = SubResource("LabelSettings_abbdw")
+
+[node name="HSeparator" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=1825333897]
+layout_mode = 2
+
+[node name="TextEdit" type="TextEdit" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=1699786510]
+custom_minimum_size = Vector2(0, 37.12)
+layout_mode = 2
+
+[node name="ItemList" type="ItemList" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=266706909]
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+auto_width = true
+max_columns = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=128067691]
+layout_mode = 2
+
+[node name="New Save Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=2067527264]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save"
+
+[node name="Load Button2" type="Button" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=1302373718]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load"
+
+[node name="Delete Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=561965366]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Delete"
+
+[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer/New Game Button" to="UIManager/Control" method="_on_new_game_button_pressed"]
+[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer/New Save Button" to="UIManager/Control/UIWindow/UIWindow/SaveGameUI" method="_on_save_button_pressed"]
+[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer/Load Button2" to="UIManager/Control/UIWindow/UIWindow/SaveGameUI" method="_on_load_button_2_pressed"]
+[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer/Delete Button" to="UIManager/Control/UIWindow/UIWindow/SaveGameUI" method="_on_delete_button_pressed"]

@@ -782,7 +782,7 @@ anim_player = NodePath("../AnimationPlayer")
 [node name="GridObjectSightArea" type="Node3D" parent="GridObjectComponents" unique_id=1882307956 node_paths=PackedStringArray("parent_grid_object")]
 script = ExtResource("9_7mmco")
 sight_range_degrees = Vector2(90, 90)
-sight_depth = 8.0
+sight_depth = 15.0
 parent_grid_object = NodePath("../..")
 metadata/_custom_type_script = "uid://dla7ye6ylllyd"
 

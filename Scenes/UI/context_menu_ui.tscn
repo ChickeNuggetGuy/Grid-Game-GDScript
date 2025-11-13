@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://cquxi7gjvy1l4"]
+
+[ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/ContextMenuUI.gd" id="1_ms3rd"]
+[ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="2_t8hla"]
+
+[node name="ContextMenuUI" type="Control" unique_id=885723138 node_paths=PackedStringArray("context_button_holder", "visual")]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 250.0
+offset_bottom = 100.0
+script = ExtResource("1_ms3rd")
+context_button_scene = ExtResource("2_t8hla")
+context_button_holder = NodePath("Panel/VBoxContainer")
+start_hidden = true
+block_inputs = true
+visual = NodePath("Panel")
+is_persistent_window = false
+metadata/_custom_type_script = "uid://7pg2k3prf8d4"
+
+[node name="Panel" type="Panel" parent="." unique_id=1649949463]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=87819348]
+layout_mode = 0
+offset_right = 250.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3

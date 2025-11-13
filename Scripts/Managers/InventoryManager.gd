@@ -51,6 +51,19 @@ func _init():
 	execution_completed.emit()
 
 
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
+
+
 func try_gry_inventory_item(item_name : String) -> Dictionary:
 	var retval : Dictionary = {"success": false, "inventory_item" : null}
 

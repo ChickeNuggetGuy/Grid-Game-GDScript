@@ -25,7 +25,7 @@ func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
 	
 	var grid_object : GridObject = starting_grid_cell.grid_object
 	
-	var grid_cells : Array[GridCell] = result["grid_cells"].values()
+	var grid_cells : Array[GridCell] = result["grid_cells"]
 	for i in range(grid_cells.size() - 1, -1, -1):
 		if not grid_cells[i].has_grid_object():
 			grid_cells.remove_at(i)

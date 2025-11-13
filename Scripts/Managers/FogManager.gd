@@ -3,6 +3,7 @@ class_name FogManager
 
 
 @export var fow_material : ShaderMaterial
+@export var fow_material_dict : Dictionary[Material, Material]
 
 var visibility_texture_3d_cache : ImageTexture3D = null
 
@@ -14,6 +15,19 @@ func _setup_conditions() -> bool: return true
 func _setup() -> void:
 	setup_completed.emit()
 	return
+
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
 
 
 func _execute_conditions() -> bool: return true
@@ -35,6 +49,8 @@ func set_global_visibility_texture(texture: ImageTexture3D):
 		
 		# --- FIX: The uniform name must match the shader ---
 		fow_material.set_shader_parameter("visibility_texture", visibility_texture_3d_cache)
+
+
 func init_fog_globals() -> void:
 		
 	var terrain := GameManager.managers["MeshTerrainManager"] as MeshTerrainManager

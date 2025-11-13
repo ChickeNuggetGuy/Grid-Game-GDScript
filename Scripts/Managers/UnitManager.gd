@@ -27,7 +27,18 @@ func _setup():
 	#Register any existing Unit Teams!
 	
 	setup_completed.emit()
-	
+
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
 
 
 func _execute_conditions() -> bool: return true
@@ -48,6 +59,7 @@ func _execute():
 	var game_manager = GameManager
 	spawn_counts = game_manager.spawn_counts
 	for x in range(spawn_counts.x):
+		print("spawning units")
 		spawn_unit(Enums.unitTeam.PLAYER)
 		
 	for y in range(spawn_counts.y):
@@ -135,8 +147,9 @@ func _process(_delta: float) -> void:
 		print("Failed")
 		return
 
-	for cell in cells_in_range["grid_cells"]:
-		grid_system.visualize_cell(cell.grid_coordinates)
+	if debug_mode:
+		for cell in cells_in_range["grid_cells"]:
+			grid_system.visualize_cell(cell.grid_coordinates)
 
 
 

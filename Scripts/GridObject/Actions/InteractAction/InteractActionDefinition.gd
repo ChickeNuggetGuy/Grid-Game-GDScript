@@ -54,7 +54,7 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 	for grid_cell in get_valid_grid_cells(starting_grid_cell):
 		
 		#if not grid_cell.has_grid_object():
-		ret_value[grid_cell] = 1 if grid_cell.has_grid_object() else 0
+		ret_value[grid_cell] = 0.5 if grid_cell.has_grid_object() else 0
 		#else:
 			#ret_value[grid_cell] = 1
 		#var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
@@ -79,8 +79,6 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 	var neighboring_cells : Array[GridCell] = GameManager.managers["GridSystem"].get_grid_cell_neighbors(parameters["target_grid_cell"], Enums.cellState.WALKABLE)
 	print("Neighboring cell count is: " + str(neighboring_cells.size()))
 	
-	for cell in neighboring_cells:
-		DebugDraw3D.draw_box(cell.world_position, Quaternion.IDENTITY, Vector3.ONE,Color.ORANGE, true, 10)
 	if neighboring_cells.is_empty():
 		ret_value["success"] = false
 		ret_value["reason"] = "No valid walkable neighbors found near target"

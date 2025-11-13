@@ -96,6 +96,20 @@ func _setup():
 	setup_completed.emit()
 
 
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
+
+
 func _execute_conditions() -> bool: return true
 
 

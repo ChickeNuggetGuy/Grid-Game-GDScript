@@ -8,6 +8,8 @@ var blocking_input : bool = false
 var blocking_window : UIElement = null
 @export var main_inventory_ui : MainInventoryUI
 
+@export_group("Pause menu")
+@export var pause_menu_ui : PauseMenuUI
 
 func _get_manager_name() -> String: return "UIManager"
 
@@ -16,8 +18,6 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup() -> void:
-	
-	
 	var nodes = get_tree().get_nodes_in_group("UIWindow")
 	
 	for node in nodes:
@@ -26,6 +26,19 @@ func _setup() -> void:
 			ui_windows[window.ui_name] = window
 			
 	setup_completed.emit()
+
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+	}
+	return save_dict
+
+
+func load_data(data : Dictionary):
+	pass
+
 
 
 func _execute_conditions() -> bool: return true
@@ -49,11 +62,6 @@ func get_passable_data() -> Dictionary:
 func set_passable_data(_data : Dictionary):
 	return
 
-#endregion
-
-#region Execution
-
-# Orchestrates the manager's execution phase.
 
 func try_block_input(windw : UIWindow) -> bool:
 	if GameManager.managers["UnitActionManager"].is_busy:
@@ -86,13 +94,17 @@ func unitActionManager_action_selected(_selected_action : BaseActionDefinition):
 	hide_non_persitent_windows()
 
 
-
 func hide_non_persitent_windows():
 	for key in ui_windows.keys():
 		var ui_window = ui_windows[key]
 		if ui_window == null:
-			continue 
+			continue
 		if ui_window.is_persistent_window:
 			continue
 		else:
 			ui_window.hide_call()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and pause_menu_ui:
+		pause_menu_ui.toggle()

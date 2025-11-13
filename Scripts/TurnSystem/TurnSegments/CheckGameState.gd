@@ -13,6 +13,6 @@ func execute(parent_turn: TurnData) -> void:
 
 	if unit_team_holder.grid_objects["active"].size() < 1:
 		print("All units of team " + str(parent_turn.team) + " are defeated!")
-		print("End Game: " + str( await GameManager.try_load_scene_by_type(GameManager.sceneType.MAINMENU)))
+		print("End Game: " + str( await GameManager.try_load_scene_by_type(GameManager.sceneType.MAINMENU,GameManager.get_current_scene_data())))
 	else:
 		print("there are still:  " + str(unit_team_holder.grid_objects["active"].size()) + " units alive!")
