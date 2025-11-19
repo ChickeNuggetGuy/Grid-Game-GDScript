@@ -38,34 +38,75 @@ signal gridObject_moved(owner : Unit, new_grid_cell : GridCell)
 func _ready() -> void:
 	collider.collision_layer =PhysicsLayersUtility.PLAYER
 
-func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam):
+func _setup(loading_data : bool, data: Dictionary = {}, ):
 	
-	if not grid_position_data:
-		grid_position_data = GridPositionData.new()
-		add_child(grid_position_data)
-	grid_position_data.setup_call(self, {"grid_cell" : gridCell,"direction" :  direction})
-	
-	team = unit_team
-	
-	if stat_holder:
-		stat_library.append_array(stat_holder.get_children())
-	
-	for stat in stat_library:
-		var grid_stat : GridObjectStat = stat
-		grid_stat.setup(self)
-		if grid_stat.stat_name == "Health":
-			grid_stat.connect("stat_value_min", grid_object_dealth)
-	
-	if grid_object_component_holder:
-		_grid_object_components.append_array(grid_object_component_holder.get_children())
-	
-	for component in _grid_object_components:
-		var grid_object_component : GridObjectComponent = component
-		if grid_object_component is GridPositionData:
-			continue
-		grid_object_component.setup_call(self,{})
-	
-	setup_inventory_grids()
+	#gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam,
+	if not loading_data:
+		if not grid_position_data:
+			grid_position_data = GridPositionData.new()
+			add_child(grid_position_data)
+		grid_position_data.setup_call(self, {"grid_cell" : data["grid_cell"] ,"direction" :  data["direction"], "grid_cell_coord" : data["grid_cell"] .grid_coordinates}, false)
+		
+		team = data["unit_team"]
+		
+		if stat_holder:
+			stat_library.append_array(stat_holder.get_children())
+		
+		for stat in stat_library:
+			var grid_stat : GridObjectStat = stat
+			grid_stat.setup(self,{})
+			if grid_stat.stat_name == "Health":
+				grid_stat.connect("stat_value_min", grid_object_dealth)
+		
+		if grid_object_component_holder:
+			_grid_object_components.append_array(grid_object_component_holder.get_children())
+		
+		for component in _grid_object_components:
+			var grid_object_component : GridObjectComponent = component
+			if grid_object_component is GridPositionData:
+				continue
+			grid_object_component.setup_call(self,{}, false)
+		
+		setup_inventory_grids()
+	else:
+		team = data["team"] as Enums.unitTeam
+		active = data["active"]
+
+		if data.has("grid_position_data"):
+			var gpos_data = data["grid_position_data"]
+			if gpos_data.has("world_position"):
+				var pos_val = gpos_data["world_position"]
+				if pos_val is String:
+					self.global_position = NodeUtils._parse_vector3_from_string(pos_val)
+				else:
+					self.global_position = pos_val
+
+		if not grid_position_data:
+			grid_position_data = GridPositionData.new()
+			add_child(grid_position_data)
+		grid_position_data._setup(data["grid_position_data"], loading_data)
+
+		if stat_holder:
+			stat_library.append_array(stat_holder.get_children())
+
+		var saved_stats = data["stat_library"]
+		for stat_node in stat_library:
+			if stat_node is GridObjectStat and saved_stats.has(stat_node.stat_name):
+				stat_node.setup(self,saved_stats[stat_node.stat_name])
+		
+		
+		for type in data["inventory_grid_types"]:
+			inventory_grid_types.append(type as Enums.inventoryType)
+		setup_inventory_grids()
+
+		if grid_object_component_holder:
+			_grid_object_components.append_array(grid_object_component_holder.get_children())
+
+		var saved_components = data["_grid_object_components"]
+		for component_node in _grid_object_components:
+			if component_node is GridObjectComponent and saved_components.has(component_node.name):
+				component_node.setup_call(self, saved_components[component_node.name], loading_data)
+
 
 
 func grid_object_dealth(_parent_grid_object : GridObject):
@@ -188,4 +229,27 @@ func _unhandled_input(event):
 				print(grid_position_data.grid_cell.inventory_grid.try_add_item(
 					InventoryManager.Instance.get_random_item()))
 
-#endregion
+
+
+
+func save_data() -> Dictionary:
+	var stat_dict = {}
+	for stat in stat_library:
+		stat_dict[stat.stat_name] = stat.save_data()
+	
+	var component_dict = {}
+	for c in _grid_object_components:
+		component_dict[c.name] = c.save_data()
+	
+	var save_dict = {
+		"filename" : scene_file_path,
+		"parent" : get_parent().get_path(),
+		"grid_position_data" : grid_position_data.save_data(),
+		"team" : team,
+		"active" : active,
+		"stat_library" : stat_dict,
+		"inventory_grid_types" : inventory_grid_types,
+		"inventory_grids" : inventory_grids,
+		"_grid_object_components" : component_dict, 
+	}
+	return save_dict

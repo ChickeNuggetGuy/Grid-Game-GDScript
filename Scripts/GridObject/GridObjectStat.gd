@@ -26,9 +26,15 @@ signal stat_value_changed(parent_gridobject : GridObject)
 
 #region Functions
 
-func setup(gridObject : GridObject):
-	current_value = min_max_values.y
-	parent_gridobject = gridObject
+func setup(gridObject : GridObject, data : Dictionary):
+	if data.is_empty():
+		current_value = min_max_values.y
+		parent_gridobject = gridObject
+	else:
+		parent_gridobject = gridObject
+		stat_name = data["stat_name"]
+		current_value = data["current_value"]
+		min_max_values = Vector2i(int(data["min_value"]), int(data["max_values"]))
 	
 func _add_value(value_to_add : int):
 	current_value += value_to_add
@@ -86,4 +92,16 @@ func current_turn_changed():
 				try_remove_value(roundi(min_max_values.y * change_amount))
 			else:
 				try_remove_value(roundi(change_amount))
-#endregion
+
+
+func save_data() -> Dictionary:
+	var ret_dict = {
+		"stat_name" : stat_name,
+		"current_value" : current_value,
+		"min_value" : min_max_values.x,
+		"max_values" : min_max_values.y
+		
+	}
+	return ret_dict
+
+	#endregion

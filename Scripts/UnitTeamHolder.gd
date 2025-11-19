@@ -10,36 +10,61 @@ var visibility_images: Array[Image] = []
 
 signal visibility_updated(team : Enums.unitTeam, visibility_texture : ImageTexture3D)
 
-func setup(unit_manager : UnitManager) -> void:
+func setup(unit_manager : UnitManager, data : Dictionary = {}) -> void:
 	
-	grid_objects = {"active": [], "inactive": []}
+	if not unit_manager.Unit_spawned.is_connected(on_unit_spawned):
+		unit_manager.Unit_spawned.connect(on_unit_spawned)
 	
-	unit_manager.Unit_spawned.connect(on_unit_spawned)
 	var unit_action_system = GameManager.managers["UnitActionManager"]
-	if unit_action_system:
+	if unit_action_system and not unit_action_system.any_action_execution_finished.is_connected(on_any_action_finished):
 		unit_action_system.any_action_execution_finished.connect(on_any_action_finished)
 
-	var terrain := GameManager.managers["MeshTerrainManager"]
+	var terrain : MeshTerrainManager = GameManager.managers["MeshTerrainManager"]
 	if not terrain:
 		push_error("UnitTeamHolder: MeshTerrainManager not found!")
 		return
+	
+	
+	grid_objects = {"active": [], "inactive": []}
+	
+	if data.is_empty():
+		pass
+	else:
+		team = int(data["team"]) as Enums.unitTeam
+	
+		var active_units_data = data["grid_objects"]["active"]
+		for unit_name in active_units_data:
+			var unit_data = active_units_data[unit_name]
+			var unit_scene = load(unit_data["filename"]) as PackedScene
+			if unit_scene:
+				var new_unit : GridObject = unit_scene.instantiate() as GridObject
+				add_grid_object(new_unit)
+				new_unit._setup(true, unit_data)
 
-	var size_v3: Vector3i = terrain.get_map_cell_size()
-	
-	
-	var fow_dims = Vector2i(size_v3.x, size_v3.y)
-
-	visibility_images.clear()
-	
-	for z in size_v3.z:
-		var temp_image := Image.create(fow_dims.x, fow_dims.y, false, Image.FORMAT_RGB8)
-		temp_image.fill(Color.BLACK)
-		visibility_images.append(temp_image)
-	
-	var error = visibility_texture.create(Image.FORMAT_RGB8, fow_dims.x, fow_dims.y, size_v3.z, false, visibility_images)
-	if error != OK:
-		push_error("Failed to create and initialize ImageTexture3D.")
-		return
+		var inactive_units_data = data["grid_objects"]["inactive"]
+		for unit_name in inactive_units_data:
+			var unit_data = inactive_units_data[unit_name]
+			var unit_scene = load(unit_data["filename"]) as PackedScene
+			if unit_scene:
+				var new_unit = unit_scene.instantiate() as GridObject
+				add_child(new_unit)
+				new_unit._setup(true, unit_data)
+				grid_objects["inactive"].append(new_unit)
+		
+		
+		var size_v3: Vector3i = terrain.get_map_cell_size()
+		var fow_dims = Vector2i(size_v3.x, size_v3.y)
+		visibility_images.clear()
+		
+		for z in size_v3.z:
+			var temp_image := Image.create(fow_dims.x, fow_dims.y, false, Image.FORMAT_RGB8)
+			temp_image.fill(Color.BLACK)
+			visibility_images.append(temp_image)
+		
+		var error = visibility_texture.create(Image.FORMAT_RGB8, fow_dims.x, fow_dims.y, size_v3.z, false, visibility_images)
+		if error != OK:
+			push_error("Failed to create and initialize ImageTexture3D.")
+			return
 
 	update_team_visibility()
 
@@ -51,7 +76,10 @@ func add_grid_object(grid_object: GridObject):
 	add_child(grid_object)
 
 	var health_stat = grid_object.get_stat_by_name("Health")
-	health_stat.stat_value_min.connect(on_grid_object_died)
+	if not health_stat:
+		print('health stat not found')
+	else:
+		health_stat.stat_value_min.connect(on_grid_object_died)
 
 
 func update_team_visibility():
@@ -168,3 +196,18 @@ func on_grid_object_died(gridObject: GridObject):
 
 func on_unit_spawned(new_unit):
 	update_team_visibility()
+
+
+func save_data() -> Dictionary:
+	var save_dict = {
+		"filename" : get_scene_file_path(),
+		"parent" : get_parent().get_path(),
+		"team" : team,
+		"grid_objects" : {"active" : {}, "inactive" : {}}
+	}
+	
+	for key in  grid_objects.keys():
+		for grid_object in grid_objects[key]:
+			save_dict["grid_objects"][key][grid_object.name] = grid_object.save_data()
+
+	return save_dict
