@@ -7,7 +7,7 @@ class_name GridObjectAnimation
 @export var locomotion_State_playback_path : String
 @export var animation_state_names : Array[String]
 
-func _setup( _extra_params : Dictionary) -> void:
+func _setup( _extra_params : Dictionary, loading_data : bool) -> void:
 	animation_tree = animation_player_holder.find_child("AnimationTree")
 	#animation_tree.advance_expression_base_node = parent_grid_object.get_path()
 	GameManager.managers["UnitActionManager"].connect("action_execution_finished",UnitActionManager_action_execution_finished)
@@ -43,3 +43,12 @@ func start_locomotion_animation(_target_stance : Enums.UnitStance, _blend_positi
 	#else: if target_stance & Enums.UnitStance.CROUCHED:
 		#animation_tree.set("parameters/Locomotion/Crouched/blend_position", blend_position)
 		#playback.travel("Crouched")
+
+
+func save_data() -> Dictionary:
+	return {
+		
+	}
+
+func load_data(data : Dictionary):
+	pass

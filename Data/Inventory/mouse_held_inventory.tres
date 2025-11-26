@@ -14,6 +14,6 @@ shape_grid = Array[int]([1])
 script = ExtResource("1_arj2m")
 inventory_name = "Mouse Held"
 inventory_type = 8
-shape = SubResource("Resource_xqnne")
+grid_shape = SubResource("Resource_xqnne")
 use_item_size = false
 metadata/_custom_type_script = "uid://bvaar7mvf43va"

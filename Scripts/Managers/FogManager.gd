@@ -25,10 +25,6 @@ func save_data() -> Dictionary:
 	return save_dict
 
 
-func load_data(data : Dictionary):
-	pass
-
-
 
 func _execute_conditions() -> bool: return true
 
@@ -43,11 +39,7 @@ func _execute():
 
 func set_global_visibility_texture(texture: ImageTexture3D):
 	visibility_texture_3d_cache = texture
-	if visibility_texture_3d_cache:
-		# **FIX 1: Use the correct Godot 4 property for texture filtering**
-		#visibility_texture_3d_cache.filter_mode = Texture3D.FILTER_NEAREST
-		
-		# --- FIX: The uniform name must match the shader ---
+	if visibility_texture_3d_cache and fow_material:
 		fow_material.set_shader_parameter("visibility_texture", visibility_texture_3d_cache)
 
 
@@ -84,11 +76,12 @@ func init_fog_globals() -> void:
 		print("Visibility Texture Instance: ", visibility_tex_from_holder)
 		print("------------------------")
 	
+	if fow_material:
 	# Set all global shader parameters
-	fow_material.set_shader_parameter("visibility_texture",visibility_tex_from_holder)
-	fow_material.set_shader_parameter("texture_resolution", Vector3(map_size_v3))
-	fow_material.set_shader_parameter("cell_size_world", terrain.cell_size)
-	fow_material.set_shader_parameter("grid_origin_world", Vector3.ZERO)
+		fow_material.set_shader_parameter("visibility_texture",visibility_tex_from_holder)
+		fow_material.set_shader_parameter("texture_resolution", Vector3(map_size_v3))
+		fow_material.set_shader_parameter("cell_size_world", terrain.cell_size)
+		fow_material.set_shader_parameter("grid_origin_world", Vector3.ZERO)
 
 
 func player_visibility_updated(team : Enums.unitTeam, texture : ImageTexture3D):

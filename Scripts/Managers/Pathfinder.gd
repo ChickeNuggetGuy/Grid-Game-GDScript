@@ -1,5 +1,6 @@
 extends Node
 
+@export var debug_mode :  bool = false
 @onready var _heap = preload("res://Scripts/Utility/MinHeap.gd").new()
 
 func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false) -> Array[GridCell]:
@@ -31,7 +32,8 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 		return path
 
 	if not adjacent and not _is_cell_walkable(goal):
-		print("Goal position is not walkable: ", goal.grid_coordinates, " state: ", goal.grid_cell_state)
+		if debug_mode:
+			print("Goal position is not walkable: ", goal.grid_coordinates, " state: ", goal.grid_cell_state)
 		return path
 
 	var targets := []
@@ -90,7 +92,6 @@ func _find_path_internal(start: GridCell, goal: GridCell, adjacent: bool) -> Arr
 				f_score[neighbor] = tentative_g + h
 				_heap.push({"cell": neighbor, "f": f_score[neighbor]})
 
-	print("No path found from ", start.grid_coordinates, " to ", goal.grid_coordinates)
 	return []
 
 func _is_cell_walkable(cell: GridCell) -> bool:
@@ -206,15 +207,15 @@ func _are_grid_cells_equal(cell1: GridCell, cell2: GridCell) -> bool:
 
 func debug_pathfinding_issue(start: GridCell, goal: GridCell):
 	print("=== PATHFINDING DEBUG ===")
-	print("Start cell: ", start.grid_coordinates if start else "NULL")
-	print("Start state: ", start.grid_cell_state if start else "NULL")
+	print("Start cell: ",  str(start.grid_coordinates) if start else "NULL")
+	print("Start state: ",  str(start.grid_cell_state) if start else "NULL")
 	print("Start walkable: ", _is_cell_walkable(start))
-	print("Start connections: ", start.grid_cell_connections.size() if start else "NULL")
+	print("Start connections: ",  str(start.grid_cell_connections.size()) if start else "NULL")
 	
-	print("Goal cell: ", goal.grid_coordinates if goal else "NULL") 
-	print("Goal state: ", goal.grid_cell_state if goal else "NULL")
+	print("Goal cell: ", str(goal.grid_coordinates) if goal else "NULL") 
+	print("Goal state: ",  str(goal.grid_cell_state) if goal else "NULL")
 	print("Goal walkable: ", _is_cell_walkable(goal))
-	print("Goal connections: ", goal.grid_cell_connections.size() if goal else "NULL")
+	print("Goal connections: ",  str(goal.grid_cell_connections.size()) if goal else "NULL")
 	
 	if start and start.grid_cell_connections.size() > 0:
 		print("Start's neighbors:")

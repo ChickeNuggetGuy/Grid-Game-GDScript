@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxdk03mt3er50"]
+
+[ext_resource type="Material" uid="uid://bua4yq3mne2po" path="res://art/Grassmat.tres" id="1_vdtrx"]
+[ext_resource type="ArrayMesh" uid="uid://cs2h6f8f5cs2e" path="res://art/grass_Plane_009.res" id="2_ljdmm"]
+
+[node name="Node3D" type="Node3D" unique_id=56582100]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=633260698]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+material_override = ExtResource("1_vdtrx")
+mesh = ExtResource("2_ljdmm")

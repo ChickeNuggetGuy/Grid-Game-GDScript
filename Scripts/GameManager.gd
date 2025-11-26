@@ -12,6 +12,7 @@ var spawn_counts : Vector2i
 var current_save_file : String
 var save_directory := "/Users/malikhawkins/Godot Projects /Grid-Game-GDScript/testSaves/"
 
+
 signal current_scene_changed(current_scene : Node)
 signal save_games_changed()
 
@@ -48,13 +49,14 @@ func _execute_conditions() -> bool:
 	return true
 
 func _execute():
-	var nodes : Array[Node] = get_tree().get_first_node_in_group("Managers").get_children()
+	var nodes : Array[Node] = get_tree().get_nodes_in_group("manager")
 	
 	print("Nodes length: " + str(nodes.size()))
 	for node in nodes:
 		if node is Manager and node != self:
 			managers[node._get_manager_name()] = node
 			var manager_instance: Manager = node
+				
 			await manager_instance.setup_manager_flow()
 			print(manager_instance._get_manager_name() + " setup finished!")
 
@@ -62,6 +64,11 @@ func _execute():
 		var manager = managers[manager_name]
 		if manager != self:
 			await manager.execute_manager_flow()
+			
+			if load_data.has(manager._get_manager_name()):
+				if manager.data_load_timing == Enums.DataLoadTiming.AFTEREXECUTE:
+					print("Loading data for: " + manager._get_manager_name())
+					manager.load_data_call(load_data[manager._get_manager_name()])
 			print(manager._get_manager_name() + " execute finished!")
 
 	execution_completed.emit()
@@ -69,7 +76,7 @@ func _execute():
 func sort_manager_priority(manager_a : Manager, manager_b : Manager) -> bool:
 	return manager_a.priority < manager_b.priority
 
-func on_scene_changed(new_scene: Node = null) -> void:
+func on_scene_changed(_new_scene: Node = null) -> void:
 	print("on_scene_changed called")
 
 func save_data() -> Dictionary:
@@ -84,8 +91,6 @@ func save_data() -> Dictionary:
 	}
 	return save_dict
 
-func load_data(data : Dictionary):
-	pass
 
 func quit_game():
 	get_tree().quit()
@@ -95,10 +100,13 @@ func change_scene(scene_type: sceneType, data_to_load: Dictionary) -> bool:
 		push_error("Scene not found in dictionary: " + str(scene_type))
 		return false
 
-	var save_data = save_scene_change_data()
+	var nested_data = save_scene_change_data()
+	var scene_name_key = sceneType.find_key(current_scene_type)
+	var new_data = nested_data[scene_name_key]
+	
 	if not data_to_load.is_empty():
 		for key in data_to_load:
-			save_data[key] = data_to_load[key]
+			new_data[key] = data_to_load[key]
 
 	var scene_path := scene_dictionary[scene_type]
 	current_scene_type = scene_type
@@ -126,45 +134,43 @@ func change_scene(scene_type: sceneType, data_to_load: Dictionary) -> bool:
 	await get_tree().process_frame
 	
 	current_scene_node = new_root
-	await handle_scene_change_complete(save_data)
+	await handle_scene_change_complete(new_data)
 	
 	return true
 
+
 func handle_scene_change_complete(data_to_load: Dictionary):
 	managers.clear()
-	managers_node = get_tree().get_first_node_in_group("Managers")
 	
-	if managers_node == null:
-		push_warning("No Managers group found in new scene")
-		current_scene_changed.emit(current_scene_node)
-		return
-	
-	var nodes: Array[Node] = managers_node.get_children()
+	var nodes: Array[Node] = get_tree().get_nodes_in_group("manager")
 	print("Discovered " + str(nodes.size()) + " manager nodes")
 	
 	for node in nodes:
 		if node is Manager and node != self:
 			managers[node._get_manager_name()] = node
 	
+	if not data_to_load.is_empty():
+		load_current_game_data(data_to_load)
+		
 	for manager_name in managers:
 		var manager: Manager = managers[manager_name]
 		await manager.setup_manager_flow()
 		print(manager_name + " setup finished!")
 	
+
 	for manager_name in managers:
 		var manager: Manager = managers[manager_name]
 		if manager != self:
 			await manager.execute_manager_flow()
 			print(manager_name + " execute finished!")
 	
-	if not data_to_load.is_empty():
-		load_current_game_data(data_to_load)
+
 	
 	current_scene_changed.emit(current_scene_node)
 
-func save_scene_change_data() -> Dictionary:
-	var save_dictionary: Dictionary = {}
-	
+
+func _get_managers_data(all_managers: bool) -> Dictionary:
+	var data_dictionary: Dictionary = {}
 	var manager_nodes = get_tree().get_nodes_in_group("manager")
 	
 	for node in manager_nodes:
@@ -172,50 +178,64 @@ func save_scene_change_data() -> Dictionary:
 			continue
 		var manager: Manager = node as Manager
 		
-		if manager.save_on_scene_change:
-			print("Saving scene change data for: " + manager._get_manager_name())
-			save_dictionary[manager._get_manager_name()] = manager.save_data()
+		# If we're not getting all managers, check the save_on_scene_change flag
+		if not all_managers and not manager.save_on_scene_change:
+			continue
+		
+		print("Saving data for: " + manager._get_manager_name())
+		data_dictionary[manager._get_manager_name()] = manager.save_data()
+		
+	return data_dictionary
+
+
+func save_scene_change_data() -> Dictionary:
+	var manager_data = _get_managers_data(false) # false = only managers with save_on_scene_change
 	
-	return save_dictionary
+	var scene_save_data := {}
+	var scene_name = sceneType.find_key(current_scene_type)
+	scene_save_data[scene_name] = manager_data
+	
+	return scene_save_data
+
 
 func try_load_scene_by_type(scene_type: sceneType, data: Dictionary) -> bool:
 	return await change_scene(scene_type, data)
+
 
 func _on_scene_exit():
 	await get_tree().process_frame
 	current_scene_node = get_tree().current_scene
 	current_scene_changed.emit(current_scene_node)
 
+
 func get_current_scene_data() -> Dictionary:
-	var save_dictionary : Dictionary = {}
-	
-	var manager_nodes = get_tree().get_nodes_in_group("manager")
-	
-	for node in manager_nodes:
-		if not node is Manager:
-			continue
-		var manager : Manager = node as Manager
-		print("Saving data for: " + manager._get_manager_name())
-		
-		save_dictionary[manager._get_manager_name()] = manager.save_data()
+	var manager_data = _get_managers_data(true) # true = all managers
 	
 	if current_save_file == "":
 		current_save_file = "new save file"
+		
+	var scene_save_data := {}
+	var scene_name = sceneType.find_key(current_scene_type)
+	scene_save_data[scene_name] = manager_data
 	
-	return save_dictionary
+	return scene_save_data
+
 
 func load_current_game_data(data: Dictionary):
 	if data.is_empty():
 		print("No data to load")
 		return
-		
+	
+	load_data = data
+	
 	for manager_name in data:
 		if managers.has(manager_name):
 			var manager: Manager = managers[manager_name]
-			print("Loading data for: " + manager_name)
+			
 			manager.load_data_call(data[manager_name])
 		else:
 			print("Manager not found for loading data: " + manager_name)
+
 
 func get_game_data_from_save(save_name : String) -> Dictionary:
 	if save_name.is_empty():
@@ -254,6 +274,7 @@ func create_save_directory():
 			return
 	save_games_changed.emit()
 
+
 func save_game_data(data_to_save: Dictionary, save_name: String, load_file : bool = false):
 	if save_name.is_empty():
 		print("Error: Save name cannot be empty")
@@ -263,9 +284,9 @@ func save_game_data(data_to_save: Dictionary, save_name: String, load_file : boo
 		save_name += ".json"
 	
 	var invalid_chars = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"]
-	for char in invalid_chars:
-		if save_name.contains(char):
-			print("Error: Invalid character in filename: ", char)
+	for invalid_char in invalid_chars:
+		if save_name.contains(invalid_char):
+			print("Error: Invalid character in filename: ", invalid_char)
 			return false
 	
 	var full_path = save_directory.path_join(save_name)
@@ -284,10 +305,18 @@ func save_game_data(data_to_save: Dictionary, save_name: String, load_file : boo
 		print("Error saving data to: ", full_path)
 		return false
 
+
 func load_game_data(save_name: String):
 	var data = get_game_data_from_save(save_name)
-	var target_scene: sceneType = data[_get_manager_name()]["current_scene_type"]
-	await change_scene(target_scene, data)
+	if data.is_empty():
+		return
+		
+	# New loading logic for nested structure
+	var scene_name = data.keys()[0]
+	var manager_data = data[scene_name]
+	var target_scene_type = sceneType[scene_name]
+	
+	await change_scene(target_scene_type, manager_data)
 
 func delete_save_file_absolute(file_name: String):
 	var path = save_directory.path_join(file_name)

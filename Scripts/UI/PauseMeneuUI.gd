@@ -35,3 +35,12 @@ func _on_exit_game_button_pressed() -> void:
 	GameManager.guit_game()
 
 #endregion
+
+func _show():
+	super.show()
+	get_tree().paused = true
+
+
+func _hide():
+	super.hide()
+	get_tree().paused = false

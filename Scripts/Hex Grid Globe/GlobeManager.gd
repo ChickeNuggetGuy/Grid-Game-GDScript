@@ -32,15 +32,11 @@ func _process(delta: float) -> void:
 		mission_timer -= delta
 	else:
 		spawn_mission()
-		mission_timer = randi_range(mission_timer_min, mission_timer_max)
+		mission_timer = randf_range(mission_timer_min, mission_timer_max)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_pressed() and event is InputEventKey:
-		var key_event: InputEventKey = event
-
-	elif event.is_pressed() and event is InputEventMouse:
+	if event.is_pressed() and event is InputEventMouse:
 		var mouse_event: InputEventMouseButton = event
-		var index = hex_globe_Decorator.hovered_cell
 		
 		if build_base_mode:
 			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
@@ -69,23 +65,6 @@ func _unhandled_input(event: InputEvent) -> void:
 							nearest_base_index = base.cell_index
 						
 					send_ship_to_mission(hearest_base_index, idx)
-		else:
-			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-				start_cell_index = index
-				
-			elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
-				end_cell_index = index
-			elif mouse_event.button_index == MOUSE_BUTTON_MIDDLE:
-				if start_cell_index != -1 and end_cell_index != -1:
-					var pf: GlobePathfinder = GlobePathfinder.new()
-					pf.set_grid_index(hex_globe_Decorator.grid_index)
-					var path := pf.find_path(start_cell_index, end_cell_index)
-					path = pf.smooth_path_adjacent(path)
-					if not path.is_empty():
-						for i in path:
-							var new_city: CityDefinition = CityDefinition.new(i, "TEST")
-							hex_grid_data.add_cell_definition(i, new_city, hex_globe_Decorator)
-					hex_globe_Decorator.request_definitions_rebuild()
 #endregion
 
 
@@ -124,6 +103,12 @@ func spawn_mission():
 
 func send_ship_to_mission(starting_cell_index : int, mission_cell_index : int):
 	
+	var mission_def : MissionDefinition
+	for d in hex_grid_data.get_cell_definitions(mission_cell_index):
+		if d is MissionDefinition:
+			mission_def = d as MissionDefinition
+			break
+			
 	var pf: GlobePathfinder = GlobePathfinder.new()
 	pf.set_grid_index(hex_globe_Decorator.grid_index)
 	var path := pf.find_path(start_cell_index, end_cell_index)
@@ -150,7 +135,7 @@ func send_ship_to_mission(starting_cell_index : int, mission_cell_index : int):
 	else:
 		print("path is null")
 		
-		GameManager.spawn_counts = Vector2i(2, randi_range(1,5))
+		GameManager.spawn_counts = Vector2i(2, mission_def.enemy_spawn) 
 		GameManager.map_size = Vector2i(2,2)
 		GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE, GameManager.get_current_scene_data())
 
@@ -168,7 +153,7 @@ func _filter_cells_without_mission(cells: Array[int]) -> Array[int]:
 	return out
 
 
-func try_place_definition(cell_index : int) -> bool:
+func try_place_definition(_cell_index : int) -> bool:
 	return true
 
 
@@ -228,6 +213,11 @@ func _execute_conditions() -> bool:
 	return true
 
 func _execute():
+	
+	if not load_data.is_empty():
+		hex_grid_data.add_cell_definitions_from_data_bulk(load_data["cell_definitions"])
+		hex_globe_Decorator.request_definitions_rebuild()
+		print("Loaded missions: ", hex_grid_data.get_definitions_by_type("MissionDefinition").size())
 	execution_completed.emit()
 	execute_complete = true
 	return
@@ -255,11 +245,6 @@ func save_data() -> Dictionary:
 	print(((save_dict["cell_definitions"].get("MissionDefinition", []) as Array)).size())
 	return save_dict
 
-func load_data(data: Dictionary):
-	print("Loading Globe Data")
-	hex_grid_data.add_cell_definitions_from_data_bulk(data["cell_definitions"])
-	hex_globe_Decorator.request_definitions_rebuild()
-	print("Loaded missions: ", hex_grid_data.get_definitions_by_type("MissionDefinition").size())
 
 #endregion
 #endregion

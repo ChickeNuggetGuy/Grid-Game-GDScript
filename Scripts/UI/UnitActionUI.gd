@@ -37,7 +37,7 @@ func update_stat_bars(unit : Unit):
 	for bar in stat_progress_bars:
 		var progress_bar : StatProgressBar = bar
 		
-		var stat : GridObjectStat = unit.get_stat_by_name(progress_bar.stat_name)
+		var stat : GridObjectStat = unit.get_stat_by_type(progress_bar.stat_type)
 		if stat != null:
 			progress_bar.setup(unit, stat)
 			progress_bar.value = stat.current_value

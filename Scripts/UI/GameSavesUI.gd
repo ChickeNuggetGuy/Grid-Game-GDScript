@@ -40,8 +40,7 @@ func _on_save_button_pressed() -> void:
 	
 	GameManager.current_save_file = save_name
 	GameManager.current_scene_type = GameManager.sceneType.GLOBE
-	var game_data = GameManager.save_game_data(GameManager.get_current_scene_data(), save_name, true)
-
+	GameManager.save_game_data(GameManager.get_current_scene_data(), save_name, true)
 
 
 func _on_delete_button_pressed() -> void:
@@ -50,6 +49,7 @@ func _on_delete_button_pressed() -> void:
 		for index in selected_items:
 			var file_name = save_game_list.get_item_text(index)
 			GameManager.delete_save_file_absolute(file_name)
+
 
 func load_save_data(file_name: String) -> Dictionary:
 	var path = GameManager.save_directory.path_join(file_name)

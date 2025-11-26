@@ -1,0 +1,75 @@
+[gd_scene load_steps=10 format=3 uid="uid://woc48aiw5yn4"]
+
+[ext_resource type="Script" uid="uid://4ha15fv3jgdt" path="res://Scripts/GridObject/Obstacle.gd" id="1_cyuh0"]
+[ext_resource type="PackedScene" uid="uid://d4n4ub6itdm3g" path="res://Third-Party Assests/PolygonCity/Prefabs/SM_Veh_Car_Van_01.tscn" id="2_p7mqr"]
+[ext_resource type="PackedScene" uid="uid://d4n4ub6itdm1a" path="res://Third-Party Assests/PolygonCity/Prefabs/SM_Veh_Car_Van_01_9.tscn" id="3_arviu"]
+[ext_resource type="Script" uid="uid://d4hr6o3rcvuwi" path="res://Scripts/GridSystem/GridCellStateOverride.gd" id="4_0t5k5"]
+[ext_resource type="Script" uid="uid://06anso1qbl48" path="res://Scripts/GridObject/GridPositionData.gd" id="5_qs5qf"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="6_06a4m"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ot6s1"]
+size = Vector2(16, 16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_04obs"]
+size = Vector3(5.25, 2.5, 2.25)
+
+[sub_resource type="Resource" id="Resource_vf0gb"]
+resource_local_to_scene = true
+script = ExtResource("6_06a4m")
+grid_width = 5
+grid_depth = 2
+grid_height = 2
+shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[node name="Node3D" type="Node3D" unique_id=2096536389]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=719170358]
+mesh = SubResource("PlaneMesh_ot6s1")
+
+[node name="Obstacle" type="Node3D" parent="." unique_id=2079996226 node_paths=PackedStringArray("grid_position_data", "visual")]
+script = ExtResource("1_cyuh0")
+grid_position_data = NodePath("GridPositionData")
+visual = NodePath("SM_Veh_Car_Van_01")
+metadata/_custom_type_script = "uid://4ha15fv3jgdt"
+
+[node name="SM_Veh_Car_Van_01" parent="Obstacle" unique_id=1551923187 instance=ExtResource("2_p7mqr")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.5, -0.103725374, 0)
+
+[node name="SM_Veh_Car_Van_01_9" parent="Obstacle/SM_Veh_Car_Van_01" unique_id=413513564 instance=ExtResource("3_arviu")]
+transform = Transform3D(-1, 0, -8.742277e-08, 0, 1, 0, 8.742277e-08, 0, -1, 0.7602453, 0.40375984, 1.8399887)
+
+[node name="SM_Veh_Car_Van_01_10" parent="Obstacle/SM_Veh_Car_Van_01" unique_id=1647039054 instance=ExtResource("3_arviu")]
+transform = Transform3D(-1, 0, -8.742277e-08, 0, 1, 0, 8.742277e-08, 0, -1, 0.7571291, 0.40375984, -1.4891407)
+
+[node name="SM_Veh_Car_Van_01_11" parent="Obstacle/SM_Veh_Car_Van_01" unique_id=594594296 instance=ExtResource("3_arviu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.73814625, 0.40375984, 1.8362119)
+
+[node name="SM_Veh_Car_Van_01_12" parent="Obstacle/SM_Veh_Car_Van_01" unique_id=122451025 instance=ExtResource("3_arviu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7233332, 0.40375984, -1.4962007)
+
+[node name="GridCellStateOverride" type="Area3D" parent="Obstacle" unique_id=338906283 node_paths=PackedStringArray("grid_position_data")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.75, 0, -0.25)
+script = ExtResource("4_0t5k5")
+grid_position_data = NodePath("../GridPositionData")
+state_override = true
+cell_state_override = 8
+metadata/_custom_type_script = "uid://d4hr6o3rcvuwi"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacle/GridCellStateOverride" unique_id=992557149]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.125, 0.75, 0.625)
+shape = SubResource("BoxShape3D_04obs")
+
+[node name="GridPositionData" type="Node3D" parent="Obstacle" unique_id=838454671 node_paths=PackedStringArray("parent_grid_object")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0, -0.5)
+script = ExtResource("5_qs5qf")
+grid_shape = SubResource("Resource_vf0gb")
+parent_grid_object = NodePath("..")
+metadata/_custom_type_script = "uid://06anso1qbl48"
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Obstacle" unique_id=1275571928]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0, 0)
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Obstacle/StaticBody3D" unique_id=937731960]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.125, 0.75, 0.625)
+shape = SubResource("BoxShape3D_04obs")

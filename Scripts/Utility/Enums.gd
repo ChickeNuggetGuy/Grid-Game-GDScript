@@ -12,21 +12,30 @@ enum cellState {
 	GROUND = 1 << 1,
 	EMPTY = 1 << 2,
 	OBSTRUCTED = 1 << 3,
-	WALKABLE = 1 << 4 
-}
+	WALKABLE = 1 << 4 }
 
 
 enum inventory_UI_slot_behavior {SELECT,EXECUTE_ACTION,TRY_TRANSFER}
 
 
 enum UnitStance {
-	NORMAL = 1 << 0,
-	CROUCHED = 1 << 1,
-	STATIONARY = 1 << 2,
-	MOVING = 1 << 3}
+	NORMAL,
+	CROUCHED
+	}
+
+enum UnitMovementStance {
+	STATIONARY,
+	MOVING
+	}
 
 
 enum FogState { UNSEEN, PREVIOUSLY_SEEN, VISIBLE }
 
 
 enum ChangeTurnBehavior {NONE,MIN, MAX, INCREMENT, DERCREMENT }
+
+
+enum DataLoadTiming {NONE, SCENESETUP, BEFOREEXECUTE, AFTEREXECUTE}
+
+
+enum Stat {HEALTH, STAMINA, BRAVERY, TIMEUNITS}

@@ -143,13 +143,13 @@ func _trackball_rotate(screen_pos: Vector2) -> void:
 	_apply_rotation(q)
 
 func _screen_to_arcball(p: Vector2) -> Vector3:
-	var size := get_viewport().get_visible_rect().size
-	var s := float(min(size.x, size.y))
+	var viewport_size := get_viewport().get_visible_rect().size
+	var s := float(min(viewport_size.x, viewport_size.y))
 	if s <= 0.0:
 		return Vector3.ZERO
 
-	var x := (2.0 * p.x - float(size.x)) / s
-	var y := (float(size.y) - 2.0 * p.y) / s 
+	var x := (2.0 * p.x - float(viewport_size.x)) / s
+	var y := (float(viewport_size.y) - 2.0 * p.y) / s 
 	var r2 := x * x + y * y
 	var z := 0.0
 	if r2 <= 1.0:

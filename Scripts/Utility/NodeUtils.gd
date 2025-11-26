@@ -40,3 +40,11 @@ func create_instance_from_data(data: Dictionary) -> HexCellDefinition:
 		_:
 			print("Unknown class for deserialization: ", _class_name)
 			return null
+
+
+func _parse_vector3_from_string(s: String) -> Vector3:
+	s = s.trim_prefix("(").trim_suffix(")")
+	var parts = s.split(",")
+	if parts.size() == 3:
+		return Vector3(float(parts[0].strip_edges()), float(parts[1].strip_edges()), float(parts[2].strip_edges()))
+	return Vector3.ZERO

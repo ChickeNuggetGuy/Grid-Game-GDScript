@@ -28,21 +28,22 @@ func _init() -> void:
 	super._init()
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_val = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A"}
-	var temp_cost = {"time_units" : 2, "stamina" : 2}
+	var ret_val = {"success": false, "costs" : {Enums.Stat.TIMEUNITS : -1, Enums.Stat.STAMINA : -1}, "reason" : "N/A", "extra_parameters": {}}
 	
-	var results =  parameters["unit"].check_stat_values(temp_cost)
+	var temp_costs = {Enums.Stat.TIMEUNITS: 0, Enums.Stat.STAMINA : 0}
+	
+	var results =  parameters["unit"].check_stat_values(temp_costs)
 	
 	if results["success"] == false:
 		ret_val["success"] = false
-		ret_val["costs"]["time_units"] = -1
-		ret_val["costs"]["stamina"] = -1
+		ret_val["costs"][Enums.Stat.TIMEUNITS] = -1
+		ret_val["costs"][Enums.Stat.STAMINA] = -1
 		ret_val["reason"] = "not enough stats"
 		return ret_val
 	else:
 		ret_val["success"] = true
-		ret_val["costs"]["time_units"] = temp_cost["time_units"]
-		ret_val["costs"]["stamina"] = temp_cost["stamina"]
+		ret_val["costs"][Enums.Stat.TIMEUNITS] = temp_costs[Enums.Stat.TIMEUNITS]
+		ret_val["costs"][Enums.Stat.STAMINA] = temp_costs[Enums.Stat.STAMINA]
 		ret_val["reason"] = "not enough stats"
 		return ret_val
 		

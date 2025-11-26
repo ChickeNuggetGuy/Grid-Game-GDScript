@@ -2,7 +2,7 @@
 class_name Action
 
 var action_name: String 
-var costs: Dictionary[String, int]
+var costs: Dictionary[Enums.Stat, int]
 var owner: GridObject = null
 var start_grid_cell: GridCell = null
 var target_grid_cell: GridCell = null
@@ -17,8 +17,6 @@ func _init(parameters : Dictionary) -> void:
 	owner  = parameters["unit"]
 	start_grid_cell = parameters["start_grid_cell"]
 	target_grid_cell = parameters["target_grid_cell"]
-
-
 
 
 func execute_call() -> void:
@@ -46,8 +44,6 @@ func _action_complete_call() -> void:
 	unit_action_manager.any_action_execution_finished.emit(unit_action_manager.selected_action,execution_parameters)
 
 
-
-
 @abstract func _action_complete()
 @abstract func action_cancel()
 
@@ -66,4 +62,3 @@ func _spend_unit_stats():
 		var result = owner.try_spend_stat_value(cost_key,costs[cost_key])
 		if result["success"] == false:
 			push_error("Unit could not afford action: " + str(cost_key) + " of cost: " + str(costs[cost_key]) + " this so=hould not be possible and should be validated otherwise")
-			

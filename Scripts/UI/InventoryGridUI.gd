@@ -41,11 +41,11 @@ func _setup():
 	
 	_set_current_inventory_grid(new_inventory_grid)
 	
-	if inventory_grid == null or inventory_grid.shape == null:
+	if inventory_grid == null or inventory_grid.grid_shape == null:
 		return
 		
 	if inventory_slot_holder is GridContainer:
-		inventory_slot_holder.columns = inventory_grid.shape.grid_width
+		inventory_slot_holder.columns = inventory_grid.grid_shape.grid_width
 	
 	call_deferred("draw_inventory")
 
@@ -82,7 +82,7 @@ func _clear_slots():
 
 
 func draw_inventory():
-	if inventory_grid == null or inventory_grid.shape == null:
+	if inventory_grid == null or inventory_grid.grid_shape == null:
 		_clear_slots()
 		return
 	
@@ -98,15 +98,15 @@ func draw_inventory():
 			_set_current_inventory_grid(current_grid_cell.inventory_grid)
 		
 	if inventory_slot_holder is GridContainer:
-		if inventory_grid.shape.grid_width != null and inventory_grid.shape.grid_width > 0:
-			if inventory_slot_holder.columns != inventory_grid.shape.grid_width:
-				inventory_slot_holder.columns = inventory_grid.shape.grid_width
+		if inventory_grid.grid_shape.grid_width != null and inventory_grid.grid_shape.grid_width > 0:
+			if inventory_slot_holder.columns != inventory_grid.grid_shape.grid_width:
+				inventory_slot_holder.columns = inventory_grid.grid_shape.grid_width
 		else:
-			push_error("draw_inventory: inventory_grid.shape.grid_width is invalid. Falling back to 1 column.")
+			push_error("draw_inventory: inventory_grid.grid_shape.grid_width is invalid. Falling back to 1 column.")
 			inventory_slot_holder.columns = 1
 			
-	var current_grid_width = inventory_grid.shape.grid_width
-	var current_grid_height = inventory_grid.shape.grid_height
+	var current_grid_width = inventory_grid.grid_shape.grid_width
+	var current_grid_height = inventory_grid.grid_shape.grid_height
 	
 	var expected_slot_count = current_grid_width * current_grid_height
 	if inventory_slots.size() != expected_slot_count:
@@ -124,10 +124,10 @@ func draw_inventory():
 func instantiate_inventory_slot_ui(grid_coords : Vector2i):
 	var instantiated_slot : Control
 	
-	if inventory_grid == null or inventory_grid.shape == null: 
+	if inventory_grid == null or inventory_grid.grid_shape == null: 
 		return
 
-	if inventory_grid.shape.get_grid_shape_cell(grid_coords.x, grid_coords.y):
+	if inventory_grid.grid_shape.get_grid_shape_cell(grid_coords.x, grid_coords.y, 0):
 		instantiated_slot = InventoryManager.inventory_slot_prefab.instantiate()
 	else:
 		instantiated_slot = InventoryManager.inactive_inventory_slot_prefab.instantiate()
@@ -146,14 +146,14 @@ func update_slot(slot : InventorySlotUI):
 	if slot == null:
 		push_error("Error: Trying to update a null slot")
 		return
-	if inventory_grid == null or inventory_grid.shape == null:
+	if inventory_grid == null or inventory_grid.grid_shape == null:
 		slot.icon = null
 		return
 	
 	if (slot.grid_coords.x < 0 || 
 		slot.grid_coords.y < 0 || 
-		slot.grid_coords.x >= inventory_grid.shape.grid_width ||
-		slot.grid_coords.y >= inventory_grid.shape.grid_height):
+		slot.grid_coords.x >= inventory_grid.grid_shape.grid_width ||
+		slot.grid_coords.y >= inventory_grid.grid_shape.grid_height):
 		slot.icon = null
 		return
 	
@@ -172,18 +172,19 @@ func unit_manager_unit_selected(_new_Unit : GridObject, _old_unit : GridObject):
 func inventory_grid_inventory_changed():
 	draw_inventory()
 
-func inventory_slot_pressed(grid_coords : Vector2i, is_left_click : bool):
+func inventory_slot_pressed(slot_ui : InventorySlotUI , is_left_click : bool):
 	
-	var slot_ui = inventory_slots[grid_coords]
-	var item : Item = inventory_grid.has_item_at(grid_coords)
+	var item : Item = inventory_grid.has_item_at(slot_ui.grid_coords)
 	
 	if slot_ui == null:
+		
 		return
 	if is_left_click:
 		if slot_behavior == Enums.inventory_UI_slot_behavior.EXECUTE_ACTION and item != null:
-			try_execute_item_action(grid_coords)
+			
+			try_execute_item_action(slot_ui.grid_coords)
 		else:
-			item_try_transfer(grid_coords)
+			item_try_transfer(slot_ui.grid_coords)
 	else:
 		if item != null:
 			ContextMenuUI.intance.generate_context_buttons(item)
@@ -240,10 +241,3 @@ func try_execute_item_action(grid_coords : Vector2i):
 			item,
 			inventory_grid,
 			GameManager.managers["GridInputManager"].currentGridCell)
-	
-	#main_inventory_ui.show_call()
-
-
-#func _unhandled_input(event):
-		#if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			

@@ -13,7 +13,7 @@ func double_click_call(parameters : Dictionary) -> void:
 		print(parameters["path"].size())
 
 
-func double_click_clear(parameters : Dictionary) -> void:
+func double_click_clear(_parameters : Dictionary) -> void:
 	return
 
 func get_can_cancel_action() -> bool: return false

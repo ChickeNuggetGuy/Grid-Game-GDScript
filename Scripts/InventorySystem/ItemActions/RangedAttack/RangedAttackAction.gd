@@ -5,7 +5,7 @@ var item : Item
 var attack_count : int
 
 const MAX_PROJECTILE_RANGE := 30.0
-const PROJECTILE_SPEED := 20.0
+const PROJECTILE_SPEED := 5.0
 const MAX_TWEEN_DURATION := 0.6
 const MIN_TWEEN_DURATION := 0.05
 
@@ -13,11 +13,11 @@ const MIN_TWEEN_DURATION := 0.05
 func _init(parameters : Dictionary) -> void:
 	parameters["action_name"] = "Ranged Attack"
 	owner = parameters["unit"]
-	costs = {"time_units" : 12 }
+	costs = {Enums.Stat.TIMEUNITS : 12 }
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
 	item = parameters.get("item")
-	attack_count = parameters["action_definition"].attack_count
+	attack_count =item.extra_values["attack_count"]
 	super._init(parameters)
 
 
@@ -67,7 +67,7 @@ func _execute() -> bool:
 		sub_actions.append(rotate_action)
 
 	await super._execute()
-
+	print("executing Ranged Action")
 	for i in range(attack_count):
 		var calc = calculate_direction_with_variance(
 			from_position,
@@ -116,14 +116,14 @@ func _execute() -> bool:
 				hit_grid_object = calc["grid_cell"].grid_object
 
 		if hit_grid_object != null:
-			var health_stat = hit_grid_object.get_stat_by_name("Health")
+			var health_stat = hit_grid_object.get_stat_by_type(Enums.Stat.HEALTH)
 			if health_stat != null:
-				health_stat.try_remove_value(100)
+				var damage_val : int = item.extra_values["damage"]
+				health_stat.try_remove_value(damage_val)
 				print(
-					"damaged unit for 10 health. new health is " +
+					"damaged unit for " + str(damage_val) + " health. new health is " +
 					str(health_stat.current_value)
 				)
-
 		await owner.get_tree().create_timer(0.8).timeout
 	return true
 
@@ -175,17 +175,20 @@ func calculate_direction_with_variance(
 	if not hit_result.is_empty():
 		hit_position = hit_result.position
 
-		var parent = hit_result.collider.get_parent_node_3d()
-		if parent is GridObject:
-			grid_object = parent as GridObject
+		var node = hit_result.collider
+		while node:
+			if node is GridObject:
+				grid_object = node
+				break
+			node = node.get_parent()
+
+		if grid_object and grid_object.grid_position_data:
 			grid_cell = grid_object.grid_position_data.grid_cell
 		else:
 			var get_grid_cell_result = GameManager.managers["GridSystem"].\
 				try_get_gridCell_from_world_position(hit_position)
 			if get_grid_cell_result.get("success", false):
 				grid_cell = get_grid_cell_result["grid_cell"]
-			else:
-				grid_cell = null
 	else:
 		# Miss: stop at max_range instead of a huge arbitrary distance
 		hit_position = ray_params.from + new_direction * max_range

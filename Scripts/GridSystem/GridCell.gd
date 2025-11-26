@@ -27,7 +27,6 @@ func _init(xCoord: int, layerCoord: int, zCoord: int, worldPos: Vector3,
 	grid_cell_state = cell_state
 	fog_status = fog_state
 	inventory_grid = inventory 
-	inventory_grid.initialize()
 	inventory_grid.connect("item_added", inventory_grid_item_added)
 
 func set_gridobject(target: GridObject, cell_state: Enums.cellState):
@@ -123,16 +122,6 @@ func set_cell_state_exclusive(state: Enums.cellState) -> void:
 func _handle_state_change() -> void:
 	var grid_system: GridSystem = GameManager.managers["GridSystem"]
 	var cs = GameManager.managers["MeshTerrainManager"].cell_size
-	
-	# Debug visualization
-	DebugDraw3D.draw_box(
-		world_position,
-		Quaternion.IDENTITY,
-		Vector3(cs.x, cs.y, cs.x),
-		Color.YELLOW,
-		true,
-		25
-	)
 	
 	# Handle connections based on new state
 	if bool(grid_cell_state & Enums.cellState.AIR):

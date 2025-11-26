@@ -2,19 +2,20 @@ extends GridObject
 class_name Unit
 
 @warning_ignore("int_as_enum_without_cast", "int_as_enum_without_match")
-@export var _stance : Enums.UnitStance = (Enums.UnitStance.NORMAL | Enums.UnitStance.STATIONARY)
+@export var _stance : Enums.UnitStance = Enums.UnitStance.NORMAL
+@export var unit_movement_stance : Enums.UnitMovementStance = Enums.UnitMovementStance.STATIONARY
+
 @export var _action_library: Array[BaseActionDefinition] = []
 var action_queue : Array[Action]
 
+
 #region Stance Functions
 const POSTURE_MASK := Enums.UnitStance.NORMAL | Enums.UnitStance.CROUCHED
-const MOTION_MASK := Enums.UnitStance.STATIONARY | Enums.UnitStance.MOVING
 
 
-func _setup(gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam):
-	
-	super._setup(gridCell,direction, unit_team)
-	print("Trying to add Item: " + str(inventory_grids[Enums.inventoryType.RIGHTHAND].try_add_item(InventoryManager.get_random_item())))
+func _setup(loading_data :bool, data : Dictionary = {}):
+	super._setup(loading_data, data)
+
 
 func set_stance(flag: int) -> void:
 	# Ensure flag is one of the posture flags
@@ -23,16 +24,14 @@ func set_stance(flag: int) -> void:
 	_stance = (_stance & ~POSTURE_MASK) | flag
 
 
-func set_motion(flag: int) -> void:
-	# Ensure flag is one of the motion flags
-	assert((flag & MOTION_MASK) != 0 and (flag & ~MOTION_MASK) == 0)
-	@warning_ignore("int_as_enum_without_cast")
-	_stance = (_stance & ~MOTION_MASK) | flag
+func set_motion(motion : Enums.UnitMovementStance):
+	unit_movement_stance = motion
 
 
 func toggle_stance(state):
 	_stance = _stance ^ state
-	
+
+
 func get_stance() -> Enums.UnitStance:
 	return _stance
 
@@ -42,9 +41,10 @@ func is_crouched() -> bool:
 
 
 func is_moving() -> bool:
-	return (_stance & Enums.UnitStance.MOVING) != 0
+	return unit_movement_stance == Enums.UnitMovementStance.MOVING
 #endregion
-
+func get_default_action() -> BaseActionDefinition:
+	return try_get_action_definition_by_type("MoveActionDefinition")["action_definition"]
 func get_action_node_by_index(i: int) -> BaseActionDefinition:
 	var a = _action_library[i]
 	if a == null:

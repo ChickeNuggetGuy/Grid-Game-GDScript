@@ -6,6 +6,8 @@ extends Node
 @export var save_on_scene_change : bool = false
 var setup_complete : bool
 var execute_complete : bool
+
+var load_data : Dictionary = {}
 #region Signals
 signal setup_completed()
 signal execution_completed()
@@ -14,8 +16,8 @@ signal execution_completed()
 
 #region Initialization and Setup
 
-
 func _init() -> void:
+	process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_to_group("manager")
 # Abstract method for the manager's name.
 @abstract func _get_manager_name() -> String
@@ -24,18 +26,14 @@ func _init() -> void:
 
 
 func load_data_call(data_dict : Dictionary):
-	for data in data_dict.keys():
-		self.set(data, data_dict[data])
-	
-	load_data(data_dict)
+	load_data = data_dict
 
-
-@abstract func load_data(data : Dictionary)
 
 
 # Orchestrates the manager's setup phase.
 func setup_manager_flow():
-
+	
+	GameManager.managers.get_or_add(_get_manager_name(), self)
 	if _setup_conditions() == false:
 		push_warning("%s: Setup conditions not met. Skipping setup." % _get_manager_name())
 		return

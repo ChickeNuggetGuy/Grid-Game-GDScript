@@ -38,8 +38,8 @@ func setup(unit_manager : UnitManager, data : Dictionary = {}) -> void:
 			var unit_scene = load(unit_data["filename"]) as PackedScene
 			if unit_scene:
 				var new_unit : GridObject = unit_scene.instantiate() as GridObject
-				add_grid_object(new_unit)
-				new_unit._setup(true, unit_data)
+				add_grid_object(new_unit, unit_data, true, true)
+
 
 		var inactive_units_data = data["grid_objects"]["inactive"]
 		for unit_name in inactive_units_data:
@@ -47,9 +47,7 @@ func setup(unit_manager : UnitManager, data : Dictionary = {}) -> void:
 			var unit_scene = load(unit_data["filename"]) as PackedScene
 			if unit_scene:
 				var new_unit = unit_scene.instantiate() as GridObject
-				add_child(new_unit)
-				new_unit._setup(true, unit_data)
-				grid_objects["inactive"].append(new_unit)
+				add_grid_object(new_unit, unit_data, false, true)
 		
 		
 		var size_v3: Vector3i = terrain.get_map_cell_size()
@@ -66,20 +64,26 @@ func setup(unit_manager : UnitManager, data : Dictionary = {}) -> void:
 			push_error("Failed to create and initialize ImageTexture3D.")
 			return
 
-	update_team_visibility()
+	call_deferred("update_team_visibility")
 
-func add_grid_object(grid_object: GridObject):
+
+func add_grid_object(grid_object: GridObject, unit_data : Dictionary, is_active : bool, loading_data : bool):
 	if grid_object == null or grid_objects["active"].has(grid_object):
 		return
-
-	grid_objects["active"].append(grid_object)
-	add_child(grid_object)
-
-	var health_stat = grid_object.get_stat_by_name("Health")
-	if not health_stat:
-		print('health stat not found')
+	
+	if is_active:
+		grid_objects["active"].append(grid_object)
 	else:
-		health_stat.stat_value_min.connect(on_grid_object_died)
+		grid_objects["inactive"].append(grid_object)
+	add_child(grid_object)
+	
+	await grid_object._setup(loading_data, unit_data)
+	if grid_object is Unit:
+		var health_stat = grid_object.get_stat_by_type(Enums.Stat.HEALTH)
+		if health_stat == null:
+			print("UnitTEAM: health stat not found for " + grid_object.name )
+		else:
+			health_stat.stat_value_min.connect(on_grid_object_died)
 
 
 func update_team_visibility():
@@ -89,6 +93,9 @@ func update_team_visibility():
 
 	var previously_seen_cells: Dictionary = {}
 	var updated_grid_cells: Dictionary = {}
+	
+	var previously_seen_objects: Array[GridObject] = []
+	var all_currently_seen_objects: Array[GridObject] = []
 
 	for grid_object in active_grid_objects:
 		if not grid_object is Unit:
@@ -99,11 +106,23 @@ func update_team_visibility():
 			continue
 
 		var sight_area: GridObjectSightArea = component_result["grid_object_component"]
+		
+		for team_key in sight_area.seen_gridObjects:
+			for obj in sight_area.seen_gridObjects[team_key]:
+				if not previously_seen_objects.has(obj):
+					previously_seen_objects.append(obj)
+
 		previously_seen_cells.merge(sight_area.seen_cells)
 		var sight_result = sight_area.update_sight_area(team == Enums.unitTeam.PLAYER)
 
 		if sight_result["success"]:
 			updated_grid_cells.merge(sight_result["seen_grid_cells"])
+			
+			var new_objects = sight_result["seen_grid_objects"]
+			for team_key in new_objects:
+				for obj in new_objects[team_key]:
+					if not all_currently_seen_objects.has(obj):
+						all_currently_seen_objects.append(obj)
 
 	var no_longer_visible_cells: Dictionary = {}
 	for cell_key in previously_seen_cells.keys():
@@ -118,11 +137,9 @@ func update_team_visibility():
 	for cell_pos: Vector3i in updated_grid_cells:
 		var cell: GridCell = updated_grid_cells[cell_pos]
 		
-		# --- FIX: Use Z for the image array index ---
 		if cell_pos.z < 0 or cell_pos.z >= visibility_images.size():
 			continue
 		
-		# --- FIX: Use Z for the image array index ---
 		var image_slice: Image = visibility_images[cell_pos.z]
 
 		var pixel_color: Color
@@ -134,7 +151,6 @@ func update_team_visibility():
 			_: # UNSEEN
 				pixel_color = Color.BLACK
 
-		# --- FIX: Use (X, Y) for setting the pixel ---
 		if image_slice.get_pixel(cell_pos.x, cell_pos.y) != pixel_color:
 			image_slice.set_pixel(cell_pos.x, cell_pos.y, pixel_color)
 			did_pixels_change = true
@@ -144,6 +160,23 @@ func update_team_visibility():
 	
 	
 	visibility_updated.emit(team, visibility_texture)
+
+	if team == Enums.unitTeam.PLAYER:
+		var processed_objects: Dictionary = {}
+		for obj in previously_seen_objects:
+			processed_objects[obj] = true
+		for obj in all_currently_seen_objects:
+			processed_objects[obj] = true
+
+		for obj in processed_objects:
+			if obj and obj.team != Enums.unitTeam.PLAYER:
+				if obj.visual:
+					obj.visual.visible = all_currently_seen_objects.has(obj)
+		
+		for grid_object in grid_objects["active"]:
+			if grid_object.visual:
+				grid_object.visual.visible = true
+
 	for grid_object in grid_objects["active"]:
 		grid_object.grid_position_data.update_parent_visability()
 
@@ -188,9 +221,13 @@ func on_any_action_finished(_current_action_def, _execution_parameters):
 
 
 func on_grid_object_died(gridObject: GridObject):
+	print("unit Died here ")
 	if grid_objects["active"].has(gridObject):
 		grid_objects["inactive"].append(gridObject)
 		grid_objects["active"].erase(gridObject)
+		
+		gridObject.hide()
+		gridObject.position = Vector3(-500, -500, -500)
 		print("Unit Died")
 
 

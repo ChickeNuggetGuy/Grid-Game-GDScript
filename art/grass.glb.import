@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dn4cexpou17gt"
-path="res://.godot/imported/SpawnChunk.glb-257f9d769928a5cd2fedf1e72f3a54d1.scn"
+uid="uid://umcaku2x1nm"
+path="res://.godot/imported/grass.glb-82e1ded12738b57d22a8f49858e26be1.scn"
 
 [deps]
 
-source_file="res://Models/SpawnChunk.glb"
-dest_files=["res://.godot/imported/SpawnChunk.glb-257f9d769928a5cd2fedf1e72f3a54d1.scn"]
+source_file="res://art/grass.glb"
+dest_files=["res://.godot/imported/grass.glb-82e1ded12738b57d22a8f49858e26be1.scn"]
 
 [params]
 
@@ -37,6 +37,18 @@ import_script/path=""
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
-_subresources={}
+_subresources={
+"meshes": {
+"grass_Plane_009": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 20.0,
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://art/grass_Plane_009.res",
+"save_to_file/path": "uid://cs2h6f8f5cs2e"
+}
+}
+}
 gltf/naming_version=2
 gltf/embedded_image_handling=1

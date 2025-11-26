@@ -6,6 +6,7 @@ class_name InteractActionDefinition
 func _init() -> void:
 	action_name = "Interact"
 	script_path = "res://Scripts/GridObject/Actions/InteractAction/InteractAction.gd"
+	multiple_exectutions = false
 	super._init()
 	
 
@@ -20,30 +21,30 @@ func double_click_clear(parameters : Dictionary) -> void:
 func get_can_cancel_action() -> bool: return true
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
-	var walkable_empty_filter = Enums.cellState.NONE
-	var result = GameManager.managers["GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, 15, walkable_empty_filter)
 	
 	var grid_object : GridObject = starting_grid_cell.grid_object
+	var sight_area_result = grid_object.try_get_grid_object_component_by_type("GridObjectSightArea")
+	if not sight_area_result["success"]:
+		return	[]
+
+	var sight_area: GridObjectSightArea = sight_area_result["grid_object_component"]
 	
-	var grid_cells : Array[GridCell] = result["grid_cells"]
-	for i in range(grid_cells.size() - 1, -1, -1):
-		if not grid_cells[i].has_grid_object():
-			grid_cells.remove_at(i)
+	
+	var grid_cells : Array[GridCell] = []
+	for cell in sight_area.seen_cells.values():
+		if not cell.has_grid_object():
 			continue
 		
-		if not grid_cells[i].grid_object is Interactable:
-			grid_cells.remove_at(i)
+		if not cell.grid_object is Interactable:
 			continue
 			
-		if  grid_cells[i].grid_object == grid_object:
-					grid_cells.remove_at(i)
+		if  cell.grid_object == grid_object:
 					continue
 			
-		if grid_cells[i] == starting_grid_cell:
-			grid_cells.remove_at(i)
-	
-	if result["success"] == false:
-		push_error(" no grid cells found that satisfy the current filter")
+		if cell == starting_grid_cell:
+			continue
+		
+		grid_cells.append(cell)
 	
 	return grid_cells
 
@@ -53,10 +54,10 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 	
 	for grid_cell in get_valid_grid_cells(starting_grid_cell):
 		
-		#if not grid_cell.has_grid_object():
-		ret_value[grid_cell] = 0.5 if grid_cell.has_grid_object() else 0
-		#else:
-			#ret_value[grid_cell] = 1
+		if grid_cell.has_grid_object() and grid_cell.grid_object is Interactable:
+			ret_value[grid_cell] = 0.2
+		else:
+			ret_value[grid_cell] = 0
 		#var distance_between_cells  = grid_system.get_distance_between_grid_cells(starting_grid_cell,grid_cell)
 		#var normalized_distance : float = clamp(distance_between_cells / 100, 0.0, 1.0)
 		
@@ -65,9 +66,9 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_value = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A", "extra_parameters": {}}
+	var ret_value = {"success": false, "costs" : {Enums.Stat.TIMEUNITS : -1, Enums.Stat.STAMINA : -1}, "reason" : "N/A", "extra_parameters": {}}
 	
-	var temp_costs = {"time_units" : 0, "stamina" : 0}
+	var temp_costs = {Enums.Stat.TIMEUNITS: 0, Enums.Stat.STAMINA : 0}
 	
 	var interactable : Interactable = parameters["target_grid_cell"].grid_object as Interactable
 	
@@ -130,8 +131,8 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			# This assumes each step in the path costs 1 time unit and 1 stamina.
 			# Adjust this logic if your MoveStepAction has different costs.
 			var move_cost = shortest_path.size() - 1 # Path includes start cell, so length-1 is the number of steps
-			temp_costs["time_units"] += move_cost
-			temp_costs["stamina"] += move_cost
+			temp_costs[Enums.Stat.TIMEUNITS] += move_cost
+			temp_costs[Enums.Stat.STAMINA] += move_cost
 
 			# Store the results for the MeleeAttackAction to use
 			ret_value["extra_parameters"]["adjacent_target"] = best_neighbor_cell
@@ -142,8 +143,8 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			ret_value["reason"] = "Target is out of range (no reachable adjacent cell)"
 			return ret_value
 	
-	temp_costs["time_units"] += interactable.costs["time_units"]
-	temp_costs["stamina"] += interactable.costs["stamina"]
+	temp_costs[Enums.Stat.TIMEUNITS] += interactable.costs[Enums.Stat.TIMEUNITS]
+	temp_costs[Enums.Stat.STAMINA] += interactable.costs[Enums.Stat.STAMINA]
 	ret_value["success"] = true
 	ret_value["costs"] = temp_costs
 	return ret_value

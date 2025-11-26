@@ -10,4 +10,4 @@ func execute(parent_turn : TurnData):
 		return
 	for grid_object in team_turn.team_holder.grid_objects["active"]:
 		for stat in grid_object.stat_library:
-			stat.current_turn_changed()
+			grid_object.stat_library[stat].current_turn_changed()

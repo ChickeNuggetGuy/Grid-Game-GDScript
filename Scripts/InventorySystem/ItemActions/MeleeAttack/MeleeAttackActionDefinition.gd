@@ -6,40 +6,50 @@ class_name MeleeAttackActionDefinition
 func _init() -> void:
 	action_name = "Melee Attack"
 	script_path = "res://Scripts/InventorySystem/ItemActions/MeleeAttack/MeleeAttackAction.gd"
+	multiple_exectutions = true
 	super._init()
 	
 
-func double_click_call(parameters : Dictionary) -> void:
+func double_click_call(_parameters : Dictionary) -> void:
 	return
 
 
-func double_click_clear(parameters : Dictionary) -> void:
+func double_click_clear(_parameters : Dictionary) -> void:
 	return
 
 
 func get_can_cancel_action() -> bool: return true
 
 func get_valid_grid_cells(starting_grid_cell : GridCell) -> Array[GridCell]:
-	var walkable_empty_filter = Enums.cellState.NONE
-	var result = GameManager.managers["GridSystem"].try_get_neighbors_in_radius(starting_grid_cell, 10, walkable_empty_filter)
-	
+
 	var grid_object : GridObject = starting_grid_cell.grid_object
 	
-	var grid_cells : Array[GridCell] = result["grid_cells"]
-	for i in range(grid_cells.size() - 1, -1, -1):
-		if not grid_cells[i].has_grid_object():
-			grid_cells.remove_at(i)
+	var sight_area_result = grid_object.try_get_grid_object_component_by_type("GridObjectSightArea")
+	if not sight_area_result["success"]:
+		return	[]
+
+	var sight_area: GridObjectSightArea = sight_area_result["grid_object_component"]
+	
+	
+	var grid_cells : Array[GridCell] = []
+	for cell in sight_area.seen_cells.values():
+		if not cell.has_grid_object():
 			continue
 			
-		if  grid_cells[i].grid_object == grid_object:
-					grid_cells.remove_at(i)
-					continue
+		if  cell.grid_object == grid_object:
+			continue
 			
-		if grid_cells[i] == starting_grid_cell:
-			grid_cells.remove_at(i)
-	
-	if result["success"] == false:
-		push_error(" no grid cells found that satisfy the current filter")
+		if cell == starting_grid_cell:
+			continue
+		
+		if cell.grid_object.team == Enums.unitTeam.NONE:
+			continue
+		
+		
+		if cell.grid_object.team == grid_object.team:
+			continue
+		
+		grid_cells.append(cell)
 	
 	return grid_cells
 
@@ -61,9 +71,9 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_value = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A", "extra_parameters": {}}
+	var ret_value = {"success": false, "costs" : {Enums.Stat.TIMEUNITS : -1, Enums.Stat.STAMINA : -1}, "reason" : "N/A", "extra_parameters": {}}
 	
-	var temp_costs = {"time_units" : 0, "stamina" : 0}
+	var temp_costs = {Enums.Stat.TIMEUNITS : 0, Enums.Stat.STAMINA : 0}
 	
 	if not parent_item :
 		ret_value["success"] = false
@@ -97,14 +107,14 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 					ret_value["reason"] = rotate_result["reason"]
 					return ret_value
 				else:
-					for cost in rotate_result["costs"].keys():
-						temp_costs[cost] += rotate_result["costs"][cost]
+					for  rotate_cost in rotate_result["costs"].keys():
+						temp_costs[rotate_cost] += rotate_result["costs"][rotate_cost]
 				
 	else:
 		# Unit needs to move. Find the BEST adjacent cell to move to.
 		var best_neighbor_cell : GridCell = null
 		var shortest_path : Array[GridCell] = []
-		var shortest_path_length : int = INF # Use infinity to ensure the first path is always shorter
+		var shortest_path_length : int = int(INF) # Use infinity to ensure the first path is always shorter
 
 		for neighbor_cell in neighboring_cells:
 			# Find the path from the unit's start to this potential destination
@@ -123,8 +133,8 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			# This assumes each step in the path costs 1 time unit and 1 stamina.
 			# Adjust this logic if your MoveStepAction has different costs.
 			var move_cost = shortest_path.size() - 1 # Path includes start cell, so length-1 is the number of steps
-			temp_costs["time_units"] += move_cost
-			temp_costs["stamina"] += move_cost
+			temp_costs[Enums.Stat.TIMEUNITS] += move_cost
+			temp_costs[Enums.Stat.STAMINA] += move_cost
 
 			# Store the results for the MeleeAttackAction to use
 			ret_value["extra_parameters"]["adjacent_target"] = best_neighbor_cell
@@ -135,11 +145,11 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			ret_value["reason"] = "Target is out of range (no reachable adjacent cell)"
 			return ret_value
 
-	var attack_count = parent_item.extra_values.get("attack_count", 1)
+	attack_count = parent_item.extra_values.get("attack_count", 1)
 	var attack_cost = parent_item.extra_values.get("attack_cost", 1)
 	
-	temp_costs["time_units"] += attack_count * attack_cost
-	temp_costs["stamina"] += attack_count * attack_cost
+	temp_costs[Enums.Stat.TIMEUNITS] += attack_count * attack_cost
+	temp_costs[Enums.Stat.STAMINA] += attack_count * attack_cost
 	ret_value["success"] = true
 	ret_value["costs"] = temp_costs
 	return ret_value

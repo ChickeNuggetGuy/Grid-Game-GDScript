@@ -27,8 +27,8 @@ func _calculate_rotation_cost() -> void:
 	#print("Rotation steps: ", rotation_info["rotation_steps"])
 	
 	if rotation_info["needs_rotation"]:
-		costs["time_units"] = abs(rotation_info["rotation_steps"])  
-		costs["stamina"] = abs(rotation_info["rotation_steps"])
+		costs[Enums.Stat.TIMEUNITS] = abs(rotation_info["rotation_steps"])  
+		costs[Enums.Stat.STAMINA] = abs(rotation_info["rotation_steps"])
 		rotation_direction = rotation_info["turn_direction"]
 		
 	else:

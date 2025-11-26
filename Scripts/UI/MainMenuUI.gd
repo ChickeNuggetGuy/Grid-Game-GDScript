@@ -31,7 +31,7 @@ func quick_start_button_pressed():
 
 
 func start_button_pressed():
-	#set game manager values for loading into next scene
+	print("Start")
 	GameManager.spawn_counts = Vector2(
 				player_text_field.value,
 				enemy_text_field.value)
@@ -40,11 +40,10 @@ func start_button_pressed():
 				map_x_text_field.value,
 				map_y_text_field.value) 
 	
-	GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE, {})
+	GameManager.try_load_scene_by_type(GameManager.sceneType.BATTLESCENE, GameManager.get_current_scene_data())
 
 
 func _setup():
-	#super._setup()
 	if not play_button.pressed.is_connected(play_button_pressed):
 		play_button.pressed.connect(play_button_pressed)
 
@@ -57,3 +56,9 @@ func _setup():
 
 func _on_new_game_button_pressed() -> void:
 	save_game_ui.toggle()
+
+
+func _on_battle_button_pressed() -> void:
+	save_game_ui.hide_call()
+	
+	map_settingsUI.toggle()

@@ -129,8 +129,8 @@ func spawn_unit(team : Enums.unitTeam, grid_cell : GridCell = null, direction : 
 	
 	var team_holder : UnitTeamHolder = UnitTeams[team]
 	
-	spawneUnit._setup( false, {"grid_cell" : grid_cell,"direction" : direction,"unit_team": team})
-	team_holder.add_grid_object(spawneUnit)
+	var data = {"grid_cell" : grid_cell,"direction" : direction,"team": team}
+	team_holder.add_grid_object(spawneUnit, data, true, false)
 	
 	Unit_spawned.emit(spawneUnit)
 
@@ -198,8 +198,8 @@ func _unhandled_input(event):
 			set_selected_unit_next()
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			if GameManager.managers["GridInputManager"].currentGridCell != null:
-				var grid_object : GridObject = GameManager.managers["GridInputManager"].currentGridCell.grid_object
+			if GameManager.managers["GridInputManager"].current_grid_cell != null:
+				var grid_object : GridObject = GameManager.managers["GridInputManager"].current_grid_cell.grid_object
 				if grid_object != null and UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].has(grid_object):
 					set_selected_unit(grid_object)
 #endregion

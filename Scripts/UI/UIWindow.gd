@@ -21,7 +21,7 @@ func show_call():
 	_show()
 
 func _show():
-	if block_inputs and GameManager.managers["UnitActionManager"].is_busy:
+	if block_inputs and GameManager.managers.has("UnitActionManager") and GameManager.managers["UnitActionManager"].is_busy:
 		return
 	
 	if visual != null:
@@ -57,10 +57,8 @@ func toggle():
 
 
 func  _setup():
-	
 	var temp_ui_elements : Array = UtilityMethods.get_all_children(self)
 	
-
 	for element in temp_ui_elements:
 		if element is UIElement and not ui_elements.has(element):
 			ui_elements.append(element)

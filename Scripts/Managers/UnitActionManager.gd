@@ -43,6 +43,8 @@ func _execute_conditions() -> bool:
 	return true
 
 func _execute() -> void:
+	var turn_manager : TurnManager = GameManager.managers["TurnManager"]
+	turn_manager.turn_changed.connect(turn_manager_turn_changed)
 	execution_completed.emit()
 
 
@@ -53,11 +55,6 @@ func save_data() -> Dictionary:
 		"selected_action" : selected_action
 	}
 	return save_dict
-
-
-func load_data(data : Dictionary):
-	pass
-
 
 
 #endregion
@@ -128,18 +125,17 @@ func _unhandled_input(event) -> void:
 				_handle_right_click()
 
 func _handle_left_click() -> void:
-	var current_cell = GameManager.managers["GridInputManager"].currentGridCell
+	var current_cell = GameManager.managers["GridInputManager"].current_grid_cell
 	if current_cell:
 		try_execute_selected_action(current_cell)
-	else:
-		print("Left click ignored: No grid cell selected.")
+
 
 func _handle_right_click() -> void:
 	var selected_unit = GameManager.managers["UnitManager"].selectedUnit
 	if not selected_unit:
 		return
 
-	var current_cell = GameManager.managers["GridInputManager"].currentGridCell
+	var current_cell = GameManager.managers["GridInputManager"].current_grid_cell
 	if not current_cell:
 		return
 
@@ -194,14 +190,14 @@ func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
 		"action_definition": action_to_execute,
 		"starting_inventory": starting_inventory
 	}
-	
+	action_to_execute.parent_item = item
 	await _execute_action_internal(action_to_execute, params)
 	GameManager.managers["UIManager"].unblock_input()
 	return ret_val
 
 
 func _execute_action_internal(action_def: BaseActionDefinition, params: Dictionary) -> void:
-	var result = action_def.can_execute(params)
+	var result = action_def.can_execute_call(params)
 	
 	if not result.get("success", false):
 		print("Failed to execute action: " + result.get("reason", "Unknown reason"))
@@ -219,16 +215,11 @@ func _execute_action_internal(action_def: BaseActionDefinition, params: Dictiona
 		if not is_same_target:
 			
 			if not is_first_click:
-				print("Double click target changed.")
 				action_def.double_click_clear(action_params)
 			
-			print("Double click action: first click on new target.")
 			action_params = params
 			action_def.double_click_call(action_params)
 			return 
-		
-		
-		print("Double click action: executing action")
 	
 	
 	print("Executing action: %s, using %s Time units!" %
@@ -246,7 +237,11 @@ func _execute_action_internal(action_def: BaseActionDefinition, params: Dictiona
 	any_action_execution_finished.emit(action_def, params)
 	action_execution_finished.emit(action_def, params)
 	action_params.clear()
-	set_is_busy(false, null)
+	set_is_busy(false,  null)
+	if action_def.multiple_exectutions:
+		_set_selected_action(action_def)
+	else:
+		_set_selected_action(params["unit"].get_default_action())
 
 
 func cancel_current_action():
@@ -260,3 +255,12 @@ func cancel_current_action():
 	action_params.clear()
 	set_is_busy(false, null)
 #endregion
+
+
+#region Signal Listeners
+func turn_manager_turn_changed(_current_turn : TurnData) -> void:
+	var unit_manager : UnitManager = GameManager.managers["UnitManager"]
+	
+	var selected_unit = unit_manager.selectedUnit
+	
+	_set_selected_action(selected_unit.get_default_action())

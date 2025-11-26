@@ -33,7 +33,7 @@ func add_cell_definitions_bulk(items: Dictionary) -> void:
 			add_cell_definition(idx, def, hex_decorator)
 	_dirty = true
 
-# HexGridData.gd
+
 func add_cell_definitions_from_data_bulk(items: Dictionary) -> void:
 	for def_type in items.keys():
 		for def_data in items[def_type]:

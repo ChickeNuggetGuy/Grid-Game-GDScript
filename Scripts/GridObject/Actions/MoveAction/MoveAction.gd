@@ -11,13 +11,12 @@ func _init(parameters : Dictionary) -> void:
 
 
 func _setup() -> void:
-	owner.set_motion(Enums.UnitStance.MOVING)
 	return
 
 
 
 func _execute() -> bool:
-	
+	owner.set_motion(Enums.UnitMovementStance.MOVING)
 	var path : Array[GridCell]
 	
 	if execution_parameters.get("path"):
@@ -51,11 +50,11 @@ func _execute() -> bool:
 	
 
 func _action_complete() -> void:
-	owner.set_motion(Enums.UnitStance.STATIONARY)
+	owner.set_motion(Enums.UnitMovementStance.STATIONARY)
 	owner.grid_position_data.set_grid_cell(target_grid_cell)
 
 
 
 func action_cancel():
-	owner.set_motion(Enums.UnitStance.STATIONARY)
+	owner.set_motion(Enums.UnitMovementStance.STATIONARY)
 	owner.grid_position_data.detect_grid_position()

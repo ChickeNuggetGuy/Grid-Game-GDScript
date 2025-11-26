@@ -1,7 +1,7 @@
 extends ProgressBar
 class_name StatProgressBar
 #region varibles
-@export var stat_name : String
+@export var stat_type : Enums.Stat
 var stat : GridObjectStat
 var grid_object : GridObject
 #endregion

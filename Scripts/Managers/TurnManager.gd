@@ -46,12 +46,6 @@ func save_data() -> Dictionary:
 	return save_dict
 
 
-func load_data(data : Dictionary):
-	pass
-
-
-
-
 func _execute_conditions() -> bool: return true
 
 
@@ -122,15 +116,15 @@ func get_next_turn(currentTurn : TurnData) -> TurnData:
 	if array_size == 0:
 		return null
 	
-	# Loop through the array starting from next position
-	for i in range(array_size):
-		# Calculate next index with wrapping (handles out of bounds automatically)
-		var check_index = (current_index + 1 + i) % array_size
+	# Loop through the array starting from next position to find the next valid turn
+	for i in range(1, array_size + 1):
+		var check_index = (current_index + i) % array_size
 		var turn = turns[check_index]
 		
-		# Validate that turn is an object and has repeatable property
-		if turn != null and turn.repeatable:
-			return turn
+		if turn == null or not turn.repeatable:
+			continue
+			
+		return turn
 	
-	# If no valid turn found, return empty dictionary
+	# If no valid turn found after checking all possibilities, return null
 	return null

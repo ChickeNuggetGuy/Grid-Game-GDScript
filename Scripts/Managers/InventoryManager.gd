@@ -44,6 +44,7 @@ func _init():
 		if child is not Item:
 			continue
 		var typed_item = child as Item
+		typed_item._ensure_shape_exists_and_matches()
 		typed_item._setup()
 		inventory_items[child.item_name] = child
 
@@ -59,12 +60,7 @@ func save_data() -> Dictionary:
 	return save_dict
 
 
-func load_data(data : Dictionary):
-	pass
-
-
-
-func try_gry_inventory_item(item_name : String) -> Dictionary:
+func try_get_inventory_item(item_name : String) -> Dictionary:
 	var retval : Dictionary = {"success": false, "inventory_item" : null}
 
 	if not inventory_items.keys().has(item_name):

@@ -12,5 +12,5 @@ shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 [resource]
 script = ExtResource("1_5q8iv")
 inventory_name = "Ground"
-shape = SubResource("Resource_240ow")
+grid_shape = SubResource("Resource_240ow")
 metadata/_custom_type_script = "uid://bvaar7mvf43va"

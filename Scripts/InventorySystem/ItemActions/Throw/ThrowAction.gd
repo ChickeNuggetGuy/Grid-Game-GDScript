@@ -6,7 +6,7 @@ var starting_inventory : InventoryGrid
 
 func _init(parameters : Dictionary) -> void:
 	action_name = "Throw"
-	costs = {"time_units" :8, "stamina" : 2}
+	costs = {Enums.Stat.TIMEUNITS :8, Enums.Stat.STAMINA: 2}
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]

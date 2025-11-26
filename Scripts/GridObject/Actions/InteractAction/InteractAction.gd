@@ -10,7 +10,7 @@ const MIN_TWEEN_DURATION := 0.05
 func _init(parameters : Dictionary) -> void:
 	parameters["action_name"] = "Melee Attack"
 	owner = parameters["unit"]
-	costs = {"time_units" : 0 }
+	costs = {Enums.Stat.TIMEUNITS : 0 }
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
 	

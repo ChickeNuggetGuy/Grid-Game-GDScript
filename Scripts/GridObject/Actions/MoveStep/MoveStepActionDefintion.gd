@@ -42,16 +42,16 @@ func _get_AI_action_scores(starting_grid_cell : GridCell) -> Dictionary[GridCell
 
 
 func can_execute(parameters : Dictionary) -> Dictionary:
-	var ret_val = {"success": false, "costs" : {"time_units" : -1, "stamina" : -1}, "reason" : "N/A"}
+	var ret_val = {"success": false, "costs" : {Enums.Stat.TIMEUNITS: -1, Enums.Stat.STAMINA : -1}, "reason" : "N/A"}
 	
-	var temp_cost = {"time_units" : 0, "stamina" : 0}
+	var temp_costs = {Enums.Stat.TIMEUNITS: 0, Enums.Stat.STAMINA : 0}
 		
 	var neighbors = GameManager.managers["GridSystem"].get_grid_cell_neighbors(parameters["start_grid_cell"])
 	
 	if !neighbors.has(parameters["target_grid_cell"]):
 		ret_val["success"] = false
-		ret_val["costs"]["time_units"] = -1
-		ret_val["costs"]["stamina"] = -1
+		ret_val["costs"][Enums.Stat.TIMEUNITS] = -1
+		ret_val["costs"][Enums.Stat.STAMINA] = -1
 		ret_val["reason"] = "Not adjacent neighbor: " + str(parameters["start_grid_cell"].gridCoordinates) +" "+str(parameters["target_grid_cell"].gridCoordinates)
 		return ret_val
 	
@@ -59,20 +59,20 @@ func can_execute(parameters : Dictionary) -> Dictionary:
 			 parameters["unit"].grid_position_data.grid_cell, parameters["target_grid_cell"])
 		
 	if totation_result["needs_rotation"] == true:
-		temp_cost["time_units"] += 1 * totation_result["rotation_steps"]
-		temp_cost["stamina"] += 1 * totation_result["rotation_steps"]
-	temp_cost["time_units"] += 4
+		temp_costs[Enums.Stat.TIMEUNITS] += 1 * totation_result["rotation_steps"]
+		temp_costs[Enums.Stat.STAMINA] += 1 * totation_result["rotation_steps"]
+	temp_costs[Enums.Stat.TIMEUNITS] += 4
 	
-	var result = parameters["unit"].check_stat_values(temp_cost)
+	var result = parameters["unit"].check_stat_values(temp_costs)
 	
 	if result["success"] == false:
 		ret_val["success"] = false
-		ret_val["costs"] = temp_cost
+		ret_val["costs"] = temp_costs
 		ret_val["reason"] =result["reason"]
 		return ret_val
 		
 			
 	ret_val["success"] = true
-	ret_val["costs"] = temp_cost
+	ret_val["costs"] = temp_costs
 	ret_val["reason"] = "success!"
 	return ret_val

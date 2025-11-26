@@ -3,7 +3,7 @@ class_name GridObjectStat
 
 #region Variables
 var parent_gridobject : GridObject
-@export var stat_name : String
+@export var stat_type : Enums.Stat
 
 @export var current_value : int
 
@@ -32,7 +32,7 @@ func setup(gridObject : GridObject, data : Dictionary):
 		parent_gridobject = gridObject
 	else:
 		parent_gridobject = gridObject
-		stat_name = data["stat_name"]
+		stat_type = data["stat_type"]
 		current_value = data["current_value"]
 		min_max_values = Vector2i(int(data["min_value"]), int(data["max_values"]))
 	
@@ -96,7 +96,7 @@ func current_turn_changed():
 
 func save_data() -> Dictionary:
 	var ret_dict = {
-		"stat_name" : stat_name,
+		"stat_type" : stat_type,
 		"current_value" : current_value,
 		"min_value" : min_max_values.x,
 		"max_values" : min_max_values.y

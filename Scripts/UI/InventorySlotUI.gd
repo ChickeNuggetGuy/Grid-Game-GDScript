@@ -13,8 +13,7 @@ func _gui_input(event):
 	if event is InputEventMouseButton and event.pressed:
 		match event.button_index:
 			MOUSE_BUTTON_LEFT:
-				parent.inventory_slot_pressed(grid_coords, true)
-				# Let the default behavior handle the click
+				parent.inventory_slot_pressed(self, true)
 			MOUSE_BUTTON_RIGHT:
-				parent.inventory_slot_pressed(grid_coords, false)
+				parent.inventory_slot_pressed(self, false)
 				accept_event()  # Prevent default behavior if needed

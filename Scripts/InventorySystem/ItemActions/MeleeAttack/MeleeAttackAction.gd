@@ -11,7 +11,7 @@ const MIN_TWEEN_DURATION := 0.05
 func _init(parameters : Dictionary) -> void:
 	parameters["action_name"] = "Melee Attack"
 	owner = parameters["unit"]
-	costs = {"time_units" : 0 }
+	costs = {Enums.Stat.TIMEUNITS : 0 }
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]
 	item = parameters["item"]
@@ -51,7 +51,7 @@ func _execute() -> bool:
 		var target_grid_object = target_grid_cell.grid_object
 
 		if target_grid_object != null:
-			var health_stat = target_grid_object.get_stat_by_name("Health")
+			var health_stat = target_grid_object.get_stat_by_type(Enums.Stat.HEALTH)
 			if health_stat != null:
 				health_stat.try_remove_value(item["extra_values"].get("damage", 10)) # Value was 100 but print says 10, adjusted for consistency
 				print(

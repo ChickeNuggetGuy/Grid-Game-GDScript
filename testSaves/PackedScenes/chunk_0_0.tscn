@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Terrain Generation/Chunk.gd" id="1_kyenn"]
+
+[node name="Chunk" type="Node3D" unique_id=583928624]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.210173, 0)
+script = ExtResource("1_kyenn")

@@ -18,12 +18,14 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup() -> void:
-	var nodes = get_tree().get_nodes_in_group("UIWindow")
-	
-	for node in nodes:
-		if node is UIWindow:
-			var window : UIWindow = node as UIWindow
-			ui_windows[window.ui_name] = window
+	if ui_holder:
+		var nodes = ui_holder.get_children()
+		nodes.append(ui_holder)
+		
+		for node in nodes:
+			if node is UIWindow:
+				var window : UIWindow = node as UIWindow
+				ui_windows[window.name] = window
 			
 	setup_completed.emit()
 
@@ -34,11 +36,6 @@ func save_data() -> Dictionary:
 		"parent" : get_parent().get_path(),
 	}
 	return save_dict
-
-
-func load_data(data : Dictionary):
-	pass
-
 
 
 func _execute_conditions() -> bool: return true
@@ -52,7 +49,7 @@ func _execute():
 	for  window in ui_windows.values():
 		var ui_window : UIWindow = window
 		ui_window.setup_call()
-		print("UI Manager Setup boys")
+		print("UI Manager Setup: "  + ui_window.name)
 	execution_completed.emit()
 
 

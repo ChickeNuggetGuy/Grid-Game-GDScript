@@ -37,8 +37,6 @@ func save_data() -> Dictionary:
 	return save_dict
 
 
-func load_data(data : Dictionary):
-	pass
 
 func get_manager_data() -> Dictionary:
 	return {}

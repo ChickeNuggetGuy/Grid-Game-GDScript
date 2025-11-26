@@ -14,7 +14,16 @@ const YAW_MAP: Dictionary = {
 	Enums.facingDirection.NORTHWEST:  PI/4,
 }
 
-# --- START: MODIFIED/NEW CODE ---
+const DIRECTIONS_ORDER: Array[int] = [
+	Enums.facingDirection.NORTH,
+	Enums.facingDirection.NORTHEAST,
+	Enums.facingDirection.EAST,
+	Enums.facingDirection.SOUTHEAST,
+	Enums.facingDirection.SOUTH,
+	Enums.facingDirection.SOUTHWEST,
+	Enums.facingDirection.WEST,
+	Enums.facingDirection.NORTHWEST
+]
 
 # Private helper function to handle the core logic and prevent duplication.
 # This is where we apply the fix for floating-point inaccuracy.
@@ -91,18 +100,14 @@ static func get_direction_between_positons(from_pos: Vector3, to_pos: Vector3) -
 
 	return _get_direction_from_vector(Vector2(dx, dz))
 
-# --- END: MODIFIED/NEW CODE ---
-
 
 static func get_yaw_for_direction(dir: int) -> float:
 	return YAW_MAP.get(dir, 0.0)
 
 
-# Add this helper function to RotationHelperFunctions
 static func get_direction_index(direction: int) -> int:
-	# Convert facing direction to index (0-7)
-	# Assuming Enums.facingDirection starts at 1
-	return direction - 1
+	return DIRECTIONS_ORDER.find(direction)
+
 
 static func get_rotation_info(
 	current_facing: int,
@@ -115,7 +120,10 @@ static func get_rotation_info(
 		"target_direction": Enums.facingDirection.NONE,
 		"turn_direction": "none" # "left" | "right" | "none"
 	}
-
+	
+	if  not from_cell:
+		print("null cell")
+		return result
 	var direction_info = get_direction_between_cells(from_cell, to_cell)
 	var target_direction = direction_info.direction
 

@@ -18,6 +18,9 @@ var local_vertices_physics: Array = []
 
 var bounds: AABB
 var local_normals: PackedVector3Array = []
+
+var scattered_instances: Array[MultiMeshInstance3D] = []
+
 func initialize(
 		chunk_index_x: int,
 		chunk_index_y: int,
@@ -40,14 +43,12 @@ func initialize(
 	var start_x = chunk_index_x * chunk_size
 	var start_z = chunk_index_y * chunk_size
 
-	# Cache or create the MeshInstance child
 	mesh_instance = get_node_or_null("MeshInstance")
 	if not mesh_instance:
 		mesh_instance = MeshInstance3D.new()
 		mesh_instance.name = "MeshInstance"
 		add_child(mesh_instance)
 
-	# Ensure the instance participates in lighting and is on default layer 1
 	mesh_instance.visible = true
 	mesh_instance.layers = 1
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
@@ -56,7 +57,6 @@ func initialize(
 	local_vertices_visual.clear()
 	local_vertices_physics.clear()
 
-	# Fill local vertex arrays in a grid-coherent order (matches _vi)
 	for z in range(chunk_size + 1):
 		for x in range(chunk_size + 1):
 			var wv_vis: Vector3 = global_visual_vertices[start_x + x][start_z + z]
@@ -68,18 +68,25 @@ func initialize(
 			local_vertices_visual.append(Vector3(lx, wv_vis.y, lz))
 			local_vertices_physics.append(Vector3(lx, wv_phy.y, lz))
 
-	# Store what we need to compute seam-free normals later
-	set_meta("gv", global_visual_vertices)         # reference to global visual grid
-	set_meta("gw", global_visual_vertices.size())  # total width in verts
-	set_meta("gh", global_visual_vertices[0].size())  # total height in verts
-	set_meta("sx", start_x)  # this chunk's start x in the global grid
-	set_meta("sz", start_z)  # this chunk's start z in the global grid
+	set_meta("gv", global_visual_vertices)
+	set_meta("gw", global_visual_vertices.size())
+	set_meta("gh", global_visual_vertices[0].size())
+	set_meta("sx", start_x)
+	set_meta("sz", start_z)
 
-func generate(material: Material) -> void:
+func generate(material: Material,
+	grass_material : Material,
+	source_node: MeshInstance3D, 
+	count: int, 
+	scale_range: Vector2 = Vector2(0.8, 1.2), 
+	align_to_normal: bool = false ) -> void:
 	if chunk_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
 		return
 
-	# Ensure we have a lit 3D material. If a wrong type or null is passed, create a StandardMaterial3D.
+	for s in scattered_instances:
+		s.queue_free()
+	scattered_instances.clear()
+
 	var use_material: Material = material
 	if use_material == null or !(use_material is BaseMaterial3D or use_material is ShaderMaterial):
 		var std = StandardMaterial3D.new()
@@ -98,7 +105,6 @@ func generate(material: Material) -> void:
 	original_material = use_material
 	mesh = ArrayMesh.new()
 
-	# Build an indexed mesh with shared vertices
 	var vert_count = (chunk_size + 1) * (chunk_size + 1)
 
 	var mesh_verts = PackedVector3Array()
@@ -106,7 +112,6 @@ func generate(material: Material) -> void:
 	for i in range(vert_count):
 		mesh_verts[i] = local_vertices_visual[i]
 
-	# Per-vertex UVs (one per shared vertex)
 	var uvs = PackedVector2Array()
 	uvs.resize(vert_count)
 	for z in range(chunk_size + 1):
@@ -117,15 +122,13 @@ func generate(material: Material) -> void:
 				z / float(chunk_size)
 			)
 
-	# Per-vertex normals computed from the GLOBAL height grid
-	# This removes seams between chunks
 	var gv = get_meta("gv")
 	var gw: int = int(get_meta("gw"))
 	var gh: int = int(get_meta("gh"))
 	var sx: int = int(get_meta("sx"))
 	var sz: int = int(get_meta("sz"))
 
-	var cx = self.cell_size.x  # horizontal spacing in world units
+	var cx = self.cell_size.x
 
 	local_normals = PackedVector3Array()
 	local_normals.resize(vert_count)
@@ -145,7 +148,6 @@ func generate(material: Material) -> void:
 			var yD = gv[gx][gd].y
 			var yU = gv[gx][gu].y
 
-			# Build slope vectors and cross them. Use sz x sx to get +Y on flat ground.
 			var sx_vec = Vector3(2.0 * cx, yR - yL, 0.0)
 			var sz_vec = Vector3(0.0, yU - yD, 2.0 * cx)
 			var n = sz_vec.cross(sx_vec)
@@ -156,7 +158,6 @@ func generate(material: Material) -> void:
 			else:
 				local_normals[idx] = n.normalized()
 
-	# Indices for two triangles per cell
 	var tris = PackedInt32Array()
 	tris.resize(chunk_size * chunk_size * 6)
 	var ti = 0
@@ -186,7 +187,6 @@ func generate(material: Material) -> void:
 
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
-	# Assign the material to the mesh surface (avoid material_override so lights/GI behave normally)
 	mesh.surface_set_material(0, original_material)
 	mesh_instance.mesh = mesh
 	mesh_instance.material_override = null
@@ -196,6 +196,8 @@ func generate(material: Material) -> void:
 	bounds = mesh.get_aabb()
 	if not is_in_group("Mouse"):
 		add_to_group("Mouse")
+	
+	populate_multimesh(source_node, count,grass_material, scale_range, align_to_normal)
 
 func _build_physics_collision() -> void:
 	var old = get_node_or_null("CollisionBody")
@@ -240,10 +242,112 @@ func _build_physics_collision() -> void:
 	body.add_child(shape)
 
 	body.set_collision_layer_value(PhysicsLayersUtility.TERRAIN, true)
-	body.set_collision_mask_value(PhysicsLayersUtility.TERRAIN, true)
 
 func _vi(x: int, z: int) -> int:
 	return z * (chunk_size + 1) + x
+
+func populate_multimesh(
+	source_node: MeshInstance3D, 
+	count: int, 
+	grass_material : Material,
+	scale_range: Vector2 = Vector2(0.8, 1.2), 
+	
+	align_to_normal: bool = false
+) -> void:
+	
+	if not source_node or not source_node.mesh:
+		push_warning("Attempted to populate multimesh with null source.")
+		return
+		
+	var multimesh = MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.mesh = source_node.mesh
+	multimesh.instance_count = count
+	
+	var rng = RandomNumberGenerator.new()
+	rng.seed = hash(grid_coords) 
+	
+	var max_size_x = chunk_size * cell_size.x
+	var max_size_z = chunk_size * cell_size.x
+	
+	for i in range(count):
+		var rx = rng.randf_range(0.0, max_size_x)
+		var rz = rng.randf_range(0.0, max_size_z)
+		
+		var surface_info = get_height_and_normal_at_local_position(rx, rz)
+		var y_pos = surface_info.height
+		var normal = surface_info.normal
+		
+		var t = Transform3D()
+		
+		t.origin = Vector3(rx, y_pos, rz)
+		
+		var y_rot = rng.randf_range(0.0, TAU)
+		
+		if align_to_normal:
+			t.basis = Basis(Vector3.UP, y_rot)
+			var up = Vector3.UP
+			if abs(up.dot(normal)) < 0.99:
+				var axis = up.cross(normal).normalized()
+				var angle = acos(up.dot(normal))
+				t.basis = t.basis.rotated(axis, angle)
+		else:
+			t.basis = Basis(Vector3.UP, y_rot)
+			
+		var s = rng.randf_range(scale_range.x, scale_range.y)
+		t.basis = t.basis.scaled(Vector3(s, s, s))
+		
+		multimesh.set_instance_transform(i, t)
+	
+	var mmi = MultiMeshInstance3D.new()
+	mmi.name = "Scatter_" + source_node.name
+	mmi.multimesh = multimesh
+	mmi.cast_shadow = source_node.cast_shadow
+	
+	mmi.material_override = grass_material
+	add_child(mmi)
+	scattered_instances.append(mmi)
+
+func get_height_and_normal_at_local_position(lx: float, lz: float) -> Dictionary:
+	var gx_float = lx / cell_size.x
+	var gz_float = lz / cell_size.x
+	
+	var x0 = int(floor(gx_float))
+	var z0 = int(floor(gz_float))
+	
+	x0 = clampi(x0, 0, chunk_size - 1)
+	z0 = clampi(z0, 0, chunk_size - 1)
+	
+	var x1 = x0 + 1
+	var z1 = z0 + 1
+	
+	var wx = gx_float - float(x0)
+	var wz = gz_float - float(z0)
+	
+	var idx_bl = _vi(x0, z0)
+	var idx_br = _vi(x1, z0)
+	var idx_tl = _vi(x0, z1)
+	var idx_tr = _vi(x1, z1)
+	
+	var h_bl = local_vertices_visual[idx_bl].y
+	var h_br = local_vertices_visual[idx_br].y
+	var h_tl = local_vertices_visual[idx_tl].y
+	var h_tr = local_vertices_visual[idx_tr].y
+	
+	var h_bot = lerp(h_bl, h_br, wx)
+	var h_top = lerp(h_tl, h_tr, wx)
+	var height = lerp(h_bot, h_top, wz)
+	
+	var n_bl = local_normals[idx_bl]
+	var n_br = local_normals[idx_br]
+	var n_tl = local_normals[idx_tl]
+	var n_tr = local_normals[idx_tr]
+	
+	var n_bot = n_bl.lerp(n_br, wx)
+	var n_top = n_tl.lerp(n_tr, wx)
+	var normal = n_bot.lerp(n_top, wz).normalized()
+	
+	return { "height": height, "normal": normal }
 
 static func CalculateSmoothNormals(array_mesh: ArrayMesh) -> void:
 	var arrays = array_mesh.surface_get_arrays(0)

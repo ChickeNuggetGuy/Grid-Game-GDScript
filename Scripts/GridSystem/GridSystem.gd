@@ -29,16 +29,26 @@ var collected_grid_objects: Array[GridObject] = []
 #endregion
 #endregion
 
-#region
+
+#region Functions
 func save_data() -> Dictionary:
+	
+	var grid_cell_inventories : Dictionary = {}
+	for coordinate in grid_cells.keys():
+		var grid_cell : GridCell = grid_cells[coordinate]
+		
+		if not grid_cell or grid_cell.inventory_grid.item_count == 0:
+			continue
+		
+		grid_cell_inventories[coordinate] = grid_cell.inventory_grid.save_data()
+	
 	var save_dict = {
 		"filename" : get_scene_file_path(),
 		"parent" : get_parent().get_path(),
+		"grid_cell_inventories" : grid_cell_inventories
 	}
 	return save_dict
 
-func load_data(data : Dictionary):
-	pass
 
 func _get_manager_name() -> String: return "GridSystem"
 
@@ -86,7 +96,6 @@ func _wait_for_physics_ready(frames: int = 2) -> void:
 		await get_tree().physics_frame
 
 
-
 func setup_grid():
 	grid_cells = {}
 	var map_grid_size = GameManager.managers["MeshTerrainManager"].get_map_cell_size()
@@ -108,7 +117,7 @@ func setup_grid():
 				create_or_update_cell(coords, result["position"], result["cell_state"])
 
 	print("Grid setup complete: ", grid_cells.size(), " cells")
-
+	 
 
 func generate_connections_for_cell(
 	cell: GridCell,
@@ -161,6 +170,7 @@ func setup_grid_connections():
 
 	print("Grid connections complete: ", edges_built, " edges")
 
+
 func _generate_halfspace_offsets() -> Array[Vector3i]:
 	var arr: Array[Vector3i] = []
 	for dx in range(-1,2):
@@ -180,8 +190,8 @@ func _generate_halfspace_offsets() -> Array[Vector3i]:
 				if not connect_diagonals and k > 1:
 					continue
 				arr.append(Vector3i(dx, dy, dz))
+	 
 	return arr
-
 
 
 func _count_non_zero(off: Vector3i) -> int:
@@ -193,7 +203,6 @@ func _count_non_zero(off: Vector3i) -> int:
 	if off.z != 0:
 		k += 1
 	return k
-
 
 
 
@@ -211,6 +220,7 @@ func _all_neighbor_offsets() -> Array[Vector3i]:
 					continue
 				arr.append(Vector3i(dx, dy, dz))
 	return arr
+
 
 func rebuild_connections_for_cells(coords_list: Array[Vector3i]) -> void:
 	if coords_list.is_empty():
@@ -260,8 +270,9 @@ func setup_collected_grid_objects():
 			
 
 			var direction = Enums.facingDirection.NORTH 
-			var team = Enums.unitTeam.ANY 
-			grid_object._setup(grid_cell, direction,team)
+			var team = Enums.unitTeam.NONE 
+			grid_object._setup(false, {"grid_cell" : grid_cell,"direction" : direction,"team" : team}) 
+
 
 func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vector3) -> bool:
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
@@ -284,7 +295,7 @@ func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vec
 	qp.shape = box
 	qp.collide_with_bodies = true
 	qp.collide_with_areas = false
-	qp.collision_mask = ~PhysicsLayer.OBSTACLE
+	qp.collision_mask = PhysicsLayer.OBSTACLE
 	
 	for test_point in test_points:
 		qp.transform = Transform3D(Basis.IDENTITY, test_point)
@@ -307,7 +318,6 @@ func is_position_obstructed(spaceState: PhysicsDirectSpaceState3D, position: Vec
 	return false
 
 
-
 func find_grid_object_in_hierarchy(node: Node) -> GridObject:
 	var current = node
 	
@@ -317,6 +327,7 @@ func find_grid_object_in_hierarchy(node: Node) -> GridObject:
 		current = current.get_parent()
 	
 	return null
+
 
 func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Dictionary:
 	var return_value : Dictionary = {"cell_state": Enums.cellState.NONE, "position": position}
@@ -329,6 +340,7 @@ func determine_cell_state(spaceState: PhysicsDirectSpaceState3D, position: Vecto
 		return perform_enhanced_raycast_check(spaceState, position, layer)
 	
 	return return_value
+
 
 func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, position: Vector3, layer: int) -> Dictionary:
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
@@ -391,6 +403,7 @@ func perform_enhanced_raycast_check(spaceState: PhysicsDirectSpaceState3D, posit
 		return_value["cell_state"] = Enums.cellState.AIR
 		return return_value
 
+
 func visualize_cell(grid_coordinates: Vector3i):
 	var cell: GridCell = grid_cells.get(grid_coordinates, null)
 	if not cell:
@@ -444,10 +457,18 @@ func visualize_cell(grid_coordinates: Vector3i):
 				20
 			)
 
+
 func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enums.cellState):
 	if not grid_cells.has(coords) || grid_cells[coords] == null:
 		var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
-		var ground_inventory_grid = result["inventory_grid"]
+		var ground_inventory_grid  : InventoryGrid = result["inventory_grid"]
+		
+		if not load_data.is_empty():
+			var inventories_data = load_data.get("grid_cell_inventories", {})
+			var key = str(coords)
+			if inventories_data.has(key):
+				ground_inventory_grid.initialize(inventories_data[key])
+				
 		var cell = GridCell.new(coords.x, coords.y, coords.z, position, cell_state, Enums.FogState.UNSEEN, ground_inventory_grid)
 		grid_cells[coords] = cell
 	else:
@@ -495,7 +516,7 @@ func set_cell(grid_coords : Vector3i, value: GridCell) -> void:
 	grid_cells[grid_coords] = value
 
 
-func get_grid_cell(grid_coords : Vector3i,  default_value = null):
+func get_grid_cell(grid_coords : Vector3i,  default_value = null) -> GridCell:
 	return grid_cells.get(grid_coords, default_value)
 
 
@@ -561,7 +582,6 @@ func try_get_gridCell_from_world_position(worldPosition: Vector3, nullGetNearest
 func get_cell_below_recursive(grid_coords : Vector3i, cell_state_filter : Enums.cellState) -> GridCell:
 	if grid_cells[grid_coords] == null: return null
 	
-	var grid_cell : GridCell = grid_cells[grid_coords]
 	var test_coords = Vector3i(grid_coords.x, grid_coords.y -1,grid_coords.z)
 
 	
@@ -846,10 +866,10 @@ func try_get_neighbors_in_radius(
 	radius: float,
 	grid_cell_state_filter: Enums.cellState = Enums.cellState.NONE
 ) -> Dictionary:
-	var grid_cells : Array[GridCell] = []
+	var ret_val : Array[GridCell] = []
 	var result: Dictionary = {
 		"success": false,
-		"grid_cells": grid_cells  
+		"grid_cells": ret_val  
 	}
 	
 	if starting_grid_cell == null:

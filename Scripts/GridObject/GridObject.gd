@@ -6,11 +6,11 @@ extends Node3D
 @export var visual :  Node3D
 @export var collider :  StaticBody3D
 
-var team : Enums.unitTeam 
+@export var team : Enums.unitTeam = Enums.unitTeam.NONE
 @export var active : bool = true
 @export_category("Stats")
 @export var stat_holder: Node
-var stat_library: Array[GridObjectStat] = []
+var stat_library: Dictionary[Enums.Stat ,GridObjectStat] = {}
 
 @export_category("Inventory")
 @export var inventory_grid_types : Array[Enums.inventoryType] = []
@@ -36,7 +36,8 @@ signal gridObject_moved(owner : Unit, new_grid_cell : GridCell)
 #region Functions
 
 func _ready() -> void:
-	collider.collision_layer =PhysicsLayersUtility.PLAYER
+	collider.collision_layer =PhysicsLayersUtility.GRIDOBJECT
+
 
 func _setup(loading_data : bool, data: Dictionary = {}, ):
 	
@@ -47,16 +48,15 @@ func _setup(loading_data : bool, data: Dictionary = {}, ):
 			add_child(grid_position_data)
 		grid_position_data.setup_call(self, {"grid_cell" : data["grid_cell"] ,"direction" :  data["direction"], "grid_cell_coord" : data["grid_cell"] .grid_coordinates}, false)
 		
-		team = data["unit_team"]
+		team = data["team"]
 		
 		if stat_holder:
-			stat_library.append_array(stat_holder.get_children())
+			for stat_node  in stat_holder.get_children():
+				stat_library[stat_node.stat_type] = stat_node
 		
-		for stat in stat_library:
-			var grid_stat : GridObjectStat = stat
+		for stat in stat_library.keys():
+			var grid_stat : GridObjectStat = stat_library[stat]
 			grid_stat.setup(self,{})
-			if grid_stat.stat_name == "Health":
-				grid_stat.connect("stat_value_min", grid_object_dealth)
 		
 		if grid_object_component_holder:
 			_grid_object_components.append_array(grid_object_component_holder.get_children())
@@ -87,17 +87,20 @@ func _setup(loading_data : bool, data: Dictionary = {}, ):
 		grid_position_data._setup(data["grid_position_data"], loading_data)
 
 		if stat_holder:
-			stat_library.append_array(stat_holder.get_children())
+			for stat_node  in stat_holder.get_children():
+				stat_library[stat_node.stat_type] = stat_node
 
 		var saved_stats = data["stat_library"]
-		for stat_node in stat_library:
-			if stat_node is GridObjectStat and saved_stats.has(stat_node.stat_name):
-				stat_node.setup(self,saved_stats[stat_node.stat_name])
+		for stat in stat_library.keys():
+			if stat_library[stat] is GridObjectStat and saved_stats.has(str(stat_library[stat].stat_type)):
+				stat_library[stat].setup(self, saved_stats[str(stat_library[stat].stat_type)])
+			else:
+				stat_library[stat].setup(self, {})
 		
 		
-		for type in data["inventory_grid_types"]:
+		for type in data["inventory_grids"]:
 			inventory_grid_types.append(type as Enums.inventoryType)
-		setup_inventory_grids()
+		setup_inventory_grids(data["inventory_grids"])
 
 		if grid_object_component_holder:
 			_grid_object_components.append_array(grid_object_component_holder.get_children())
@@ -108,40 +111,34 @@ func _setup(loading_data : bool, data: Dictionary = {}, ):
 				component_node.setup_call(self, saved_components[component_node.name], loading_data)
 
 
-
-func grid_object_dealth(_parent_grid_object : GridObject):
-	print("Grid Object Died, Removing from tree")
-	active = false
-	#self.queue_free()
-	grid_position_data.set_grid_cell(null)
-	self.position = Vector3(-500, -500, -500)
-	return 
-
-
-func setup_inventory_grids():
+func setup_inventory_grids(data : Dictionary = {}):
+	
 	for inventory_type in inventory_grid_types:
-		
 		var result = InventoryManager.try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
+			
+			var key = str(inventory_type)
+			if not data.is_empty() and data.has(key):
+				inventory_grids[inventory_type].initialize(data[key])
+			elif inventory_type == Enums.inventoryType.RIGHTHAND:
+				inventory_grids[inventory_type].try_add_item(InventoryManager.get_random_item())
 	emit_signal("inventories_ready")
 
+
+func get_stat_by_type(stat_type: Enums.Stat) -> GridObjectStat:
 	
-
-func get_stat_by_name(stat_name: String) -> GridObjectStat:
-	# Assuming action_library is an Array of ActionNode objects
-	for stat in stat_library:
-		if stat.stat_name == stat_name: # Assuming 'n' is the property holding the name
-			return stat
+	var stat : GridObjectStat = stat_library.get(stat_type, null)
 	
-	# If the loop finishes, the action node was not found
-	print("stat not found: " + stat_name)
-	return null
+	if not stat:
+		return null
+	else:
+		return stat
 
 
-func try_spend_stat_value(stat_name : String, amount_to_spend : int) -> Dictionary:
+func try_spend_stat_value(stat_type : Enums.Stat, amount_to_spend : int) -> Dictionary:
 	var retVal: Dictionary = {"success": false, "new_value": 0}
-	var stat = get_stat_by_name(stat_name)
+	var stat = get_stat_by_type(stat_type)
 	if stat == null:
 		retVal["success"] = false
 		retVal["new_value"] = -1
@@ -163,12 +160,12 @@ func check_stat_values(stats_to_check: Dictionary) -> Dictionary:
 	var temp_costs: Dictionary = {}
 	
 	
-	for stat_name in stats_to_check.keys():
-		var cost = stats_to_check[stat_name]
-		var stat = get_stat_by_name(stat_name)
+	for stat_type in stats_to_check.keys():
+		var cost = stats_to_check[stat_type]
+		var stat = get_stat_by_type(stat_type)
 		
 		if stat == null:
-			result["reason"] = "Stat with name: " + stat_name + " not found!"
+			result["reason"] = "Stat with name: " + stat_type + " not found!"
 			return result
 		
 		if not temp_costs.has(stat):
@@ -230,17 +227,19 @@ func _unhandled_input(event):
 					InventoryManager.Instance.get_random_item()))
 
 
-
-
 func save_data() -> Dictionary:
 	var stat_dict = {}
 	for stat in stat_library:
-		stat_dict[stat.stat_name] = stat.save_data()
+		stat_dict[stat_library[stat].stat_type] = stat_library[stat].save_data()
 	
 	var component_dict = {}
 	for c in _grid_object_components:
 		component_dict[c.name] = c.save_data()
 	
+	var inventory_dict = {}
+	for c in inventory_grids:
+		inventory_dict[c] = inventory_grids[c].save_data()
+		
 	var save_dict = {
 		"filename" : scene_file_path,
 		"parent" : get_parent().get_path(),
@@ -249,7 +248,7 @@ func save_data() -> Dictionary:
 		"active" : active,
 		"stat_library" : stat_dict,
 		"inventory_grid_types" : inventory_grid_types,
-		"inventory_grids" : inventory_grids,
+		"inventory_grids" : inventory_dict,
 		"_grid_object_components" : component_dict, 
 	}
 	return save_dict

@@ -2,7 +2,7 @@ extends CompositeAction
 
 func _init(parameters : Dictionary) -> void:
 	action_name = "Move Step"
-	costs = {"time_units" : 4, "stamina" : 1 }
+	costs = {Enums.Stat.TIMEUNITS : 4, Enums.Stat.STAMINA : 1 }
 	owner = parameters["unit"]
 	target_grid_cell = parameters["target_grid_cell"]
 	start_grid_cell = parameters["start_grid_cell"]

@@ -32,13 +32,14 @@ func execute(parent_turn : TurnData):
 				if best_action_results["action"] is BaseItemActionDefinition:
 					
 					var action_item = unit_actions["item_action_definitions"].get(best_action_results["action"])
-
+					print("AI: Attemting to take item action: " + best_action_results["action"].action_name)
 					await GameManager.managers["UnitActionManager"].try_execute_item_action(best_action_results["action"],
 											unit,
 											action_item,
 											action_item.current_inventory_grid,
 											best_action_results["best_action_result"]["grid_cell"],)
 				else:
+					print("Attemting to take action: " + best_action_results["action"].action_name)
 					await GameManager.managers["UnitActionManager"].try_execute_action(best_action_results["best_action_result"]["grid_cell"],
 							unit,
 							best_action_results["action"])

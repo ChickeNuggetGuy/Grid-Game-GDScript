@@ -4,6 +4,7 @@ class_name UIElement
 
 func setup_call():
 	print("setup: " + name)
+	
 	_setup()
 
 @abstract func _setup()

@@ -7,10 +7,12 @@ class_name Item extends Resource
 
 var parent_grid_object: GridObject
 var current_inventory_grid : InventoryGrid
+var current_invenrtory_coords : Vector2i
 
-@export var shape: GridShape
+@export var grid_shape: GridShape
 
 @export var action_blueprints : Array[BaseActionDefinition]
+@export var item_costs : Dictionary[Enums.Stat, int] = {}
 @export var extra_values : Dictionary [String, Variant] = {}
 
 # REMOVE THESE - dimensions are now solely in GridShape
@@ -21,11 +23,11 @@ var current_inventory_grid : InventoryGrid
 
 func _init():
 	resource_local_to_scene = true
-	shape = null 
+	grid_shape = null 
 
 
 func _post_initialize():
-	# Ensure shape is created and initialized based on its *own* loaded dimensions.
+	# Ensure grid_shape is created and initialized based on its *own* loaded dimensions.
 	_ensure_shape_exists_and_matches()
 
 
@@ -39,13 +41,13 @@ func _setup():
 			print("Item_Setup" + item_action.parent_item.item_name)
 
 func _ensure_shape_exists_and_matches(): # No arguments needed now
-	if shape == null:
-		# Create new shape with default dimensions (3,3 from GridShape's @export defaults)
-		shape = GridShape.new()
+	if grid_shape == null:
+		# Create new grid_shape with default dimensions (3,3 from GridShape's @export defaults)
+		grid_shape = GridShape.new()
 		# Initialize all cells to true if that's the default for new items
-		for y in range(shape.grid_height): # Use shape.grid_height
-			for x in range(shape.grid_width): # Use shape.grid_width
-				shape.set_grid_shape_cell(x, y, true)
+		for y in range(grid_shape.grid_height): # Use grid_shape.grid_height
+			for x in range(grid_shape.grid_width): # Use grid_shape.grid_width
+				grid_shape.set_grid_shape_cell(x, y,0, true)
 		if Engine.is_editor_hint():
 			notify_property_list_changed() # Notify Item changed
 	# No explicit resizing here; GridShape's own setters handle it.
@@ -59,10 +61,10 @@ func _duplicate() -> Resource:
 	new_item.icon = icon
 	new_item.parent_grid_object = parent_grid_object
 	
-	if shape != null:
-		new_item.shape = shape.duplicate(true)
+	if grid_shape != null:
+		new_item.grid_shape = grid_shape.duplicate(true)
 	else:
-		new_item.shape = null
+		new_item.grid_shape = null
 
 	new_item.action_blueprints.resize(action_blueprints.size())
 	for i in range(action_blueprints.size()):

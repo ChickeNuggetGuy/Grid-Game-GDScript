@@ -19,10 +19,17 @@ class_name MeshTerrainManager
 @export var debug_color_origin: Color = Color(1.0, 1.0, 0.0, 1.0)
 @export var debug_color_text: Color = Color(1.0, 1.0, 1.0, 1.0)
 
+
+@export var grass_mesh : MeshInstance3D
+@export var grass_material : ShaderMaterial
+@export var chunk_grass_count : int = 4000
+@export var grass_scale_range : Vector2
+
 var terrain_heights_visual = []
 var terrain_heights_physics = []
 var locked_vertices = []
 var terrain_y_offset: float = 0.0
+var is_loading: bool = false
 
 func _get_manager_name() -> String:
 	return "MeshTerrainManager"
@@ -34,32 +41,148 @@ func get_passable_data() -> Dictionary:
 	return {}
 
 func _setup():
-	map_size = GameManager.map_size
+	if not is_loading:
+		map_size = GameManager.map_size
 	setup_completed.emit()
 
 
 func save_data() -> Dictionary:
+	var chunk_data_array = []
+	for chunk_data in chunk_types:
+		if chunk_data:
+			chunk_data_array.append({
+				"chunk_coordinates": chunk_data.chunk_coordinates,
+				"chunk_type": chunk_data.chunk_type,
+				"chunk_go_index": chunk_data.chunk_go_index
+			})
+
 	var save_dict = {
-		"filename" : get_scene_file_path(),
-		"parent" : get_parent().get_path(),
+		"map_size": map_size,
+		"chunk_size": chunk_size,
+		"cell_size": cell_size,
+		"material_path": material.resource_path if material else "",
+		"amplitude": amplitude,
+		"noise_frequency": noise_frequency,
+		"edge_blend_width": edge_blend_width,
+		"terrain_y_offset": terrain_y_offset,
+		"terrain_heights_visual": terrain_heights_visual,
+		"terrain_heights_physics": terrain_heights_physics,
+		"locked_vertices": locked_vertices,
+		"chunk_data_array": chunk_data_array
 	}
 	return save_dict
 
 
-func load_data(data : Dictionary):
-	pass
+func _parse_vector2i_from_string(s: String) -> Vector2i:
+	s = s.trim_prefix("(").trim_suffix(")")
+	var parts = s.split(",")
+	if parts.size() == 2:
+		return Vector2i(int(parts[0].strip_edges()), int(parts[1].strip_edges()))
+	return Vector2i.ZERO
 
+func _parse_vector2_from_string(s: String) -> Vector2:
+	s = s.trim_prefix("(").trim_suffix(")")
+	var parts = s.split(",")
+	if parts.size() == 2:
+		return Vector2(float(parts[0].strip_edges()), float(parts[1].strip_edges()))
+	return Vector2.ZERO
+
+func _parse_vector3_from_string(s: String) -> Vector3:
+	s = s.trim_prefix("(").trim_suffix(")")
+	var parts = s.split(",")
+	if parts.size() == 3:
+		return Vector3(float(parts[0].strip_edges()), float(parts[1].strip_edges()), float(parts[2].strip_edges()))
+	return Vector3.ZERO
 
 
 func _execute_conditions() -> bool:
 	return true
 
 func _execute() -> void:
-	generate_height_map()
-	terrain_y_offset = _normalize_terrain_heights_and_get_offset()
-	await _spawn_manmade_chunks_first()
-	_lock_and_blend_manmade_edges(edge_blend_width)
-	_anchor_visual_to_locked()
+	if not load_data.is_empty():
+		if not load_data or not load_data.has("terrain_heights_visual") or (load_data["terrain_heights_visual"] as Array).is_empty():
+			is_loading = false
+			return
+
+		is_loading = true
+		
+		for child in get_children():
+			child.queue_free()
+		
+		var map_size_val = load_data.get("map_size", Vector2i(1, 1))
+		if map_size_val is String:
+			map_size = _parse_vector2i_from_string(map_size_val)
+		else:
+			map_size = map_size_val
+
+		var cell_size_val = load_data.get("cell_size", Vector2(1.0, 1.0))
+		if cell_size_val is String:
+			cell_size = _parse_vector2_from_string(cell_size_val)
+		else:
+			cell_size = cell_size_val
+		
+		chunk_size = load_data.get("chunk_size", 16)
+		amplitude = load_data.get("amplitude", 8.0)
+		noise_frequency = load_data.get("noise_frequency", 1.0 / 50.0)
+		edge_blend_width = load_data.get("edge_blend_width", 2)
+		terrain_y_offset = load_data.get("terrain_y_offset", 0.0)
+		
+		var loaded_visual = load_data.get("terrain_heights_visual", [])
+		terrain_heights_visual = []
+		for i in range(loaded_visual.size()):
+			terrain_heights_visual.append([])
+			for j in range(loaded_visual[i].size()):
+				var v_val = loaded_visual[i][j]
+				if v_val is String:
+					terrain_heights_visual[i].append(_parse_vector3_from_string(v_val))
+				else: # It's a Vector3 from being converted from a Variant
+					terrain_heights_visual[i].append(v_val)
+
+		var loaded_physics = load_data.get("terrain_heights_physics", [])
+		terrain_heights_physics = []
+		for i in range(loaded_physics.size()):
+			terrain_heights_physics.append([])
+			for j in range(loaded_physics[i].size()):
+				var v_val = loaded_physics[i][j]
+				if v_val is String:
+					terrain_heights_physics[i].append(_parse_vector3_from_string(v_val))
+				else: # It's a Vector3 from being converted from a Variant
+					terrain_heights_physics[i].append(v_val)
+
+		locked_vertices = load_data.get("locked_vertices", [])
+		
+		var mat_path = load_data.get("material_path", "")
+		if not mat_path.is_empty() and ResourceLoader.exists(mat_path):
+			material = load(mat_path)
+
+		chunk_types.clear()
+		if map_size and map_size.x > 0 and map_size.y > 0:
+			var total_chunks = map_size.x * map_size.y
+			chunk_types.resize(total_chunks)
+
+		if load_data.has("chunk_data_array"):
+			for chunk_dict in load_data["chunk_data_array"]:
+				var coords_val = chunk_dict["chunk_coordinates"]
+				var coords: Vector2i
+				if coords_val is String:
+					coords = _parse_vector2i_from_string(coords_val)
+				else:
+					coords = coords_val
+					
+				var index = coords.x + coords.y * map_size.x
+				
+				var cd = ChunkData.new()
+				cd.chunk_coordinates = coords
+				cd.chunk_type = chunk_dict["chunk_type"]
+				cd.chunk_go_index = chunk_dict.get("chunk_go_index", "")
+				chunk_types[index] = cd
+	else:
+		# New game logic
+		generate_height_map()
+		terrain_y_offset = _normalize_terrain_heights_and_get_offset()
+		await _spawn_manmade_chunks_first()
+		_lock_and_blend_manmade_edges(edge_blend_width)
+		_anchor_visual_to_locked()
 
 	for x in range(map_size.x):
 		for y in range(map_size.y):
@@ -189,7 +312,7 @@ func generate_chunk(x: int, y: int) -> void:
 			terrain_y_offset,
 			y * chunk_size * cell_size.x
 		)
-
+	
 	c_data.chunk.initialize(
 		x,
 		y,
@@ -203,7 +326,10 @@ func generate_chunk(x: int, y: int) -> void:
 	if c_data.chunk_type == ChunkData.ChunkType.MAN_MADE:
 		return
 
-	await c_data.chunk.generate(material)
+	await c_data.chunk.generate(material,
+	grass_material,
+	 grass_mesh,chunk_grass_count,
+	 grass_scale_range, false,)
 
 func _lock_and_blend_manmade_edges(blend_width: int) -> void:
 	var total_width = (map_size.x * chunk_size) + 1
