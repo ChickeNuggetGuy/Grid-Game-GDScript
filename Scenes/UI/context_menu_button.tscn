@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://d12db22xd5d15"]
+[gd_scene format=3 uid="uid://d12db22xd5d15"]
 
-[ext_resource type="Script" uid="uid://gr5wf6tdn8jw" path="res://Scripts/UI/ContextMenuUI/ContextMenuButton.gd" id="1_upie8"]
+[ext_resource type="Script" uid="uid://gr5wf6tdn8jw" path="res://Scripts/UI/ContextMenuUI/context_menu_button.gd" id="1_upie8"]
 
 [node name="ContextMenuButton" type="Button"]
 anchors_preset = 15

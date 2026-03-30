@@ -41,7 +41,7 @@ func _action_complete_call() -> void:
 	if not multiple_executions:
 		unit_action_manager._set_selected_action(
 				owner.try_get_action_definition_by_type("MoveActionDefinition")["action_definition"])
-	unit_action_manager.any_action_execution_finished.emit(unit_action_manager.selected_action,execution_parameters)
+	unit_action_manager.any_action_execution_finished.emit(unit_action_manager.selected_action,owner)
 
 
 @abstract func _action_complete()

@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgh2x0h620j63"]
+
+[ext_resource type="Script" uid="uid://dx5d5uf1gac3y" path="res://Scripts/UI/loading_screen.gd" id="1_dnr48"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dnr48"]
+bg_color = Color(0.03137255, 0.03137255, 0.1254902, 1)
+
+[node name="Loading Screen" type="Control" unique_id=1189268194 node_paths=PackedStringArray("progress_bar")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_dnr48")
+progress_bar = NodePath("Panel/ProgressBar")
+metadata/_custom_type_script = "uid://djnfglh5vj3vy"
+
+[node name="Panel" type="Panel" parent="." unique_id=847395944]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dnr48")
+
+[node name="ProgressBar" type="ProgressBar" parent="Panel" unique_id=1055811667]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -202.0
+offset_top = -73.0
+offset_right = -52.0
+offset_bottom = -46.0
+grow_horizontal = 0
+grow_vertical = 0

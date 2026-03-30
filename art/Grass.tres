@@ -1,4 +1,4 @@
-[gd_resource type="VisualShader" load_steps=24 format=3 uid="uid://x0gqbhltjp7j"]
+[gd_resource type="VisualShader" format=3 uid="uid://x0gqbhltjp7j"]
 
 [sub_resource type="VisualShaderNodeVec2Constant" id="VisualShaderNodeVec2Constant_3xsam"]
 constant = Vector2(0, 1)

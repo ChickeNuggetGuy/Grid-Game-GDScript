@@ -11,15 +11,12 @@ var current_invenrtory_coords : Vector2i
 
 @export var grid_shape: GridShape
 
+@export var item_components : Array[ItemComponent]  = []
+
 @export var action_blueprints : Array[BaseActionDefinition]
 @export var item_costs : Dictionary[Enums.Stat, int] = {}
 @export var extra_values : Dictionary [String, Variant] = {}
 
-# REMOVE THESE - dimensions are now solely in GridShape
-# var _grid_width: int = 3
-# var _grid_height: int = 3
-# @export var grid_width: int: ...
-# @export var grid_height: int: ...
 
 func _init():
 	resource_local_to_scene = true
@@ -27,7 +24,6 @@ func _init():
 
 
 func _post_initialize():
-	# Ensure grid_shape is created and initialized based on its *own* loaded dimensions.
 	_ensure_shape_exists_and_matches()
 
 
@@ -39,6 +35,11 @@ func _setup():
 			var item_action : BaseItemActionDefinition = action
 			item_action.parent_item = self
 			print("Item_Setup" + item_action.parent_item.item_name)
+			
+	if not item_components.is_empty():
+		for item_component in item_components:
+			item_component.setup_call(self)
+
 
 func _ensure_shape_exists_and_matches(): # No arguments needed now
 	if grid_shape == null:
@@ -85,7 +86,33 @@ func get_context_items() -> Dictionary[String,Callable]:
 	
 	return ret_value
 
+
 func set_item_action(action_def : BaseItemActionDefinition):
 	action_def.parent_item = self
 	action_def.starting_inventory = self.current_inventory_grid
 	GameManager.managers["UnitActionManager"].try_set_selected_action(action_def)
+
+func try_get_item_component(component_type : String) -> Dictionary:
+	var ret_val = {"success": false,"reason": "", "component" : null}
+	
+	if item_components.is_empty():
+		ret_val["reason"] = "item components list is empty"
+		return ret_val
+	
+	
+	var found_component : ItemComponent = null
+	for component in item_components:
+		if component.get_class_name().to_lower() == component_type.to_lower():
+			found_component = component
+		break
+	
+	if found_component != null:
+		ret_val["success"] =  true
+		ret_val["component"] = found_component
+	else:
+		ret_val["success"] =  false
+		ret_val["reason"] = "component could not be found"
+		ret_val["component"] = null
+	
+	return ret_val
+	

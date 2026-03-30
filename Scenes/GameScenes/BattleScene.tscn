@@ -1,25 +1,27 @@
-[gd_scene load_steps=23 format=3 uid="uid://bxup2rkksx6g1"]
+[gd_scene format=3 uid="uid://bxup2rkksx6g1"]
 
-[ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/CameraController.gd" id="1_bejc1"]
+[ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/camera_controller.gd" id="1_bejc1"]
 [ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="2_6fjuf"]
-[ext_resource type="Script" uid="uid://bcbu1daq3ta3q" path="res://Scripts/Terrain Generation/MeshTerrainManager.gd" id="2_ge2b7"]
+[ext_resource type="Script" uid="uid://bcbu1daq3ta3q" path="res://Scripts/Terrain Generation/mesh_terrain_manager.gd" id="2_ge2b7"]
 [ext_resource type="Material" uid="uid://fmggjhhpn6i6" path="res://Scenes/Chunks/Grass.tres" id="2_o5x0x"]
 [ext_resource type="Material" uid="uid://bua4yq3mne2po" path="res://art/Grassmat.tres" id="3_1qdt5"]
-[ext_resource type="Script" uid="uid://bjauxagwg8odf" path="res://Scripts/GridSystem/GridSystem.gd" id="3_08jbg"]
+[ext_resource type="Script" uid="uid://bjauxagwg8odf" path="res://Scripts/GridSystem/grid_system.gd" id="3_08jbg"]
 [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="3_o5x0x"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="4_1qdt5"]
 [ext_resource type="PackedScene" uid="uid://c8ylwvjtychxr" path="res://Scenes/Interface.tscn" id="4_bejc1"]
-[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/UIManager.gd" id="4_e0ivd"]
-[ext_resource type="Script" uid="uid://cerynvxcca4bv" path="res://Scripts/Managers/UnitManager.gd" id="5_7nbcx"]
-[ext_resource type="Script" uid="uid://b37fgk4b3tfnn" path="res://Scripts/Managers/GridInputManager.gd" id="6_01obq"]
-[ext_resource type="Script" uid="uid://coshpv2sr0u8e" path="res://Scripts/UnitTeamHolder.gd" id="6_bejc1"]
+[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/ui_manager.gd" id="4_e0ivd"]
+[ext_resource type="Script" uid="uid://nrsj1jjbrlxq" path="res://Scripts/Managers/inventory_manager.gd" id="4_l7dpb"]
+[ext_resource type="Script" uid="uid://cerynvxcca4bv" path="res://Scripts/Managers/unit_manager.gd" id="5_7nbcx"]
+[ext_resource type="Script" uid="uid://b37fgk4b3tfnn" path="res://Scripts/Managers/grid_input_manager.gd" id="6_01obq"]
+[ext_resource type="Script" uid="uid://coshpv2sr0u8e" path="res://Scripts/unit_team_holder.gd" id="6_bejc1"]
 [ext_resource type="PackedScene" uid="uid://hhe7ab2xbje0" path="res://Scenes/GridObjects/Unit.tscn" id="6_e3qp5"]
-[ext_resource type="Script" uid="uid://qbdewo8k424a" path="res://Scripts/Managers/UnitActionManager.gd" id="7_86i4a"]
-[ext_resource type="Script" uid="uid://swicsbxj3n2f" path="res://Scripts/Managers/TurnManager.gd" id="8_6ppp3"]
+[ext_resource type="Script" uid="uid://qbdewo8k424a" path="res://Scripts/Managers/unit_action_manager.gd" id="7_86i4a"]
+[ext_resource type="Script" uid="uid://swicsbxj3n2f" path="res://Scripts/Managers/turn_manager.gd" id="8_6ppp3"]
 [ext_resource type="PackedScene" uid="uid://s0gidm36vhaw" path="res://Scenes/UI/pause_menu_ui.tscn" id="8_bejc1"]
+[ext_resource type="PackedScene" uid="uid://bkob6if4xi045" path="res://Scenes/ArrowIndicator.tscn" id="12_t2hbq"]
 [ext_resource type="Material" uid="uid://dqvadbsa7g3b8" path="res://Shaders/FOW.tres" id="13_6ppp3"]
 [ext_resource type="PackedScene" uid="uid://p1kvxlbo0xew" path="res://art/Grass.tscn" id="16_o5x0x"]
-[ext_resource type="Script" uid="uid://c0303oxw6al88" path="res://Scripts/Managers/FogManager.gd" id="17_6fjuf"]
+[ext_resource type="Script" uid="uid://c0303oxw6al88" path="res://Scripts/Managers/fog_manager.gd" id="17_6fjuf"]
 
 [sub_resource type="Resource" id="Resource_lcfwl"]
 script = ExtResource("4_1qdt5")
@@ -44,12 +46,15 @@ grass_scale_range = Vector2(0.2, 0.3)
 save_on_scene_change = true
 metadata/_custom_type_script = "uid://bcbu1daq3ta3q"
 
+[node name="InventoryManager" type="Node" parent="Managers" unique_id=1536719119]
+script = ExtResource("4_l7dpb")
+metadata/_custom_type_script = "uid://nrsj1jjbrlxq"
+
 [node name="GridSystem" type="Node" parent="Managers" unique_id=91070132]
 process_mode = 1
 script = ExtResource("3_08jbg")
-max_step_height_ratio = 65.0
+connection_use_raycast = true
 connection_raycast_height_offset = 0.2
-connection_collision_mask = 0
 colliderCheck = true
 colliderSize = Vector3(0.7, 0.7, 0.7)
 metadata/_custom_type_script = "uid://bjauxagwg8odf"
@@ -71,6 +76,7 @@ team = 2
 metadata/_custom_type_script = "uid://coshpv2sr0u8e"
 
 [node name="UIManager" type="Node" parent="Managers" unique_id=1608853182 node_paths=PackedStringArray("ui_holder", "main_inventory_ui", "pause_menu_ui") groups=["manager"]]
+process_mode = 3
 script = ExtResource("4_e0ivd")
 ui_holder = NodePath("Control")
 main_inventory_ui = NodePath("Control/InventoryGrids")
@@ -78,6 +84,7 @@ pause_menu_ui = NodePath("Control/PauseMenuUI")
 metadata/_custom_type_script = "uid://cq3ef3ssfwu7w"
 
 [node name="Control" parent="Managers/UIManager" unique_id=1361052491 instance=ExtResource("4_bejc1")]
+process_mode = 3
 
 [node name="UnitDetailPanel" parent="Managers/UIManager/Control" index="0" unique_id=1324919607]
 offset_top = -185.0
@@ -130,7 +137,6 @@ offset_right = 0.0
 offset_bottom = 70.0
 
 [node name="PauseMenuUI" parent="Managers/UIManager/Control" unique_id=37438969 instance=ExtResource("8_bejc1")]
-visible = false
 layout_mode = 1
 offset_left = -225.0
 offset_top = -300.0
@@ -140,6 +146,7 @@ scene_type = 2
 
 [node name="GridInputManager" type="Node" parent="Managers" unique_id=1754522285 groups=["manager"]]
 script = ExtResource("6_01obq")
+arrow_indicator_scene = ExtResource("12_t2hbq")
 metadata/_custom_type_script = "uid://b37fgk4b3tfnn"
 
 [node name="UnitActionManager" type="Node" parent="Managers" unique_id=175914347 groups=["manager"]]
@@ -147,33 +154,37 @@ script = ExtResource("7_86i4a")
 save_on_scene_change = true
 metadata/_custom_type_script = "uid://qbdewo8k424a"
 
-[node name="TurnManager" type="Node" parent="Managers" unique_id=1048450889 groups=["manager"]]
-script = ExtResource("8_6ppp3")
-metadata/_custom_type_script = "uid://swicsbxj3n2f"
-
 [node name="FogManager" type="Node" parent="Managers" unique_id=18750102 groups=["manager"]]
 script = ExtResource("17_6fjuf")
 fow_material = ExtResource("13_6ppp3")
 save_on_scene_change = true
 metadata/_custom_type_script = "uid://c0303oxw6al88"
 
-[node name="CameraController" type="Node" parent="Managers" unique_id=793812520 node_paths=PackedStringArray("camera_3d", "transposer") groups=["manager"]]
+[node name="CameraController" type="Node" parent="Managers" unique_id=793812520 node_paths=PackedStringArray("camera_3d", "transposer", "phantom_cameras") groups=["manager"]]
 script = ExtResource("1_bejc1")
 camera_3d = NodePath("Camera3D")
 transposer = NodePath("../../Transposer")
 min_transposer_height = 1.0
 orbit_min_distance = 5.0
 orbit_max_distance = 25.0
+phantom_cameras = {
+"main": NodePath("../../PhantomCamera3D")
+}
 metadata/_custom_type_script = "uid://dp870a6rqd874"
 
 [node name="Camera3D" type="Camera3D" parent="Managers/CameraController" unique_id=1485395086]
-transform = Transform3D(1, 0, 0, 0, 0.9103665, 0.4138029, 0, -0.4138029, 0.9103665, 0, 5.844498, 12.251857)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
 
 [node name="PhantomCameraHost" type="Node" parent="Managers/CameraController/Camera3D" unique_id=1188668176]
 process_priority = 300
 process_physics_priority = 300
 script = ExtResource("2_6fjuf")
 metadata/_custom_type_script = "uid://bd046eokvcnu2"
+
+[node name="TurnManager" type="Node" parent="Managers" unique_id=1048450889 groups=["manager"]]
+script = ExtResource("8_6ppp3")
+wait_for_loading_completion = false
+metadata/_custom_type_script = "uid://swicsbxj3n2f"
 
 [node name="Grass" parent="Managers" unique_id=1742045333 instance=ExtResource("16_o5x0x")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -500, 0, -500)
@@ -183,7 +194,7 @@ transform = Transform3D(-0.056623124, 0.85537, -0.5149137, 0, 0.5157411, 0.85674
 light_energy = 2.0
 
 [node name="PhantomCamera3D" type="Node3D" parent="." unique_id=44587506 node_paths=PackedStringArray("follow_target", "look_at_target")]
-transform = Transform3D(1, 0, 0, 0, 0.9103665, 0.4138029, 0, -0.4138029, 0.9103665, 0, 5.844498, 12.251857)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
 script = ExtResource("3_o5x0x")
 priority = 1
 follow_mode = 6
@@ -191,11 +202,10 @@ follow_target = NodePath("../Transposer")
 look_at_mode = 2
 look_at_target = NodePath("../Transposer")
 tween_resource = SubResource("Resource_lcfwl")
-follow_offset = Vector3(0, 5, 10)
+tween_on_load = false
 metadata/_custom_type_script = "uid://csjccrhj5wnx7"
 
 [node name="Transposer" type="Node3D" parent="." unique_id=1921818617]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84449816, 1.2518566)
 
 [node name="ActionPantomCamera" type="Node3D" parent="." unique_id=1958881388]
 top_level = true

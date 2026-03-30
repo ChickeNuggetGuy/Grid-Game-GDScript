@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://bkob6if4xi045"]
+
+[ext_resource type="ArrayMesh" uid="uid://tagt4r88l7dg" path="res://art/arrow_Plane.res" id="1_2f246"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_atduw"]
+albedo_color = Color(0.14901961, 1, 0.18039216, 1)
+
+[node name="Node3D" type="Node3D" unique_id=1438943778]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=568983442]
+transform = Transform3D(-2.1855694e-08, 0, 0.5, 0, 0.5, 0, -0.5, 0, -2.1855694e-08, 0, 0, 0)
+mesh = ExtResource("1_2f246")
+surface_material_override/0 = SubResource("StandardMaterial3D_atduw")
+
+[node name="Label3D" type="Label3D" parent="." unique_id=511164147]
+unique_name_in_owner = true
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.25, 0)
+text = "5
+"
+font_size = 90

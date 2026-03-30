@@ -1,17 +1,23 @@
-[gd_scene load_steps=27 format=4 uid="uid://bqs8t40a7oph0"]
+[gd_scene format=4 uid="uid://bqs8t40a7oph0"]
 
-[ext_resource type="Script" uid="uid://d4hr6o3rcvuwi" path="res://Scripts/GridSystem/GridCellStateOverride.gd" id="1_vwmlq"]
-[ext_resource type="Script" uid="uid://tsvmqb5mbqtu" path="res://Scripts/GridObject/Interactables/Door.gd" id="2_7tomj"]
+[ext_resource type="Script" uid="uid://d4hr6o3rcvuwi" path="res://Scripts/GridSystem/grid_cell_state_override.gd" id="1_vwmlq"]
+[ext_resource type="Script" uid="uid://b1vtdr63by7tb" path="res://Scripts/GridObject/Interactables/door.gd" id="2_7tomj"]
 [ext_resource type="Material" uid="uid://fmggjhhpn6i6" path="res://Scenes/Chunks/Grass.tres" id="2_sng4x"]
-[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="3_8dqx1"]
-[ext_resource type="Script" uid="uid://06anso1qbl48" path="res://Scripts/GridObject/GridPositionData.gd" id="4_3qync"]
-[ext_resource type="Script" uid="uid://4ha15fv3jgdt" path="res://Scripts/GridObject/Obstacle.gd" id="4_w0vs8"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="3_8dqx1"]
+[ext_resource type="Script" uid="uid://06anso1qbl48" path="res://Scripts/GridObject/grid_position_data.gd" id="4_3qync"]
+[ext_resource type="Script" uid="uid://4ha15fv3jgdt" path="res://Scripts/GridObject/obstacle.gd" id="4_w0vs8"]
 [ext_resource type="PackedScene" uid="uid://dxdk03mt3er50" path="res://art/GrassBlades.tscn" id="6_ehjeo"]
 [ext_resource type="Material" uid="uid://bua4yq3mne2po" path="res://art/Grassmat.tres" id="7_5g01e"]
 [ext_resource type="ArrayMesh" uid="uid://cs2h6f8f5cs2e" path="res://art/grass_Plane_009.res" id="7_qbfbh"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_7tomj"]
-size = Vector3(3, 3, 5)
+[sub_resource type="Resource" id="Resource_sng4x"]
+resource_local_to_scene = true
+script = ExtResource("3_8dqx1")
+grid_width = 4
+grid_depth = 5
+grid_height = 3
+shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_sng4x"]
 size = Vector2(16, 16)
@@ -123,23 +129,24 @@ buffer = PackedFloat32Array(0, 0, -0.201, 6.710799, 0, 0.201, 0, 1, 0.201, 0, 0,
 
 [node name="SpawnChunk" type="Node3D" unique_id=584262143]
 
-[node name="GridCellStateOverride" type="Area3D" parent="." unique_id=1015512573 groups=["grid_cell_overrides"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, 0, 3.25)
-monitoring = false
-monitorable = false
+[node name="GridCellStateOverride - Spawm" type="Node3D" parent="." unique_id=1930304013 node_paths=PackedStringArray("grid_position_data") groups=["grid_cell_overrides"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1)
 script = ExtResource("1_vwmlq")
+grid_position_data = NodePath("GridPositionData")
 _spawn_override = true
 team_spawn_override = 1
 team_spawn_state_filter = 16
 metadata/_custom_type_script = "uid://d4hr6o3rcvuwi"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GridCellStateOverride" unique_id=339594350]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 2.5, 0)
-shape = SubResource("BoxShape3D_7tomj")
-debug_color = Color(0, 0, 0, 1)
+[node name="GridPositionData" type="Node3D" parent="GridCellStateOverride - Spawm" unique_id=423301491]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+script = ExtResource("4_3qync")
+grid_shape = SubResource("Resource_sng4x")
+metadata/_custom_type_script = "uid://06anso1qbl48"
 
 [node name="Floor" type="MeshInstance3D" parent="." unique_id=997731545]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+layers = 2
 mesh = SubResource("PlaneMesh_sng4x")
 surface_material_override/0 = ExtResource("2_sng4x")
 
@@ -153,6 +160,7 @@ shape = SubResource("ConcavePolygonShape3D_07dbh")
 transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 1, 1.5, 6.25)
 script = ExtResource("2_7tomj")
 grid_cell_override = NodePath("GridCellStateOverride")
+is_selectable = true
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Door")
 collider = NodePath("Door/StaticBody3D")

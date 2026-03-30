@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://bua4yq3mne2po"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bua4yq3mne2po"]
 
 [ext_resource type="Shader" uid="uid://x0gqbhltjp7j" path="res://art/Grass.tres" id="1_e25v4"]
 

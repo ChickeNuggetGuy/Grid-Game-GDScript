@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cquxi7gjvy1l4"]
+[gd_scene format=3 uid="uid://cquxi7gjvy1l4"]
 
-[ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/ContextMenuUI.gd" id="1_ms3rd"]
+[ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/context_menu_ui.gd" id="1_ms3rd"]
 [ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="2_t8hla"]
 
 [node name="ContextMenuUI" type="Control" unique_id=885723138 node_paths=PackedStringArray("context_button_holder", "visual")]

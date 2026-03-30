@@ -27,9 +27,10 @@ func open():
 		visual.hide()
 
 	_set_blocks_sight(false)
-
+	
+	collider.process_mode  = Node.ProcessMode.PROCESS_MODE_DISABLED
 	if grid_cell_override:
-		grid_cell_override.process_mode  = Node.PROCESS_MODE_INHERIT
+
 		grid_cell_override.state_override = true
 		grid_cell_override.cell_state_filter = (
 			Enums.cellState.GROUND | Enums.cellState.OBSTRUCTED
@@ -48,9 +49,9 @@ func close():
 		visual.show()
 
 	_set_blocks_sight(true)
-
+	collider.process_mode =  Node.ProcessMode.PROCESS_MODE_INHERIT
 	if grid_cell_override:
-		grid_cell_override.process_mode = Node.PROCESS_MODE_DISABLED
+
 		grid_cell_override.state_override = true
 		grid_cell_override.cell_state_filter = (
 			Enums.cellState.GROUND | Enums.cellState.WALKABLE

@@ -4,10 +4,16 @@ extends Node
 
 @export var debug_mode : bool = false
 @export var save_on_scene_change : bool = false
+
+# NEW: If true, the loading screen waits for _setup and _execute to finish.
+@export var wait_for_loading_completion : bool = true
+
 var setup_complete : bool
 var execute_complete : bool
 
 var load_data : Dictionary = {}
+
+var is_busy : bool = false
 #region Signals
 signal setup_completed()
 signal execution_completed()

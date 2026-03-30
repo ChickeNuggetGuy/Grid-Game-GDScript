@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="InventoryGrid" load_steps=4 format=3 uid="uid://dssbkdvlp27lk"]
+[gd_resource type="Resource" script_class="InventoryGrid" format=3 uid="uid://dssbkdvlp27lk"]
 
-[ext_resource type="Script" uid="uid://bvaar7mvf43va" path="res://Scripts/InventorySystem/InventoryGrid.gd" id="1_5q8iv"]
-[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="1_6jtki"]
+[ext_resource type="Script" uid="uid://bvaar7mvf43va" path="res://Scripts/InventorySystem/inventory_grid.gd" id="1_5q8iv"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="1_6jtki"]
 
 [sub_resource type="Resource" id="Resource_240ow"]
 resource_local_to_scene = true

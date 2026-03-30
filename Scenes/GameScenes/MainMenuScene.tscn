@@ -1,10 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://dksvn0rdbvqwb"]
+[gd_scene format=3 uid="uid://dksvn0rdbvqwb"]
 
-[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/UIManager.gd" id="1_abbdw"]
-[ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scripts/UI/MainMenuUI.gd" id="1_ibpp6"]
-[ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/UIWindow.gd" id="2_h3486"]
+[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/ui_manager.gd" id="1_abbdw"]
+[ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scripts/UI/main_menu_ui.gd" id="1_ibpp6"]
+[ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/ui_window.gd" id="2_h3486"]
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_eembx"]
-[ext_resource type="Script" uid="uid://bq6tin77ek38e" path="res://Scripts/UI/GameSavesUI.gd" id="5_ibpp6"]
+[ext_resource type="Script" uid="uid://bq6tin77ek38e" path="res://Scripts/UI/game_saves_ui.gd" id="5_ibpp6"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_47rn7"]
 font_size = 50
@@ -295,6 +295,7 @@ load_save_button = NodePath("Panel/VBoxContainer/HBoxContainer/Load Button2")
 delete_save_button = NodePath("Panel/VBoxContainer/HBoxContainer/Delete Button")
 text_edit_field = NodePath("Panel/VBoxContainer/TextEdit")
 save_icon = ExtResource("3_eembx")
+load_new_saves = true
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://bq6tin77ek38e"
 

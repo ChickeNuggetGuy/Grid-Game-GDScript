@@ -1,0 +1,255 @@
+class_name GridObject
+extends Node3D
+
+#region Variables
+@export var is_selectable : bool  = false
+@export var grid_position_data : GridPositionData
+@export var visual :  Node3D
+@export var collider :  StaticBody3D
+
+@export var team : Enums.unitTeam = Enums.unitTeam.NONE
+@export var active : bool = true
+@export_category("Stats")
+@export var stat_holder: Node
+var stat_library: Dictionary[Enums.Stat ,GridObjectStat] = {}
+
+@export_category("Inventory")
+@export var inventory_grid_types : Array[Enums.inventoryType] = []
+var inventory_grids : Dictionary[Enums.inventoryType,InventoryGrid] = {}
+
+@export_category("Animation")
+@export var grid_object_animator : GridObjectAnimation
+
+
+@export_category("Components")
+@export var grid_object_component_holder : Node
+var _grid_object_components : Array[GridObjectComponent]
+#endregion
+
+
+#region Signals
+signal inventories_ready()
+signal  gridObject_stat_changed(stat : GridObjectStat, snew_vaule : int)
+@warning_ignore("unused_signal")
+signal gridObject_moved(owner : Unit, new_grid_cell : GridCell)
+
+#endregion
+#region Functions
+
+func _ready() -> void:
+	collider.collision_layer =PhysicsLayersUtility.GRIDOBJECT
+
+
+func _setup(loading_data : bool, data: Dictionary = {}, ):
+	
+	#gridCell : GridCell, direction : Enums.facingDirection, unit_team : Enums.unitTeam,
+	if not loading_data:
+		if not grid_position_data:
+			grid_position_data = GridPositionData.new()
+			add_child(grid_position_data)
+		grid_position_data.setup_call(self, {"grid_cell" : data["grid_cell"] ,"direction" :  data["direction"], "grid_cell_coord" : data["grid_cell"] .grid_coordinates}, false)
+		
+		team = data["team"]
+		
+		if stat_holder:
+			for stat_node  in stat_holder.get_children():
+				stat_library[stat_node.stat_type] = stat_node
+		
+		for stat in stat_library.keys():
+			var grid_stat : GridObjectStat = stat_library[stat]
+			grid_stat.setup(self,{})
+		
+		if grid_object_component_holder:
+			_grid_object_components.append_array(grid_object_component_holder.get_children())
+		
+		for component in _grid_object_components:
+			var grid_object_component : GridObjectComponent = component
+			if grid_object_component is GridPositionData:
+				continue
+			grid_object_component.setup_call(self,{}, false)
+		
+		setup_inventory_grids()
+	else:
+		team = data["team"] as Enums.unitTeam
+		active = data["active"]
+
+		if data.has("grid_position_data"):
+			var gpos_data = data["grid_position_data"]
+			if gpos_data.has("world_position"):
+				var pos_val = gpos_data["world_position"]
+				if pos_val is String:
+					self.global_position = NodeUtils._parse_vector3_from_string(pos_val)
+				else:
+					self.global_position = pos_val
+
+		if not grid_position_data:
+			grid_position_data = GridPositionData.new()
+			add_child(grid_position_data)
+		grid_position_data._setup(data["grid_position_data"], loading_data)
+
+		if stat_holder:
+			for stat_node  in stat_holder.get_children():
+				stat_library[stat_node.stat_type] = stat_node
+
+		var saved_stats = data["stat_library"]
+		for stat in stat_library.keys():
+			if stat_library[stat] is GridObjectStat and saved_stats.has(str(stat_library[stat].stat_type)):
+				stat_library[stat].setup(self, saved_stats[str(stat_library[stat].stat_type)])
+			else:
+				stat_library[stat].setup(self, {})
+		
+		
+		for type in data["inventory_grids"]:
+			inventory_grid_types.append(type as Enums.inventoryType)
+		setup_inventory_grids(data["inventory_grids"])
+
+		if grid_object_component_holder:
+			_grid_object_components.append_array(grid_object_component_holder.get_children())
+
+		var saved_components = data["_grid_object_components"]
+		for component_node in _grid_object_components:
+			if component_node is GridObjectComponent and saved_components.has(component_node.name):
+				component_node.setup_call(self, saved_components[component_node.name], loading_data)
+
+
+func setup_inventory_grids(data : Dictionary = {}):
+	
+	for inventory_type in inventory_grid_types:
+		var result = GameManager.managers["InventoryManager"].try_get_inventory_grid(inventory_type)
+		if result["success"]:
+			inventory_grids[inventory_type] =  result["inventory_grid"]
+			
+			var key = str(inventory_type)
+			if not data.is_empty() and data.has(key):
+				inventory_grids[inventory_type].initialize(data[key])
+			elif inventory_type == Enums.inventoryType.RIGHTHAND:
+				inventory_grids[inventory_type].try_add_item(GameManager.managers["InventoryManager"].get_random_item())
+	emit_signal("inventories_ready")
+
+
+func get_stat_by_type(stat_type: Enums.Stat) -> GridObjectStat:
+	
+	var stat : GridObjectStat = stat_library.get(stat_type, null)
+	
+	if not stat:
+		return null
+	else:
+		return stat
+
+
+func try_spend_stat_value(stat_type : Enums.Stat, amount_to_spend : int) -> Dictionary:
+	var retVal: Dictionary = {"success": false, "new_value": 0}
+	var stat = get_stat_by_type(stat_type)
+	if stat == null:
+		retVal["success"] = false
+		retVal["new_value"] = -1
+		return retVal
+	
+	if stat.try_remove_value(amount_to_spend):
+		retVal["success"] = true
+		retVal["new_value"] = stat.current_value
+		gridObject_stat_changed.emit(stat,stat.current_value)
+		return retVal
+	else:
+		retVal["success"] = false
+		retVal["new_value"] = -1
+		return retVal
+
+
+func check_stat_values(stats_to_check: Dictionary) -> Dictionary:
+	var result := {"success": false, "reason": "N/A"}
+	var temp_costs: Dictionary = {}
+	
+	
+	for stat_type in stats_to_check.keys():
+		var cost = stats_to_check[stat_type]
+		var stat = get_stat_by_type(stat_type)
+		
+		if stat == null:
+			result["reason"] = "Stat with name: " + stat_type + " not found!"
+			return result
+		
+		if not temp_costs.has(stat):
+			temp_costs[stat] = cost
+		else:
+			temp_costs[stat] += cost
+	
+	
+	for stat in temp_costs.keys():
+		if stat.current_value < temp_costs[stat]:
+			result["reason"] = "Not enough: " + stat.name + " value"
+			return result
+	
+	result["success"] = true
+	result["reason"] = "Yay"
+	return result
+
+
+func get_grid_object_components() -> Array[GridObjectComponent]:
+	return _grid_object_components
+
+
+func try_get_grid_object_component_by_type(type_to_find : String) -> Dictionary:
+	var retval : Dictionary = {"success": false, "grid_object_component" : null}
+
+	var target_script_path: String = ""
+	# First, try to find the script path for the given type_string if it's a custom class_name
+	var global_classes = ProjectSettings.get_global_class_list()
+	for class_info in global_classes:
+		if class_info["class"] == type_to_find:
+			target_script_path = class_info["path"]
+			break
+
+	# Assuming action_library is an Array of ActionNode objects (or whatever base class they extend)
+	for component in _grid_object_components:
+		# 1. Check if it's a built-in engine class
+		if component.is_class(type_to_find):
+			retval["success"] = true
+			retval["grid_object_component"] = component
+			return retval
+
+		# 2. Check if it's a custom class_name
+		if target_script_path != "":
+			if component.get_script() != null and component.get_script().resource_path == target_script_path:
+				retval["success"] = true
+				retval["grid_object_component"] = component
+				return retval
+	
+	# If the loop finishes, the action node was not found
+	print("Component not found: " + type_to_find)
+	return retval
+
+
+func _unhandled_input(event):
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_B:
+			if GameManager.managers["UnitManager"].Instance.selectedUnit == self:
+				print(grid_position_data.grid_cell.inventory_grid.try_add_item(
+					GameManager.manager["InventoryManager"].Instance.get_random_item()))
+
+
+func save_data() -> Dictionary:
+	var stat_dict = {}
+	for stat in stat_library:
+		stat_dict[stat_library[stat].stat_type] = stat_library[stat].save_data()
+	
+	var component_dict = {}
+	for c in _grid_object_components:
+		component_dict[c.name] = c.save_data()
+	
+	var inventory_dict = {}
+	for c in inventory_grids:
+		inventory_dict[c] = inventory_grids[c].save_data()
+		
+	var save_dict = {
+		"filename" : scene_file_path,
+		"parent" : get_parent().get_path(),
+		"grid_position_data" : grid_position_data.save_data(),
+		"team" : team,
+		"active" : active,
+		"stat_library" : stat_dict,
+		"inventory_grid_types" : inventory_grid_types,
+		"inventory_grids" : inventory_dict,
+		"_grid_object_components" : component_dict, 
+	}
+	return save_dict

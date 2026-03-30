@@ -1,7 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://ygbi07ro36so"]
+[gd_scene format=3 uid="uid://ygbi07ro36so"]
 
-[ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/GameManager.gd" id="1_4fq26"]
-[ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/ContextMenuUI.gd" id="2_0bwh0"]
+[ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/game_manager.gd" id="1_4fq26"]
+[ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/context_menu_ui.gd" id="2_0bwh0"]
 [ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="3_k44kv"]
 
 [node name="GameManager" type="Node" unique_id=100973003]

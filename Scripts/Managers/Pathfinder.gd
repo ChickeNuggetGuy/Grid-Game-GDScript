@@ -1,7 +1,7 @@
 extends Node
 
 @export var debug_mode :  bool = false
-@onready var _heap = preload("res://Scripts/Utility/MinHeap.gd").new()
+@onready var _heap = preload("res://Scripts/Utility/min_heap.gd").new()
 
 func find_path(start: GridCell, goal: GridCell, adjacent_is_valid: bool = false) -> Array[GridCell]:
 	return _find_path_internal(start, goal, adjacent_is_valid)
@@ -127,16 +127,15 @@ func _cost(a: GridCell, b: GridCell) -> float:
 		base_cost *= 1.1
 	return base_cost
 
-func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: int = 3) -> Dictionary:
-	var ret_val = {"success": false, "grid_cell_path": [], "vector3_path": []}
+func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: int = 3, excluded_cells : Array[GridCell] = []) -> Dictionary:
+	var ret_val = {"success": false,"reason" : "", "grid_cell_path": [], "vector3_path": []}
 
 	var start = start_pos
 	var end = end_pos
 	var cell_size = GameManager.managers["MeshTerrainManager"].cell_size
 
-	if start.grid_cell_state & Enums.cellState.OBSTRUCTED or \
-	   end.grid_cell_state & Enums.cellState.OBSTRUCTED:
-		print("Start or end point is obstructed.")
+	if end.grid_cell_state & Enums.cellState.OBSTRUCTED:
+		ret_val["reason"] = "end point is obstructed."
 		return ret_val
 
 	var direction = end.world_position - start.world_position
@@ -176,12 +175,12 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 
 			var grid_cell: GridCell = get_grid_cell_result["grid_cell"]
 
-			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
+			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED and not excluded_cells.has(grid_cell):
 				print("Obstacle detected at: ", grid_cell.grid_coordinates)
 				path_valid = false
 				break
 
-			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED:
+			if grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED and not excluded_cells.has(grid_cell):
 				print("Invalid cell state for arc path at: ", grid_cell.grid_coordinates, " State: ", grid_cell.grid_cell_state)
 				path_valid = false
 				break
@@ -196,8 +195,13 @@ func try_calculate_arc_path(start_pos: GridCell, end_pos: GridCell, attempts: in
 			print("Arc path found with ", ret_val["grid_cell_path"].size(), " cells")
 			return ret_val
 
-	print("All ", attempts, " attempts failed to find a valid arc path")
-	return {"success": false, "grid_cell_path": [], "vector3_path": []}
+	print()
+	
+	ret_val["success"] = false
+	ret_val["reason"] = "All " + str(attempts) + " attempts failed to find a valid arc path"
+	ret_val["grid_cell_path"] = []
+	ret_val["vector3_path"] = []
+	return ret_val
 
 func _are_grid_cells_equal(cell1: GridCell, cell2: GridCell) -> bool:
 	if cell1 == null or cell2 == null:

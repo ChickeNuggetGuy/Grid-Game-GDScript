@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="TeamTurnData" load_steps=13 format=3 uid="uid://x216dvmhfik2"]
+[gd_resource type="Resource" script_class="TeamTurnData" format=3 uid="uid://x216dvmhfik2"]
 
-[ext_resource type="Script" uid="uid://k2mchnt8k1fd" path="res://Scripts/TurnSystem/TeamTurnData.gd" id="1_qycj8"]
-[ext_resource type="Script" uid="uid://btg5hvyvxirc4" path="res://Scripts/TurnSystem/TurnSegment.gd" id="2_ns034"]
-[ext_resource type="Script" uid="uid://d152u74oby2ve" path="res://Scripts/TurnSystem/TurnSegments/TestPrintTurnSegment.gd" id="3_ns034"]
-[ext_resource type="Script" uid="uid://tv0c3h8boa3t" path="res://Scripts/TurnSystem/TurnSegments/AIUnitActionsTurnSegment.gd" id="4_l5t4u"]
-[ext_resource type="Script" uid="uid://b4vm01ys4aj4o" path="res://Scripts/TurnSystem/TurnSegments/UpdateUnitStatsTurnSegment.gd" id="5_5w0fq"]
-[ext_resource type="Script" uid="uid://mojvjtt1nl8u" path="res://Scripts/TurnSystem/TurnSegments/EndTurnSegment.gd" id="5_b1qxc"]
-[ext_resource type="Script" uid="uid://bpkxhpk4a0hyg" path="res://Scripts/TurnSystem/TurnSegments/CheckGameState.gd" id="5_lsvtv"]
+[ext_resource type="Script" uid="uid://k2mchnt8k1fd" path="res://Scripts/TurnSystem/team_turn_data.gd" id="1_qycj8"]
+[ext_resource type="Script" uid="uid://btg5hvyvxirc4" path="res://Scripts/TurnSystem/turn_segment.gd" id="2_ns034"]
+[ext_resource type="Script" uid="uid://d152u74oby2ve" path="res://Scripts/TurnSystem/TurnSegments/test_print_turn_segment.gd" id="3_ns034"]
+[ext_resource type="Script" uid="uid://tv0c3h8boa3t" path="res://Scripts/TurnSystem/TurnSegments/ai_unit_actions_turn_segment.gd" id="4_l5t4u"]
+[ext_resource type="Script" uid="uid://b4vm01ys4aj4o" path="res://Scripts/TurnSystem/TurnSegments/update_unit_stats_turn_segment.gd" id="5_5w0fq"]
+[ext_resource type="Script" uid="uid://mojvjtt1nl8u" path="res://Scripts/TurnSystem/TurnSegments/end_turn_segment.gd" id="5_b1qxc"]
+[ext_resource type="Script" uid="uid://bpkxhpk4a0hyg" path="res://Scripts/TurnSystem/TurnSegments/check_game_state.gd" id="5_lsvtv"]
 
 [sub_resource type="Resource" id="Resource_l5t4u"]
 script = ExtResource("3_ns034")

@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="Item" load_steps=10 format=3 uid="uid://cwvbdid7esrhv"]
+[gd_resource type="Resource" script_class="Item" format=3 uid="uid://cwvbdid7esrhv"]
 
-[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/BaseActionDefinition.gd" id="1_34uyp"]
-[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/ThrowActionDefintion.gd" id="3_oh0kb"]
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_34uyp"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="3_oh0kb"]
 [ext_resource type="Texture2D" uid="uid://byb7gikisgnmc" path="res://art/ground_albedo.png" id="4_eb2ju"]
-[ext_resource type="Script" uid="uid://bf1isr1wcokqf" path="res://Scripts/InventorySystem/ItemActions/MeleeAttack/MeleeAttackActionDefinition.gd" id="4_oh0kb"]
-[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/Item.gd" id="5_c4gob"]
-[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/GridShape.gd" id="6_dfhas"]
+[ext_resource type="Script" uid="uid://bf1isr1wcokqf" path="res://Scripts/InventorySystem/ItemActions/MeleeAttack/melee_attack_actionDefinition.gd" id="4_oh0kb"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item.gd" id="5_c4gob"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="6_dfhas"]
 
 [sub_resource type="Resource" id="Resource_tbkrc"]
 script = ExtResource("3_oh0kb")
