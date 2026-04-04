@@ -4,7 +4,7 @@ class_name MoveStepActionDefinition
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/MoveStep/MoveStepAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/MoveStep/move_step_action.gd"
 	super._init()
 
 

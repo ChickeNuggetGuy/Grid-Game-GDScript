@@ -20,7 +20,7 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup():
-	setup_completed.emit()
+	pass
 
 
 func _execute_conditions() -> bool: return true
@@ -48,8 +48,6 @@ func _execute():
 		typed_item._setup()
 		inventory_items[child.item_name] = child
 
-	
-	execution_completed.emit()
 
 
 func save_data() -> Dictionary:

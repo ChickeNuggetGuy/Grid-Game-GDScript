@@ -5,7 +5,13 @@ var city_name: String = ""
 var population: int = 0
 var country_code: String = ""
 
-func _init(index: int = -1, _city_name: String = "", _population: int = 0, _country_code: String = "") -> void:
+func _init(
+	index: int = -1,
+	_city_name: String = "",
+	_population: int = 0,
+	_country_code: String = ""
+) -> void:
+	definition_type = Enums.HexCellDefinitionType.CITY
 	city_name = _city_name
 	population = _population
 	country_code = _country_code

@@ -6,7 +6,6 @@ class_name TurnUI
 
 
 func _setup():
-	print("GRRRRRR")
 	end_turn_button.pressed.connect(call_end_turn)
 	GameManager.managers["TurnManager"].connect("turn_changed",TurnManager_turn_changed)
 	turn_label.text = "Current Turn: " + GameManager.managers["TurnManager"].current_turn.turn_name

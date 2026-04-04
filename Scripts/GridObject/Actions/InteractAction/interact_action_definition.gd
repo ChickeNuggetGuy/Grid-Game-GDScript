@@ -5,7 +5,7 @@ class_name InteractActionDefinition
 
 func _init() -> void:
 	action_name = "Interact"
-	script_path = "res://Scripts/GridObject/Actions/InteractAction/InteractAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/InteractAction/interact_action.gd"
 	multiple_exectutions = false
 	super._init()
 	

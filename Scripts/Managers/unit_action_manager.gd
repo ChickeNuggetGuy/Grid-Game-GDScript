@@ -32,7 +32,7 @@ func _setup_conditions() -> bool:
 	return true
 
 func _setup() -> void:
-	setup_completed.emit()
+	pass
 
 func _on_exit_tree() -> void:
 	if GameManager.managers["UnitManager"].is_connected("SelectedUnitChanged", Callable(self, "_on_unit_manager_selected_unit")):
@@ -44,7 +44,6 @@ func _execute_conditions() -> bool:
 func _execute() -> void:
 	var turn_manager : TurnManager = GameManager.managers["TurnManager"]
 	turn_manager.turn_changed.connect(turn_manager_turn_changed)
-	execution_completed.emit()
 
 
 func save_data() -> Dictionary:

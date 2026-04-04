@@ -24,8 +24,6 @@ func _setup_conditions(): return true
 func _setup():
 	
 	unitScene = load("Scenes/GridObjects/Unit.tscn")
-	
-	setup_completed.emit()
 
 
 func save_data() -> Dictionary:
@@ -63,8 +61,7 @@ func _execute():
 			await team_holder.setup(self, team_data)
 
 	if not is_loading:
-		var game_manager = GameManager
-		spawn_counts = game_manager.spawn_counts
+		spawn_counts = SavesManager.spawn_counts
 		for x in range(spawn_counts.x):
 			await spawn_unit(Enums.unitTeam.PLAYER)
 
@@ -75,7 +72,6 @@ func _execute():
 	if UnitTeams.has(Enums.unitTeam.PLAYER) and UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"].size() > 0:
 		set_selected_unit(UnitTeams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
 
-	execution_completed.emit()
 	execute_complete = true
 
 

@@ -41,9 +41,9 @@ signal cell_selected(id: int)
 @export var color_blend_factor = 0.7:
 	set = set_color_blend_factor
 
-## Dictionary of Map Name (String) -> Texture2D. 
+## Dictionary of Map Name (String) -> Texture2D.
 ## Required keys for logic: "political", "cities", "visual" (optional for coloring)
-@export var data_maps: Dictionary[String, Texture2D] 
+@export var data_maps: Dictionary[String, Texture2D]
 
 @export_group("Generation Settings")
 @export var auto_generate_index = false
@@ -56,6 +56,12 @@ signal cell_selected(id: int)
 @export var cells_per_surface = 3000
 @export var yield_every_surfaces = 1
 
+@export_group("Baked Data")
+@export var use_baked_data: bool = true
+@export var baked_data: GlobeBakedData
+@export_file("*.res") var baked_data_save_path := "res://Data/globe_baked_data.res"
+@export var bake_baked_data_now := false:
+	set = set_bake_baked_data_now
 
 @export_group("Map Adjustments")
 ## Offset for the political map UVs (0.0 to 1.0).
@@ -65,18 +71,17 @@ signal cell_selected(id: int)
 ## Offset for any other texture maps used in 'visual' coloring.
 @export var visual_map_offset: Vector2 = Vector2.ZERO
 
-
 #region Country Cache
-# Maps Cell ID -> Country ID. 
+# Maps Cell ID -> Country ID.
 # Optimized for save size (PackedInt32Array is very small in binary).
-var _cell_country_indices: PackedInt32Array 
+var _cell_country_indices: PackedInt32Array
 
 # Runtime only (Do not save this). Maps Country ID -> Array of Cell IDs.
 # Used for instant lookup when highlighting.
-var _country_groups: Dictionary = {} 
+var _country_groups: Dictionary = {}
 
 # Maps the Color string/data to a unique integer ID
-var _color_to_id_map: Dictionary = {} 
+var _color_to_id_map: Dictionary = {}
 #endregion
 #endregion
 
@@ -100,8 +105,9 @@ var _map_images: Dictionary = {}
 
 var _cell_definition_rebuild_running = false
 var _cell_definition_rebuild_pending = false
+var _applying_baked_data := false
 
-# Map specific colors to Country Codes. 
+# Map specific colors to Country Codes.
 # Adjust these keys to match the specific colors in your political map texture.
 const COUNTRY_COLOR_MAP = {
 	Color("FF0000"): "RED_COUNTRY",
@@ -121,19 +127,23 @@ func _ready() -> void:
 
 	_ensure_nodes()
 
-	if grid_index == null and auto_generate_index:
-		_generate_grid()
-
-	if grid_index and grid_index.bin_offsets.is_empty():
-		grid_index.build_bins()
-
 	if hex_grid_data == null:
 		hex_grid_data = HexGridData.new(self)
-		
+
+	if use_baked_data and baked_data != null:
+		apply_baked_data(baked_data)
+	else:
+		if grid_index == null and auto_generate_index:
+			_generate_grid()
+
+		if grid_index and grid_index.bin_offsets.is_empty():
+			grid_index.build_bins()
+
 		if not data_maps.is_empty():
 			initialize_grid_from_maps()
 
 	_rebuild_highlights()
+
 	if show_markers:
 		_rebuild_markers()
 
@@ -148,13 +158,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		var id = pick_cell_from_screen(event.position)
 		if id != hovered_cell:
 			hovered_cell = id
-			
+
 			# OPTION A: Standard single cell hover
 			# _draw_hover()
-			
+
 			# OPTION B: Country Highlight
 			_highlight_country_at_cell(hovered_cell)
-			
+
 			emit_signal("cell_hovered", hovered_cell)
 
 	if auto_click_select and event is InputEventMouseButton \
@@ -162,10 +172,99 @@ func _unhandled_input(event: InputEvent) -> void:
 		var id2 = pick_cell_from_screen(event.position)
 		if id2 >= 0 and id2 != selected_cell:
 			select_cell(id2)
-			
-	
-	
-	
+
+#endregion
+
+#region Baked Data
+
+func set_bake_baked_data_now(v: bool) -> void:
+	bake_baked_data_now = false
+	if not v:
+		return
+	if baked_data_save_path.is_empty():
+		push_warning("No baked_data_save_path set.")
+		return
+	save_baked_data(baked_data_save_path)
+
+func build_baked_data() -> GlobeBakedData:
+	var out := GlobeBakedData.new()
+	out.grid_index = grid_index
+	out.cell_country_indices = _cell_country_indices.duplicate()
+	out.cell_definitions = _serialize_hex_grid_data()
+	return out
+
+func save_baked_data(path: String) -> void:
+	if grid_index == null:
+		_generate_grid()
+
+	if grid_index and grid_index.bin_offsets.is_empty():
+		grid_index.build_bins()
+
+	if hex_grid_data == null:
+		hex_grid_data = HexGridData.new(self)
+
+	if hex_grid_data.cell_definitions.is_empty() and not data_maps.is_empty():
+		initialize_grid_from_maps()
+
+	var out := build_baked_data()
+	var err := ResourceSaver.save(out, path)
+	if err != OK:
+		push_error("Failed to save baked globe data to: " + path)
+	else:
+		print("Saved baked globe data to: ", path)
+
+func apply_baked_data(data: GlobeBakedData) -> void:
+	if data == null:
+		return
+
+	_applying_baked_data = true
+
+	grid_index = data.grid_index
+	if grid_index and grid_index.bin_offsets.is_empty():
+		grid_index.build_bins()
+
+	if hex_grid_data == null:
+		hex_grid_data = HexGridData.new(self)
+	else:
+		hex_grid_data.cell_definitions.clear()
+
+	if not data.cell_definitions.is_empty():
+		hex_grid_data.add_cell_definitions_from_data_bulk(data.cell_definitions)
+
+	_cell_country_indices = data.cell_country_indices.duplicate()
+	_rebuild_country_groups_from_indices()
+
+	_applying_baked_data = false
+
+func _serialize_hex_grid_data() -> Dictionary:
+	var result: Dictionary = {}
+
+	if hex_grid_data == null:
+		return result
+
+	for def_type in hex_grid_data.cell_definitions.keys():
+		var defs: Array = hex_grid_data.cell_definitions[def_type]
+		var arr: Array = []
+		for def in defs:
+			if def != null and def.has_method("serialize"):
+				arr.append(def.serialize())
+		result[int(def_type)] = arr
+
+	return result
+
+func _rebuild_country_groups_from_indices() -> void:
+	_country_groups.clear()
+
+	for i in range(_cell_country_indices.size()):
+		var country_id := _cell_country_indices[i]
+		if country_id < 0:
+			continue
+
+		if not _country_groups.has(country_id):
+			_country_groups[country_id] = [] as Array[int]
+
+		_country_groups[country_id].append(i)
+
 #endregion
 
 #region Data Map Initialization
@@ -173,94 +272,90 @@ func _unhandled_input(event: InputEvent) -> void:
 func initialize_grid_from_maps() -> void:
 	if grid_index == null or grid_index.tile_count() == 0:
 		return
-	
+
 	print("Initializing Grid Data...")
 	_prepare_map_images()
-	
+
 	# Reset Caches
 	_cell_country_indices.resize(grid_index.tile_count())
-	_cell_country_indices.fill(-1) # -1 means no country/ocean
+	_cell_country_indices.fill(-1)
 	_country_groups.clear()
 	_color_to_id_map.clear()
-	
+
 	var next_country_id = 0
 	var country_map_img: Image = _map_images.get("political")
-	
+
 	# Pre-calculate sampling data
 	var cell_count = grid_index.tile_count()
-	
+
 	# --- PASS 1: POLITICAL DATA ---
 	for i in range(cell_count):
 		var center = grid_index.get_cell_center(i)
 		var uv = _get_uv_from_position(center)
-		
+
 		if country_map_img:
-			# Apply offset specifically for the political map
 			var poli_uv = uv + political_map_offset
-			
 			var color = _sample_image_uv(country_map_img, poli_uv)
-			
+
 			var rounded_color = Color(
-				snapped(color.r, 1.0/255.0),
-				snapped(color.g, 1.0/255.0),
-				snapped(color.b, 1.0/255.0),
+				snapped(color.r, 1.0 / 255.0),
+				snapped(color.g, 1.0 / 255.0),
+				snapped(color.b, 1.0 / 255.0),
 				1.0
 			)
-			
-			# Ignore transparent/black areas (assuming they are ocean)
+
 			if rounded_color.a > 0.1 and rounded_color != Color.BLACK:
-				var color_key = rounded_color.to_html() # Use hex string as key
-				
-				# Assign a unique integer ID to this color if seen for first time
+				var color_key = rounded_color.to_html()
+
 				if not _color_to_id_map.has(color_key):
 					_color_to_id_map[color_key] = next_country_id
 					_country_groups[next_country_id] = [] as Array[int]
 					next_country_id += 1
-				
+
 				var c_id = _color_to_id_map[color_key]
-				
-				# Store: 1. Array for Save System
 				_cell_country_indices[i] = c_id
-				
-				# Store: 2. Dictionary for Runtime Speed
 				_country_groups[c_id].append(i)
-	
+
 	# --- PASS 2: CITY DATA ---
-	# Clear existing definitions
 	hex_grid_data.cell_definitions.clear()
-	
+
 	var city_definitions_to_add = {}
 	var city_map_img: Image = _map_images.get("cities")
-	
+
 	for i in range(cell_count):
 		var center = grid_index.get_cell_center(i)
 		var uv = _get_uv_from_position(center)
-		
-		var country_code = "UNK" 
-		
-		# 1. Determine Country (Must use Political Offset to match Pass 1)
+
+		var country_code = "UNK"
+
 		if country_map_img:
 			var poli_uv = uv + political_map_offset
 			country_code = _process_political_map(poli_uv, country_map_img)
-			
-		# 2. Determine City (Must use City Offset)
+
 		if city_map_img:
 			var city_uv = uv + city_map_offset
-			var city_def = _process_city_map(i, city_uv, city_map_img, country_code)
+			var city_def = _process_city_map(
+				i,
+				city_uv,
+				city_map_img,
+				country_code
+			)
 			if city_def:
 				var def_type = city_def.get_class_name()
 				if not city_definitions_to_add.has(def_type):
 					city_definitions_to_add[def_type] = []
 				city_definitions_to_add[def_type].append(city_def)
 
-	# Bulk add definitions to HexGridData
 	for def_type in city_definitions_to_add.keys():
 		for city_def in city_definitions_to_add[def_type]:
-			# Pass null as 3rd arg to avoid triggering rebuild for every single city
-			hex_grid_data.add_cell_definition(city_def.cell_index, city_def.definition_type, city_def, null)
-			
-	# Trigger the visual rebuild ONCE at the end
-	request_definitions_rebuild() 
+			hex_grid_data.add_cell_definition(
+				city_def.cell_index,
+				city_def.definition_type,
+				city_def,
+				null
+			)
+
+	request_definitions_rebuild()
 	print("Grid Data initialization complete.")
 
 func _prepare_map_images() -> void:
@@ -270,99 +365,91 @@ func _prepare_map_images() -> void:
 		if texture is Texture2D:
 			var img = texture.get_image()
 			if img:
-				# ADDED: Check for compression and decompress if necessary
 				if img.is_compressed():
 					var err = img.decompress()
 					if err != OK:
 						push_warning("Failed to decompress map image: " + key)
 						continue
-				
+
 				_map_images[key] = img
 			else:
 				push_warning("Could not get image from texture: " + key)
 
-func _process_city_map(cell_index: int, uv: Vector2, img: Image, country_code: String) -> CityDefinition:
+func _process_city_map(
+	cell_index: int,
+	uv: Vector2,
+	img: Image,
+	country_code: String
+) -> CityDefinition:
 	var color = _sample_image_uv(img, uv)
-	
-	# Red channel > threshold indicates city presence
-	if color.r > 0.05: 
-		# Red channel * 10m = population
+
+	if color.r > 0.05:
 		var population = int(color.r * 10000000)
 		var city_name = "City_" + str(cell_index)
-		
+
 		var city_def = CityDefinition.new(
 			cell_index,
 			city_name,
 			population,
-			country_code 
+			country_code
 		)
 		return city_def
-	
+
 	return null
 
 func _highlight_country_at_cell(cell_id: int) -> void:
-	# 1. Validation
 	if cell_id < 0 or cell_id >= _cell_country_indices.size():
-		_neighbor_mesh.mesh = null # Clear highlight
-		return
-
-	# 2. Get Country ID from the fast PackedInt32Array
-	var country_id = _cell_country_indices[cell_id]
-	
-	if country_id == -1:
-		# User hovered ocean/empty space
 		_neighbor_mesh.mesh = null
 		return
 
-	# 3. Get all cells belonging to this country instantly
+	var country_id = _cell_country_indices[cell_id]
+
+	if country_id == -1:
+		_neighbor_mesh.mesh = null
+		return
+
 	var cells_to_highlight = _country_groups[country_id]
-	
-	# 4. Build mesh (re-using your existing builder)
 	_neighbor_mesh.mesh = _build_edge_mesh(cells_to_highlight)
-	
-	
+
 func _process_political_map(uv: Vector2, img: Image) -> String:
 	var color = _sample_image_uv(img, uv)
-	
-	# Snap color to handle compression artifacts
+
 	var rounded_color = Color(
-		snapped(color.r, 1.0/255.0),
-		snapped(color.g, 1.0/255.0),
-		snapped(color.b, 1.0/255.0),
-		1.0 # Ignore alpha for key matching
+		snapped(color.r, 1.0 / 255.0),
+		snapped(color.g, 1.0 / 255.0),
+		snapped(color.b, 1.0 / 255.0),
+		1.0
 	)
-	
+
 	if COUNTRY_COLOR_MAP.has(rounded_color):
 		return COUNTRY_COLOR_MAP[rounded_color]
-		
+
 	return "UNK"
 
 func _sample_image_uv(img: Image, uv: Vector2) -> Color:
 	var w = img.get_width()
 	var h = img.get_height()
-	
+
 	var u = fmod(uv.x, 1.0)
 	var v = fmod(uv.y, 1.0)
-	if u < 0: u += 1.0
-	if v < 0: v += 1.0
-	
+	if u < 0:
+		u += 1.0
+	if v < 0:
+		v += 1.0
+
 	var x = int(u * w)
 	var y = int(v * h)
-	
+
 	x = clampi(x, 0, w - 1)
 	y = clampi(y, 0, h - 1)
-	
+
 	return img.get_pixel(x, y)
 
 ## Converts 3D Position on sphere to UV coordinates (Equirectangular)
 func _get_uv_from_position(pos: Vector3) -> Vector2:
 	var n = pos.normalized()
-	''
 	var u = 0.5 - (atan2(n.z, n.x) / TAU)
-	
-	# 2. Flip V vertically: "0.5 -" puts +Y (North) at 0.0 (Top of Texture).
 	var v = 0.5 - (asin(n.y) / PI)
-	
 	return Vector2(u, v)
 
 #endregion
@@ -373,12 +460,13 @@ func set_grid_index(v: GridIndex) -> void:
 	grid_index = v
 	if grid_index and grid_index.bin_offsets.is_empty():
 		grid_index.build_bins()
+
 	if is_inside_tree():
 		_rebuild_highlights()
 		if show_markers:
 			_rebuild_markers()
-		# Re-initialize data if maps exist
-		if not data_maps.is_empty():
+
+		if not _applying_baked_data and not data_maps.is_empty():
 			initialize_grid_from_maps()
 
 func set_show_markers(v: bool) -> void:
@@ -419,19 +507,22 @@ func set_generate_now(v: bool) -> void:
 #region Grid Generation
 
 func _generate_grid() -> void:
-	if frequency < 1: frequency = 1
-	if lat_bins_override < 1: lat_bins_override = 128
-	if lon_bins_override < 1: lon_bins_override = 256
+	if frequency < 1:
+		frequency = 1
+	if lat_bins_override < 1:
+		lat_bins_override = 128
+	if lon_bins_override < 1:
+		lon_bins_override = 256
 
-	# Assuming GridIndexBuilder is a valid global class in your project
 	var gi = GridIndexBuilder.generate(
 		frequency,
 		lat_bins_override,
 		lon_bins_override
 	)
 	set_grid_index(gi)
-	# Trigger map processing after generation
-	initialize_grid_from_maps()
+
+	if not data_maps.is_empty():
+		initialize_grid_from_maps()
 
 #endregion
 
@@ -452,15 +543,20 @@ func _ensure_nodes() -> void:
 		_selected_mesh.name = "HighlightSelected"
 		_selected_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(_selected_mesh)
-	_selected_mesh.material_override = _make_unshaded_line_material(selected_color)
+	_selected_mesh.material_override = _make_unshaded_line_material(
+		selected_color
+	)
 
-	_neighbor_mesh = $HighlightNeighbors if has_node("HighlightNeighbors") else null
+	_neighbor_mesh = $HighlightNeighbors \
+		if has_node("HighlightNeighbors") else null
 	if _neighbor_mesh == null:
 		_neighbor_mesh = MeshInstance3D.new()
 		_neighbor_mesh.name = "HighlightNeighbors"
 		_neighbor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(_neighbor_mesh)
-	_neighbor_mesh.material_override = _make_unshaded_line_material(neighbor_color)
+	_neighbor_mesh.material_override = _make_unshaded_line_material(
+		neighbor_color
+	)
 
 	_markers = $Markers if has_node("Markers") else null
 	if _markers == null:
@@ -482,7 +578,7 @@ func _ensure_nodes() -> void:
 		_colored_cells_mesh.name = "ColoredCells"
 		_colored_cells_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(_colored_cells_mesh)
-	
+
 	_apply_visual_scaling()
 
 #endregion
@@ -665,7 +761,9 @@ func request_definitions_rebuild() -> void:
 	_rebuild_cell_definitions()
 
 func _rebuild_cell_definitions() -> void:
-	if not show_cell_defintions or hex_grid_data == null or hex_grid_data.cell_definitions.is_empty():
+	if not show_cell_defintions \
+			or hex_grid_data == null \
+			or hex_grid_data.cell_definitions.is_empty():
 		_city_cells_mesh.mesh = null
 		return
 	if _cell_definition_rebuild_running:
@@ -733,7 +831,8 @@ func _rebuild_cell_definitions_async() -> void:
 
 		idx = end_idx
 
-		if yield_every_surfaces > 0 and (surfaces_built % yield_every_surfaces) == 0:
+		if yield_every_surfaces > 0 \
+				and (surfaces_built % yield_every_surfaces) == 0:
 			await get_tree().process_frame
 
 	var mat = StandardMaterial3D.new()
@@ -759,15 +858,12 @@ func _rebuild_colored_cells() -> void:
 		_colored_cells_mesh.mesh = null
 		return
 
-	# 1. Ensure images are prepared
 	if _map_images.is_empty():
 		_prepare_map_images()
 
-	# 2. Get keys and sort them to ensure "Order of Operations"
-	# Naming your keys "00_Base", "01_Overlay" allows you to control the stack.
 	var map_keys = _map_images.keys()
-	map_keys.sort() 
-	
+	map_keys.sort()
+
 	if map_keys.is_empty():
 		_colored_cells_mesh.mesh = null
 		return
@@ -778,8 +874,7 @@ func _rebuild_colored_cells() -> void:
 	var vertex_count = 0
 
 	var cell_count = grid_index.tile_count()
-	
-	# Loop through every cell
+
 	for cell_index in range(cell_count):
 		var vertices = grid_index.get_cell_vertices(cell_index)
 		if vertices.size() < 3:
@@ -787,40 +882,29 @@ func _rebuild_colored_cells() -> void:
 
 		var center = grid_index.get_cell_center(cell_index)
 		var uv = _get_uv_from_position(center)
-		
-		# --- LAYERING LOGIC START ---
-		var final_color = Color(0, 0, 0, 0) # Start transparent
-		
+
+		var final_color = Color(0, 0, 0, 0)
+
 		for key in map_keys:
 			var img: Image = _map_images[key]
-			
-			# Determine which offset to use based on key
+
 			var current_uv = uv
 			if key == "political":
 				current_uv += political_map_offset
 			elif key == "cities":
 				current_uv += city_map_offset
 			else:
-				# Use generic visual offset for backgrounds/biomes
 				current_uv += visual_map_offset
-			
-			# Sample the current layer
+
 			var layer_color = _sample_image_uv(img, current_uv)
-			
-			# Blend Logic: Paint this layer on top of the existing color
-			# If final_color is transparent, take the new color.
-			# If the new color has alpha, blend it over the old one.
+
 			if final_color.a == 0:
 				final_color = layer_color
 			else:
-				# Standard Alpha Compositing: destination.lerp(source, source.alpha)
 				final_color = final_color.lerp(layer_color, layer_color.a)
-		
-		# Global opacity blend from your settings
-		final_color.a *= color_blend_factor
-		# --- LAYERING LOGIC END ---
 
-		# Only build geometry if the result is visible
+		final_color.a *= color_blend_factor
+
 		if final_color.a > 0.01:
 			var vertex_offset = vertex_count
 			_add_colored_polygon_arrays(
@@ -834,7 +918,6 @@ func _rebuild_colored_cells() -> void:
 			)
 			vertex_count = vertices_array.size()
 
-	# 3. Build Mesh
 	if vertices_array.size() > 0:
 		var mesh = ArrayMesh.new()
 		var arrays = []
@@ -850,10 +933,8 @@ func _rebuild_colored_cells() -> void:
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		
-		# Set albedo white so vertex colors show purely
-		mat.albedo_color = Color.WHITE 
-		
+		mat.albedo_color = Color.WHITE
+
 		_colored_cells_mesh.material_override = mat
 		_colored_cells_mesh.mesh = mesh
 		_apply_visual_scaling()
@@ -892,10 +973,15 @@ func _add_colored_polygon_arrays(
 
 #region Helper Functions
 
-func get_cell_world_position(cell_index: int, elevation_offset: float = 0.0) -> Vector3:
-	if grid_index == null or cell_index < 0 or cell_index >= grid_index.tile_count():
+func get_cell_world_position(
+	cell_index: int,
+	elevation_offset: float = 0.0
+) -> Vector3:
+	if grid_index == null \
+			or cell_index < 0 \
+			or cell_index >= grid_index.tile_count():
 		return Vector3.ZERO
-	
+
 	var center = grid_index.get_cell_center(cell_index).normalized()
 	return center * (_sphere_radius + elevation_offset)
 
@@ -933,73 +1019,75 @@ static func _make_unshaded_line_material(color: Color) -> StandardMaterial3D:
 #region New Helper Functions
 
 func get_cells_in_area(
-	lat_min: float, 
-	lat_max: float, 
-	lon_min: float, 
+	lat_min: float,
+	lat_max: float,
+	lon_min: float,
 	lon_max: float
 ) -> Array[int]:
 	if grid_index == null:
 		return []
-	
+
 	var result: Array[int] = []
 	lat_min = clamp(lat_min, -90.0, 90.0)
 	lat_max = clamp(lat_max, -90.0, 90.0)
-	
+
 	var lon_wrapped = lon_max < lon_min
-	
+
 	for cell_id in range(grid_index.tile_count()):
 		var center = grid_index.get_cell_center(cell_id)
 		var latlon = _n_to_latlon(center)
 		var lat_deg = rad_to_deg(latlon.x)
 		var lon_deg = rad_to_deg(latlon.y)
-		
+
 		if lat_deg < lat_min or lat_deg > lat_max:
 			continue
-		
+
 		if lon_wrapped:
 			if lon_deg < lon_min and lon_deg > lon_max:
 				continue
 		else:
 			if lon_deg < lon_min or lon_deg > lon_max:
 				continue
-		
+
 		result.append(cell_id)
-	
+
 	return result
 
 func get_cells_in_radius(center_cell: int, radius: int) -> Array[int]:
-	if grid_index == null or center_cell < 0 or center_cell >= grid_index.tile_count():
+	if grid_index == null \
+			or center_cell < 0 \
+			or center_cell >= grid_index.tile_count():
 		return []
-	
+
 	if radius <= 0:
 		return [center_cell]
-	
+
 	var result: Array[int] = []
 	var visited = {}
 	var queue: Array[Dictionary] = []
-	
+
 	queue.append({"cell": center_cell, "dist": 0})
 	visited[center_cell] = true
 	result.append(center_cell)
-	
+
 	var queue_idx = 0
 	while queue_idx < queue.size():
 		var current = queue[queue_idx]
 		queue_idx += 1
-		
+
 		var cell_id = current["cell"]
 		var dist = current["dist"]
-		
+
 		if dist >= radius:
 			continue
-		
+
 		var neighbors = grid_index.get_cell_neighbors(cell_id)
 		for neighbor_id in neighbors:
 			if not visited.has(neighbor_id):
 				visited[neighbor_id] = true
 				result.append(neighbor_id)
 				queue.append({"cell": neighbor_id, "dist": dist + 1})
-	
+
 	return result
 
 func get_random_cell() -> int:
@@ -1010,22 +1098,22 @@ func get_random_cell() -> int:
 func get_random_cells(count: int) -> Array[int]:
 	if grid_index == null or grid_index.tile_count() == 0:
 		return []
-	
+
 	var result: Array[int] = []
 	var tile_count = grid_index.tile_count()
-	
+
 	if count >= tile_count:
 		for i in range(tile_count):
 			result.append(i)
 		return result
-	
+
 	var selected = {}
 	while result.size() < count:
 		var cell = randi() % tile_count
 		if not selected.has(cell):
 			selected[cell] = true
 			result.append(cell)
-	
+
 	return result
 
 func get_cell_distance(from_cell: int, to_cell: int) -> int:
@@ -1037,30 +1125,30 @@ func get_cell_distance(from_cell: int, to_cell: int) -> int:
 		return -1
 	if to_cell < 0 or to_cell >= grid_index.tile_count():
 		return -1
-	
+
 	var visited = {}
 	var queue: Array[Dictionary] = []
-	
+
 	queue.append({"cell": from_cell, "dist": 0})
 	visited[from_cell] = true
-	
+
 	var queue_idx = 0
 	while queue_idx < queue.size():
 		var current = queue[queue_idx]
 		queue_idx += 1
-		
+
 		var cell_id = current["cell"]
 		var dist = current["dist"]
-		
+
 		var neighbors = grid_index.get_cell_neighbors(cell_id)
 		for neighbor_id in neighbors:
 			if neighbor_id == to_cell:
 				return dist + 1
-			
+
 			if not visited.has(neighbor_id):
 				visited[neighbor_id] = true
 				queue.append({"cell": neighbor_id, "dist": dist + 1})
-	
+
 	return -1
 
 func _n_to_latlon(n: Vector3) -> Vector2:

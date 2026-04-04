@@ -18,7 +18,7 @@ func execute_turn_segments():
 	turn_execution_started.emit()
 	
 	for segment in turn_segments:
-		if GameManager.current_scene_type != GameManager.sceneType.BATTLESCENE:
+		if SceneManager.current_scene_type != Enums.SceneType.BATTLESCENE:
 			break
 		if GameManager.managers["TurnManager"].game_over == true:
 			break

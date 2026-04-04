@@ -1,105 +1,124 @@
 extends Manager
 class_name UIManager
 
-@export var ui_holder : Control
-var currentCellUI : Label
-var ui_windows : Dictionary[String, UIWindow] ={}
-var blocking_input : bool = false
-var blocking_window : UIElement = null
-@export var main_inventory_ui : MainInventoryUI
+@export var ui_holder: Control
+var currentCellUI: Label
+var ui_windows: Dictionary = {}
+var blocking_input: bool = false
+var blocking_window: UIElement = null
+@export var main_inventory_ui: MainInventoryUI
 
 @export_group("Pause menu")
-@export var pause_menu_ui : PauseMenuUI
-
-func _get_manager_name() -> String: return "UIManager"
+@export var pause_menu_ui: PauseMenuUI
 
 
-func _setup_conditions() -> bool: return true
+func _get_manager_name() -> String:
+	return "UIManager"
+
+
+func _setup_conditions() -> bool:
+	return true
 
 
 func _setup() -> void:
-	if ui_holder:
-		var nodes = ui_holder.get_children()
-		nodes.append(ui_holder)
-		
-		for node in nodes:
-			if node is UIWindow:
-				var window : UIWindow = node as UIWindow
-				ui_windows[window.name] = window
-			
-	setup_completed.emit()
+	if ui_holder == null:
+		push_warning("UIManager: ui_holder is null!")
 
 
 func save_data() -> Dictionary:
-	var save_dict = {
-		"filename" : get_scene_file_path(),
-		"parent" : get_parent().get_path(),
+	return {
+		"filename": get_scene_file_path(),
+		"parent": get_parent().get_path(),
 	}
-	return save_dict
 
 
-func _execute_conditions() -> bool: return true
+func _execute_conditions() -> bool:
+	return true
 
 
-func _execute():
-	if GameManager == null: return
-	print("UI: " + str(GameManager.current_scene_type))
+func _execute() -> void:
+	ui_windows.clear()
 
-	
-	for  window in ui_windows.values():
-		var ui_window : UIWindow = window
-		ui_window.setup_call()
-		print("UI Manager Setup: "  + ui_window.name)
-	execution_completed.emit()
+	if ui_holder == null:
+		push_warning("UIManager: ui_holder is null!")
+		return
+
+	await _setup_top_level_windows(ui_holder)
+
+
+func _setup_top_level_windows(node: Node) -> void:
+	for child in node.get_children():
+		if child is UIWindow:
+			var window := child as UIWindow
+			await window.setup_call()
+			continue
+
+		await _setup_top_level_windows(child)
 
 
 func get_passable_data() -> Dictionary:
 	return {}
 
-func set_passable_data(_data : Dictionary):
+
+func set_passable_data(_data: Dictionary) -> void:
 	return
 
 
-func try_block_input(windw : UIWindow) -> bool:
-	if GameManager.managers["UnitActionManager"].is_busy:
-		return false
-	
+func try_block_input(windw: UIWindow) -> bool:
+	if GameManager.managers.has("UnitActionManager"):
+		if GameManager.managers["UnitActionManager"].is_busy:
+			return false
+
 	blocking_window = windw
 	blocking_input = true
 	return true
 
 
-func unblock_input():
+func unblock_input() -> void:
 	blocking_input = false
+	blocking_window = null
 
 
-func add_ui_window(window_to_add : UIWindow):
-	if ui_windows == null:
-		ui_windows = {}
-	if ui_windows.values().has(window_to_add):
-		print("UI Window already added, skipping!")
+func add_ui_window(window_to_add: UIWindow) -> void:
+	if window_to_add == null:
 		return
-	
-	if ui_windows.keys().has(window_to_add.ui_name):
-		print("UI Window with name '" + window_to_add.ui_name + "' already added! skipping")
+
+	var key := _get_window_key(window_to_add)
+
+	if ui_windows.has(key):
+		if ui_windows[key] == window_to_add:
+			return
+
+		push_warning("UI window key already exists: " + key)
 		return
-	
-	ui_windows[window_to_add.ui_name] = window_to_add
+
+	ui_windows[key] = window_to_add
 
 
-func unitActionManager_action_selected(_selected_action : BaseActionDefinition):
+func _get_window_key(window: UIWindow) -> String:
+	if not window.ui_name.is_empty():
+		return window.ui_name
+
+	return window.name
+
+
+func unitActionManager_action_selected(
+	_selected_action: BaseActionDefinition
+) -> void:
 	hide_non_persitent_windows()
 
 
-func hide_non_persitent_windows():
+func hide_non_persitent_windows() -> void:
 	for key in ui_windows.keys():
-		var ui_window = ui_windows[key]
+		var ui_window: UIWindow = ui_windows[key]
+
 		if ui_window == null:
 			continue
+
 		if ui_window.is_persistent_window:
 			continue
-		else:
-			ui_window.hide_call()
+
+		ui_window.hide_call()
 
 
 func _unhandled_input(event: InputEvent) -> void:

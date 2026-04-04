@@ -1,82 +1,82 @@
 @abstract
-class_name Manager 
+class_name Manager
 extends Node
 
-@export var debug_mode : bool = false
-@export var save_on_scene_change : bool = false
+enum DataLoadTiming {
+	BEFORE_EXECUTE,
+	AFTER_EXECUTE,
+}
 
-# NEW: If true, the loading screen waits for _setup and _execute to finish.
-@export var wait_for_loading_completion : bool = true
+@export var debug_mode := false
+@export var save_on_scene_change := false
+@export var wait_for_loading_completion := true
 
-var setup_complete : bool
-var execute_complete : bool
+@export var data_load_timing: DataLoadTiming = DataLoadTiming.BEFORE_EXECUTE
 
-var load_data : Dictionary = {}
+var setup_complete := false
+var execute_complete := false
+var load_data: Dictionary = {}
+var is_busy := false
 
-var is_busy : bool = false
-#region Signals
 signal setup_completed()
 signal execution_completed()
-#endregion
 
-
-#region Initialization and Setup
-
-func _init() -> void:
+func _enter_tree() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_to_group("manager")
-# Abstract method for the manager's name.
+
 @abstract func _get_manager_name() -> String
-
 @abstract func save_data() -> Dictionary
+@abstract func _setup_conditions() -> bool
+@abstract func _setup() -> void
+@abstract func _execute_conditions() -> bool
+@abstract func _execute() -> void
 
+func get_scene_transition_data() -> Dictionary:
+	return save_data()
 
-func load_data_call(data_dict : Dictionary):
+func load_data_call(data_dict: Dictionary) -> void:
+	print("Load data set: " + _get_manager_name() + " count is " + str(data_dict.size()) )
 	load_data = data_dict
 
-
-
-# Orchestrates the manager's setup phase.
-func setup_manager_flow():
-	
+func setup_manager_flow() -> void:
 	GameManager.managers.get_or_add(_get_manager_name(), self)
-	if _setup_conditions() == false:
-		push_warning("%s: Setup conditions not met. Skipping setup." % _get_manager_name())
+
+	if not _setup_conditions():
+		push_warning(
+			"%s: Setup conditions not met. Skipping setup."
+			% _get_manager_name()
+		)
 		return
 
-	_setup.call_deferred()
-	await setup_completed
+	is_busy = true
+	setup_complete = false
+
+	await _setup()
+
 	setup_complete = true
-	print("%s: Setup Completed!" % _get_manager_name())
+	is_busy = false
+	setup_completed.emit()
 
-# Abstract method to check if setup can proceed.
-@abstract func _setup_conditions() -> bool
+	if debug_mode:
+		print("%s: Setup Completed!" % _get_manager_name())
 
-
-# Concrete implementations must emit `setup_completed()` when done.
-@abstract func _setup()
-
-
-#endregion
-
-#region Execution
-
-# Orchestrates the manager's execution phase.
-func execute_manager_flow():
-
+func execute_manager_flow() -> void:
 	if not _execute_conditions():
-		push_warning("%s: Execution conditions not met. Skipping execution." % _get_manager_name())
+		push_warning(
+			"%s: Execution conditions not met. Skipping execution."
+			% _get_manager_name()
+		)
 		return
 
-	_execute.call_deferred()
-	await execution_completed
+	is_busy = true
+	execute_complete = false
+
+	await _execute()
+
 	execute_complete = true
+	is_busy = false
+	execution_completed.emit()
 
-# Abstract method for concrete execution logic.
-# Concrete implementations must emit `execution_completed()` when done.
-@abstract func _execute()
-
-# Abstract method to check if execution can proceed.
-@abstract func _execute_conditions() -> bool
-
-#endregion
+	if debug_mode:
+		print("%s: Execution Completed!" % _get_manager_name())

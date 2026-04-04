@@ -5,7 +5,7 @@ class_name RotateActionDefinition
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/Rotate/RotateAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/Rotate/rotate_action.gd"
 	super._init()
 
 

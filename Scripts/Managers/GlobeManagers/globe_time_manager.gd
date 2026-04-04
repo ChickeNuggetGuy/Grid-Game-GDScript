@@ -124,12 +124,8 @@ func _execute_conditions() -> bool:
 
 func _setup() -> void:
 	is_busy = true
+	
 
-	_apply_loaded_data()
-	_recompute_derived_date_fields()
-	seconds_of_day = (
-		(current_hour * 3600) + (current_minute * 60) + current_seconds
-	)
 
 	if is_instance_valid(timer):
 		if timer.timeout.is_connected(_on_timer_timeout):
@@ -144,21 +140,26 @@ func _setup() -> void:
 	timer.timeout.connect(_on_timer_timeout)
 	add_child(timer)
 
-	_update_ui()
+
 
 	is_busy = false
-	setup_completed.emit()
 
 
 func _execute() -> void:
 	is_busy = true
+	
+	_apply_loaded_data()
+	_recompute_derived_date_fields()
 
+	seconds_of_day = (
+		(current_hour * 3600) + (current_minute * 60) + current_seconds
+	)
 	if is_instance_valid(timer):
 		timer.paused = false
 		timer.start()
-
+	
+	_update_ui()
 	is_busy = false
-	execution_completed.emit()
 
 
 func _exit_tree() -> void:
@@ -351,6 +352,7 @@ func try_get_day_of_month(day_of_year: int) -> Dictionary:
 
 func _apply_loaded_data() -> void:
 	if load_data.is_empty():
+		print("NO SAVE DATA")
 		return
 
 	time_speed = int(load_data.get("time_speed", time_speed))

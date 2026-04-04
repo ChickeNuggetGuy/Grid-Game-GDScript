@@ -25,8 +25,6 @@ func _on_exit_tree() -> void:
 
 func _process(_delta: float) -> void:
 	if not execute_complete: return
-	if !GameManager.execution_completed:
-		return
 
 	# Clear old debug visuals first
 	for child in label_3d_holder.get_children():
@@ -142,7 +140,7 @@ func _setup():
 	visual = CSGBox3D.new()
 	visual.use_collision =false 
 	add_child(visual)
-	setup_completed.emit()
+
 	label_3d_holder = Node3D.new()
 	label_3d_holder.name = "label 3D holder"
 	add_child(label_3d_holder)
@@ -159,7 +157,8 @@ func save_data() -> Dictionary:
 func _execute_conditions() -> bool: return true
 
 
-func _execute(): execution_completed.emit() 
+func _execute():
+	pass
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -48,9 +48,12 @@ func _setup_conditions() -> bool: return true
 
 
 func _setup():
-	GameManager.managers["UnitManager"].unit_selected.connect(
-		_unitmanager_unitselected
-	)
+	
+	var unit_manager : UnitManager = GameManager.managers.get("UnitManager")
+	if unit_manager:
+		GameManager.managers["UnitManager"].unit_selected.connect(
+			_unitmanager_unitselected
+		)
 
 	if phantom_cameras.has("main"):
 		var pcam: PhantomCamera3D = phantom_cameras["main"]
@@ -93,7 +96,7 @@ func _physics_process(delta: float) -> void:
 
 func _unhandled_input(event):
 	if not execute_complete: return
-	if GameManager.managers["UIManager"] != null and GameManager.managers["UIManager"].blocking_input:
+	if GameManager.managers.get("UIManager") != null and GameManager.managers["UIManager"].blocking_input:
 		return
 	
 	if event is InputEventKey:

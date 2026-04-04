@@ -4,7 +4,7 @@ class_name RangedAttackActionDefinition
 
 func _init() -> void:
 	action_name = "Ranged Attack"
-	script_path = "res://Scripts/InventorySystem/ItemActions/RangedAttack/RangedAttackAction.gd"
+	script_path = "res://Scripts/InventorySystem/ItemActions/RangedAttack/ranged_attack_action.gd"
 	multiple_exectutions = true
 	super._init()
 	

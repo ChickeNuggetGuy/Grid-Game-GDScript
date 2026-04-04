@@ -4,7 +4,7 @@ class_name MoveActionDefinition
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/MoveAction/MoveAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/MoveAction/move_action.gd"
 	super._init()
 
 func double_click_call(_parameters : Dictionary) -> void:

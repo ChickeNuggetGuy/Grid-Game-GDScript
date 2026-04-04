@@ -5,7 +5,7 @@ class_name ThrowActionDefinition
 
 func _init() -> void:
 	action_name = "Throw"
-	script_path = "res://Scripts/InventorySystem/ItemActions/Throw/ThrowAction.gd"
+	script_path = "res://Scripts/InventorySystem/ItemActions/Throw/throw_action.gd"
 	super._init()
 
 func double_click_call(parameters : Dictionary) -> void:

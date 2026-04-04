@@ -1,11 +1,18 @@
 [gd_scene format=3 uid="uid://ygbi07ro36so"]
 
-[ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/game_manager.gd" id="1_4fq26"]
+[ext_resource type="Script" uid="uid://mg5g38d61gap" path="res://Scripts/Managers/AutoLoads/game_manager.gd" id="1_4fq26"]
 [ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/context_menu_ui.gd" id="2_0bwh0"]
 [ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="3_k44kv"]
 
 [node name="GameManager" type="Node" unique_id=100973003]
 script = ExtResource("1_4fq26")
+scene_dictionary = Dictionary[int, String]({
+1: "res://Scenes/GameScenes/MainMenuScene.tscn",
+2: "res://Scenes/GameScenes/BattleScene.tscn",
+3: "res://Scenes/GameScenes/GlobeScene.tscn",
+4: "res://Scenes/GameScenes/base_scene.tscn",
+5: "res://Scenes/GameScenes/loading_screen.tscn"
+})
 metadata/_custom_type_script = "uid://mg5g38d61gap"
 
 [node name="ContextMenuUI" type="Control" parent="." unique_id=1502018772 node_paths=PackedStringArray("context_button_holder", "visual")]

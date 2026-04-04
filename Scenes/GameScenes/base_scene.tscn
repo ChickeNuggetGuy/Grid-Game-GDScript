@@ -1,0 +1,197 @@
+[gd_scene format=3 uid="uid://cmf7xjsnxh68r"]
+
+[ext_resource type="Script" uid="uid://cyyxagk0jvslo" path="res://Scripts/Managers/BaseManagers/basegridsystem/base_grid_manager.gd" id="1_7w76h"]
+[ext_resource type="Script" uid="uid://dp870a6rqd874" path="res://Scripts/camera_controller.gd" id="2_lnj2p"]
+[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="3_tcv6n"]
+[ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/ui_manager.gd" id="4_45agt"]
+[ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="4_iq50n"]
+[ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="5_45agt"]
+[ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/ui_window.gd" id="5_0537q"]
+[ext_resource type="Script" uid="uid://e0ruw4osorhf" path="res://Scripts/UI/base_ui_window.gd" id="6_45agt"]
+[ext_resource type="Script" uid="uid://c765wp6o6lpyo" path="res://Scripts/UI/Units Panel UI/units_panel_ui.gd" id="7_0537q"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1gia3"]
+size = Vector3(25, 10, 25)
+
+[sub_resource type="Resource" id="Resource_0537q"]
+script = ExtResource("5_45agt")
+
+[node name="BaseScene" type="Node3D" unique_id=1882808483]
+
+[node name="Managers" type="Node" parent="." unique_id=2126494134]
+
+[node name="BaseGridManager" type="Node" parent="Managers" unique_id=935103399]
+script = ExtResource("1_7w76h")
+grid_cell_mesh = SubResource("BoxMesh_1gia3")
+metadata/_custom_type_script = "uid://cyyxagk0jvslo"
+
+[node name="CameraController" type="Node" parent="Managers" unique_id=1049137606 node_paths=PackedStringArray("camera_3d", "transposer", "phantom_cameras")]
+script = ExtResource("2_lnj2p")
+camera_3d = NodePath("Camera3D")
+transposer = NodePath("../../Node3D")
+move_speed = 25.0
+phantom_cameras = {
+"main": NodePath("../../PhantomCamera3D")
+}
+metadata/_custom_type_script = "uid://dp870a6rqd874"
+
+[node name="Camera3D" type="Camera3D" parent="Managers/CameraController" unique_id=1140495456]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071067, 0, -0.7071067, 0.7071068, 0, 50, 50)
+
+[node name="PhantomCameraHost" type="Node" parent="Managers/CameraController/Camera3D" unique_id=924548874]
+process_priority = 300
+process_physics_priority = 300
+script = ExtResource("3_tcv6n")
+metadata/_custom_type_script = "uid://bd046eokvcnu2"
+
+[node name="UIManager" type="Node" parent="Managers" unique_id=1189520428 node_paths=PackedStringArray("ui_holder")]
+script = ExtResource("4_45agt")
+ui_holder = NodePath("UIWindow")
+metadata/_custom_type_script = "uid://cq3ef3ssfwu7w"
+
+[node name="UIWindow" type="Control" parent="Managers/UIManager" unique_id=1782717065 node_paths=PackedStringArray("visual")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 10
+size_flags_vertical = 3
+script = ExtResource("5_0537q")
+visual = NodePath("BaseMainUI")
+metadata/_custom_type_script = "uid://djnfglh5vj3vy"
+
+[node name="BaseMainUI" type="Control" parent="Managers/UIManager/UIWindow" unique_id=161226527 node_paths=PackedStringArray("back_to_globe_button", "units_panel_button", "units_panel", "visual")]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("6_45agt")
+back_to_globe_button = NodePath("Panel/VBoxContainer/Baack To Globe Button")
+units_panel_button = NodePath("Panel/VBoxContainer/Units Panel button")
+units_panel = NodePath("../Units Panel")
+visual = NodePath("Panel")
+metadata/_custom_type_script = "uid://djnfglh5vj3vy"
+
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/BaseMainUI" unique_id=1459423795]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel" unique_id=566591271]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel/VBoxContainer" unique_id=149459278]
+layout_mode = 2
+text = "Base 1"
+horizontal_alignment = 1
+
+[node name="Units Panel button" type="Button" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel/VBoxContainer" unique_id=109158456]
+layout_mode = 2
+text = "Stationed Units
+"
+
+[node name="Baack To Globe Button" type="Button" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel/VBoxContainer" unique_id=921807132]
+layout_mode = 2
+text = "Back to Globe"
+
+[node name="Units Panel" type="Control" parent="Managers/UIManager/UIWindow" unique_id=538813817 node_paths=PackedStringArray("unit_item_list", "hire_new_unit_button", "fire_unit_button", "visual", "toggle_button")]
+custom_minimum_size = Vector2(400, 450)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -225.0
+offset_right = 200.0
+offset_bottom = 225.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("7_0537q")
+unit_item_list = NodePath("Panel/VBoxContainer/ItemList")
+hire_new_unit_button = NodePath("Panel/VBoxContainer/HBoxContainer/Hire Unit Button")
+fire_unit_button = NodePath("Panel/VBoxContainer/HBoxContainer/Fire Unit Button")
+start_hidden = true
+visual = NodePath("Panel")
+toggle_button = NodePath("Panel/VBoxContainer/HBoxContainer2/Close Button")
+metadata/_custom_type_script = "uid://c765wp6o6lpyo"
+
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Units Panel" unique_id=982873426]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Units Panel/Panel" unique_id=1205442940]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer" unique_id=1795121665]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=1638660143]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Unit Panel"
+
+[node name="Close Button" type="Button" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=2103819583]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+text = "close"
+
+[node name="ItemList" type="ItemList" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer" unique_id=1097805938]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer" unique_id=842112913]
+layout_mode = 2
+
+[node name="Hire Unit Button" type="Button" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer/HBoxContainer" unique_id=690315016]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Hire New Unit"
+
+[node name="Fire Unit Button" type="Button" parent="Managers/UIManager/UIWindow/Units Panel/Panel/VBoxContainer/HBoxContainer" unique_id=318503597]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Fire Unit"
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2069054520]
+transform = Transform3D(-0.05195142, 0.7463462, -0.66352725, 0, 0.6644245, 0.7473554, 0.9986496, 0.038826175, -0.034517795, 0, 0, 0)
+
+[node name="PhantomCamera3D" type="Node3D" parent="." unique_id=1851121683 node_paths=PackedStringArray("follow_target", "look_at_target")]
+transform = Transform3D(0.9996308, 0, 0, 0, 0.70710677, 0.7068821, 0, -0.70710665, 0.70688224, 0, 50, 50)
+top_level = true
+script = ExtResource("4_iq50n")
+follow_mode = 2
+follow_target = NodePath("../Node3D")
+look_at_mode = 2
+look_at_target = NodePath("../Node3D")
+tween_resource = SubResource("Resource_0537q")
+follow_offset = Vector3(0, 50, 50)
+metadata/_custom_type_script = "uid://csjccrhj5wnx7"
+
+[node name="Node3D" type="Node3D" parent="." unique_id=439369076]

@@ -42,7 +42,7 @@ func get_passable_data() -> Dictionary:
 
 func _setup():
 	if not is_loading:
-		map_size = GameManager.map_size
+		map_size = SavesManager.map_size
 	setup_completed.emit()
 
 

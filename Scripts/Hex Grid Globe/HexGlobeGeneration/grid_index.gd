@@ -1,4 +1,3 @@
-# GridIndex.gd
 class_name GridIndex
 extends Resource
 

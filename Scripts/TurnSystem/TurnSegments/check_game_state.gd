@@ -14,7 +14,8 @@ func execute(parent_turn: TurnData) -> void:
 	if unit_team_holder.grid_objects["active"].size() < 1:
 		print("All units of team " + str(parent_turn.team) + " are defeated!")
 		GameManager.managers["TurnManager"].cancel_current_turn()
-		await GameManager.request_load_scene_by_type(GameManager.sceneType.MAINMENU,GameManager.get_current_scene_data())
+		await SceneManager.request_load_scene_by_type(Enums.SceneType.MAINMENU,
+		SavesManager.get_current_scene_data(Enums.SceneType.BATTLESCENE))
 		print("End Game: ")
 	
 	else:

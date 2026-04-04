@@ -33,7 +33,6 @@ func _setup():
 
 	current_turn = turns[0]
 	
-	setup_completed.emit()
 	return
 
 
@@ -59,7 +58,6 @@ func _execute():
 			team_turn.team_holder = GameManager.managers["UnitManager"].UnitTeams[team_turn.team]
 	
 	execute_current_turn()
-	execution_completed.emit()
 	return;
 
 

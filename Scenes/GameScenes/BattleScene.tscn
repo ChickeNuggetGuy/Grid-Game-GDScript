@@ -99,9 +99,6 @@ stat_type = 3
 [node name="ProgressBar4" parent="Managers/UIManager/Control/UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" parent_id_path=PackedInt32Array(1361052491, 1358945914) index="3" unique_id=673027343]
 stat_type = 2
 
-[node name="EquipmentUI" parent="Managers/UIManager/Control/UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" parent_id_path=PackedInt32Array(1361052491, 1842406201) index="1" unique_id=1220578484 node_paths=PackedStringArray("ui_elements")]
-ui_elements = [null]
-
 [node name="InventoryGridUI" parent="Managers/UIManager/Control/UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI/HBoxContainer/LeftSide" parent_id_path=PackedInt32Array(1361052491, 466044919) index="0" unique_id=1356516162]
 slot_behavior = 2
 
@@ -142,7 +139,6 @@ offset_left = -225.0
 offset_top = -300.0
 offset_right = 225.0
 offset_bottom = 300.0
-scene_type = 2
 
 [node name="GridInputManager" type="Node" parent="Managers" unique_id=1754522285 groups=["manager"]]
 script = ExtResource("6_01obq")

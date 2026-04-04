@@ -13,7 +13,6 @@ func _get_manager_name() -> String: return "FowManager"
 func _setup_conditions() -> bool: return true
 
 func _setup() -> void:
-	setup_completed.emit()
 	return
 
 
@@ -34,7 +33,6 @@ func _execute():
 	init_fog_globals()
 	execute_complete = true
 	print("excuting fog")
-	execution_completed.emit()
 	return
 	
 

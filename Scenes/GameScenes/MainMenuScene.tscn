@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://dksvn0rdbvqwb"]
 
 [ext_resource type="Script" uid="uid://cq3ef3ssfwu7w" path="res://Scripts/Managers/ui_manager.gd" id="1_abbdw"]
-[ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scripts/UI/main_menu_ui.gd" id="1_ibpp6"]
+[ext_resource type="Script" uid="uid://dwvn62nyw6f8x" path="res://Scripts/UI/UIWindows/main_menu_ui.gd" id="1_ibpp6"]
 [ext_resource type="Script" uid="uid://djnfglh5vj3vy" path="res://Scripts/UI/ui_window.gd" id="2_h3486"]
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_eembx"]
-[ext_resource type="Script" uid="uid://bq6tin77ek38e" path="res://Scripts/UI/game_saves_ui.gd" id="5_ibpp6"]
+[ext_resource type="Script" uid="uid://bq6tin77ek38e" path="res://Scripts/UI/UIWindows/game_saves_ui.gd" id="5_ibpp6"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_47rn7"]
 font_size = 50
@@ -30,20 +30,20 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ibpp6")
-play_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/New Game Button")
-quick_start_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Quick Play Button")
-start_button = NodePath("UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/StartButton")
-quit_button = NodePath("UIWindow/UIWindow/Panel/VBoxContainer/Quit Button")
-map_settingsUI = NodePath("UIWindow/UIWindow/MapsettingsUI")
-player_text_field = NodePath("UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer/TextEdit")
-enemy_text_field = NodePath("UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer/TextEdit2")
-map_x_text_field = NodePath("UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2/TextEdit")
-map_y_text_field = NodePath("UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2/TextEdit2")
-save_game_ui = NodePath("UIWindow/UIWindow/SaveGameUI")
-visual = NodePath("UIWindow")
+play_button = NodePath("main Menu UI/Main Panel/Panel/VBoxContainer/New Game Button")
+quick_start_button = NodePath("main Menu UI/Main Panel/Panel/VBoxContainer/Quick Play Button")
+start_button = NodePath("main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/StartButton")
+quit_button = NodePath("main Menu UI/Main Panel/Panel/VBoxContainer/Quit Button")
+map_settingsUI = NodePath("main Menu UI/Main Panel/MapsettingsUI")
+player_text_field = NodePath("main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer/TextEdit")
+enemy_text_field = NodePath("main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer/TextEdit2")
+map_x_text_field = NodePath("main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2/TextEdit")
+map_y_text_field = NodePath("main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2/TextEdit2")
+save_game_ui = NodePath("main Menu UI/Main Panel/SaveGameUI")
+visual = NodePath("main Menu UI")
 metadata/_custom_type_script = "uid://dwvn62nyw6f8x"
 
-[node name="UIWindow" type="Control" parent="UIManager/Control" unique_id=1765712845 node_paths=PackedStringArray("visual")]
+[node name="main Menu UI" type="Control" parent="UIManager/Control" unique_id=1765712845 node_paths=PackedStringArray("visual")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -53,11 +53,11 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("2_h3486")
-visual = NodePath("UIWindow")
+visual = NodePath("Main Panel")
 ui_name = "main Menu"
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="UIWindow" type="Control" parent="UIManager/Control/UIWindow" unique_id=419815113 node_paths=PackedStringArray("visual")]
+[node name="Main Panel" type="Control" parent="UIManager/Control/main Menu UI" unique_id=419815113 node_paths=PackedStringArray("visual")]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 9
@@ -69,7 +69,7 @@ visual = NodePath("Panel")
 ui_name = "Main Buttons "
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="Panel" type="Panel" parent="UIManager/Control/UIWindow/UIWindow" unique_id=535947445]
+[node name="Panel" type="Panel" parent="UIManager/Control/main Menu UI/Main Panel" unique_id=535947445]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -77,7 +77,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/Panel" unique_id=977362078]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/main Menu UI/Main Panel/Panel" unique_id=977362078]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -86,7 +86,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1916661202]
+[node name="Label" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=1916661202]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 text = "Grid Game GDScript 
@@ -97,7 +97,7 @@ autowrap_mode = 3
 autowrap_trim_flags = 0
 clip_text = true
 
-[node name="New Game Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=2039408630]
+[node name="New Game Button" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=2039408630]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "New Game"
@@ -105,11 +105,11 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="HSeparator5" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=401244224]
+[node name="HSeparator5" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=401244224]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="load Game Button2" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=122539265]
+[node name="load Game Button2" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=122539265]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Load Game"
@@ -117,11 +117,11 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="HSeparator6" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=388025289]
+[node name="HSeparator6" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=388025289]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="Battle Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=527455301]
+[node name="Battle Button" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=527455301]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Quick Battle
@@ -130,11 +130,11 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="HSeparator3" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=79264080]
+[node name="HSeparator3" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=79264080]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="Quick Play Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1292998028]
+[node name="Quick Play Button" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=1292998028]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "
@@ -143,11 +143,11 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="HSeparator4" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1754245284]
+[node name="HSeparator4" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=1754245284]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="Quit Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer" unique_id=1722461585]
+[node name="Quit Button" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer" unique_id=1722461585]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Quit
@@ -156,7 +156,7 @@ icon = ExtResource("3_eembx")
 autowrap_trim_flags = 0
 expand_icon = true
 
-[node name="MapsettingsUI" type="Control" parent="UIManager/Control/UIWindow/UIWindow" unique_id=373953530 node_paths=PackedStringArray("visual")]
+[node name="MapsettingsUI" type="Control" parent="UIManager/Control/main Menu UI/Main Panel" unique_id=373953530 node_paths=PackedStringArray("visual")]
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 1
 anchors_preset = 6
@@ -177,7 +177,7 @@ visual = NodePath("Panel")
 ui_name = "Map Settings"
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="Panel" type="Panel" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI" unique_id=917176621]
+[node name="Panel" type="Panel" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI" unique_id=917176621]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -186,7 +186,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel" unique_id=1766506888]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel" unique_id=1766506888]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -194,25 +194,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=1967326068]
+[node name="Label" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=1967326068]
 layout_mode = 2
 text = "Map Settings "
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=1140322128]
+[node name="HSeparator" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=1140322128]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=241739564]
+[node name="HBoxContainer" type="HBoxContainer" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=241739564]
 layout_mode = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=355062666]
+[node name="Label" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=355062666]
 layout_mode = 2
 text = "Player Count "
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=155229083]
+[node name="TextEdit" type="SpinBox" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=155229083]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -220,12 +220,12 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="Label2" type="Label" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=538906526]
+[node name="Label2" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=538906526]
 layout_mode = 2
 text = "Enemy Count "
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit2" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=278312219]
+[node name="TextEdit2" type="SpinBox" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer" unique_id=278312219]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -233,20 +233,20 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="HSeparator2" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=1687435448]
+[node name="HSeparator2" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=1687435448]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=174169159]
+[node name="HBoxContainer2" type="HBoxContainer" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=174169159]
 layout_mode = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=1208546006]
+[node name="Label" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=1208546006]
 layout_mode = 2
 text = "Map Size X"
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=1531243869]
+[node name="TextEdit" type="SpinBox" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=1531243869]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -254,12 +254,12 @@ max_value = 25.0
 value = 1.0
 update_on_text_changed = true
 
-[node name="Label2" type="Label" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=387111379]
+[node name="Label2" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=387111379]
 layout_mode = 2
 text = "map Size Y"
 label_settings = SubResource("LabelSettings_yf2vi")
 
-[node name="TextEdit2" type="SpinBox" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=1192020613]
+[node name="TextEdit2" type="SpinBox" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer/HBoxContainer2" unique_id=1192020613]
 custom_minimum_size = Vector2(25, 25)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -268,15 +268,15 @@ value = 1.0
 rounded = true
 update_on_text_changed = true
 
-[node name="HSeparator3" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=167820576]
+[node name="HSeparator3" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=167820576]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="StartButton" type="Button" parent="UIManager/Control/UIWindow/UIWindow/MapsettingsUI/Panel/VBoxContainer" unique_id=565426123]
+[node name="StartButton" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/MapsettingsUI/Panel/VBoxContainer" unique_id=565426123]
 layout_mode = 2
 text = "Start"
 
-[node name="SaveGameUI" type="Control" parent="UIManager/Control/UIWindow/UIWindow" unique_id=55383579 node_paths=PackedStringArray("save_game_list", "new_save_button", "load_save_button", "delete_save_button", "text_edit_field", "visual")]
+[node name="SaveGameUI" type="Control" parent="UIManager/Control/main Menu UI/Main Panel" unique_id=55383579 node_paths=PackedStringArray("save_game_list", "new_save_button", "load_save_button", "delete_save_button", "text_edit_field", "visual")]
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
@@ -299,7 +299,7 @@ load_new_saves = true
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://bq6tin77ek38e"
 
-[node name="Panel" type="Panel" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI" unique_id=967700215]
+[node name="Panel" type="Panel" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI" unique_id=967700215]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -307,7 +307,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel" unique_id=377547210]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel" unique_id=377547210]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -316,48 +316,48 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="Label" type="Label" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=1615844985]
+[node name="Label" type="Label" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer" unique_id=1615844985]
 layout_mode = 2
 text = "Saves "
 label_settings = SubResource("LabelSettings_abbdw")
 
-[node name="HSeparator" type="HSeparator" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=1825333897]
+[node name="HSeparator" type="HSeparator" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer" unique_id=1825333897]
 layout_mode = 2
 
-[node name="TextEdit" type="TextEdit" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=1699786510]
+[node name="TextEdit" type="TextEdit" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer" unique_id=1699786510]
 custom_minimum_size = Vector2(0, 37.12)
 layout_mode = 2
 
-[node name="ItemList" type="ItemList" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=266706909]
+[node name="ItemList" type="ItemList" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer" unique_id=266706909]
 layout_mode = 2
 size_flags_vertical = 3
 allow_reselect = true
 auto_width = true
 max_columns = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer" unique_id=128067691]
+[node name="HBoxContainer" type="HBoxContainer" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer" unique_id=128067691]
 layout_mode = 2
 
-[node name="New Save Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=2067527264]
+[node name="New Save Button" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=2067527264]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Save"
 
-[node name="Load Button2" type="Button" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=1302373718]
+[node name="Load Button2" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=1302373718]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load"
 
-[node name="Delete Button" type="Button" parent="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=561965366]
+[node name="Delete Button" type="Button" parent="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer/HBoxContainer" unique_id=561965366]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Delete"
 
-[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer/New Game Button" to="UIManager/Control" method="_on_new_game_button_pressed"]
-[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/Panel/VBoxContainer/Battle Button" to="UIManager/Control" method="_on_battle_button_pressed"]
-[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer/New Save Button" to="UIManager/Control/UIWindow/UIWindow/SaveGameUI" method="_on_save_button_pressed"]
-[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer/Load Button2" to="UIManager/Control/UIWindow/UIWindow/SaveGameUI" method="_on_load_button_2_pressed"]
-[connection signal="pressed" from="UIManager/Control/UIWindow/UIWindow/SaveGameUI/Panel/VBoxContainer/HBoxContainer/Delete Button" to="UIManager/Control/UIWindow/UIWindow/SaveGameUI" method="_on_delete_button_pressed"]
+[connection signal="pressed" from="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer/New Game Button" to="UIManager/Control" method="_on_new_game_button_pressed"]
+[connection signal="pressed" from="UIManager/Control/main Menu UI/Main Panel/Panel/VBoxContainer/Battle Button" to="UIManager/Control" method="_on_battle_button_pressed"]
+[connection signal="pressed" from="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer/HBoxContainer/New Save Button" to="UIManager/Control/main Menu UI/Main Panel/SaveGameUI" method="_on_save_button_pressed"]
+[connection signal="pressed" from="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer/HBoxContainer/Load Button2" to="UIManager/Control/main Menu UI/Main Panel/SaveGameUI" method="_on_load_button_2_pressed"]
+[connection signal="pressed" from="UIManager/Control/main Menu UI/Main Panel/SaveGameUI/Panel/VBoxContainer/HBoxContainer/Delete Button" to="UIManager/Control/main Menu UI/Main Panel/SaveGameUI" method="_on_delete_button_pressed"]

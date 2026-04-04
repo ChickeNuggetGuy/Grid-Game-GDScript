@@ -24,7 +24,7 @@ func double_click_clear(parameters : Dictionary) -> void:
 
 
 func _init() -> void:
-	script_path = "res://Scripts/GridObject/Actions/ChangeStance/ChanageStanceAction.gd"
+	script_path = "res://Scripts/GridObject/Actions/ChangeStance/chanage_stance_action.gd"
 	super._init()
 
 func can_execute(parameters : Dictionary) -> Dictionary:

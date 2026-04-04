@@ -1,0 +1,33 @@
+{
+	"GLOBE": {
+		"GameManager": {
+			"current_save_file": "tttt.json",
+			"current_scene_node": "GlobeScene:<Node3D#131214608192>",
+			"current_scene_type": 3,
+			"filename": "res://Scenes/Autoloads/game_manager.tscn",
+			"map_size": "(0, 0)",
+			"parent": "/root",
+			"spawn_counts": "(0, 0)"
+		},
+		"GlobeManager": {
+			"cell_definitions": {},
+			"filename": "",
+			"funds": 400000,
+			"parent": "/root/GlobeScene/Managers"
+		},
+		"GlobeTimeManager": {
+			"current_day": 2,
+			"current_day_of_month": 5,
+			"current_hour": 12,
+			"current_minute": 26,
+			"current_month": 8,
+			"current_seconds": 1,
+			"current_year": 2001,
+			"time_speed": 1
+		},
+		"UIManager": {
+			"filename": "",
+			"parent": "/root/GlobeScene/Managers"
+		}
+	}
+}

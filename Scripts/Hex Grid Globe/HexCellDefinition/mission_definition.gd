@@ -4,6 +4,7 @@ extends HexCellDefinition
 var enemy_spawn: int
 
 func _init(index: int = -1, _enemy_spawn: int = -1) -> void:
+	definition_type = Enums.HexCellDefinitionType.MISSION
 	if _enemy_spawn >= 0:
 		enemy_spawn = _enemy_spawn
 	else:
