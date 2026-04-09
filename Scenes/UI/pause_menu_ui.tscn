@@ -90,7 +90,7 @@ custom_minimum_size = Vector2(0, 75)
 layout_mode = 2
 text = "Exit Game"
 
-[node name="Game Saves Window" type="Control" parent="." unique_id=559297381 node_paths=PackedStringArray("save_game_list", "new_save_button", "delete_save_button", "text_edit_field", "visual")]
+[node name="Game Saves Window" type="Control" parent="." unique_id=559297381 node_paths=PackedStringArray("save_game_list", "new_save_button", "delete_save_button", "text_edit_field", "visual", "toggle_button")]
 layout_mode = 1
 anchors_preset = 11
 anchor_left = 1.0
@@ -101,6 +101,7 @@ offset_right = 414.0
 offset_bottom = -47.0
 grow_horizontal = 0
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("2_jow2c")
 save_game_list = NodePath("Panel/VBoxContainer/ItemList")
 new_save_button = NodePath("Panel/VBoxContainer/HBoxContainer/New Save Button")
@@ -109,6 +110,7 @@ text_edit_field = NodePath("Panel/VBoxContainer/TextEdit")
 save_icon = ExtResource("3_pdymr")
 start_hidden = true
 visual = NodePath("Panel")
+toggle_button = NodePath("Panel/VBoxContainer/HBoxContainer2/Quit Button")
 metadata/_custom_type_script = "uid://bq6tin77ek38e"
 
 [node name="Panel" type="Panel" parent="Game Saves Window" unique_id=243765651]

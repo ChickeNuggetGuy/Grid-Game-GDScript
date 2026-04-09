@@ -64,15 +64,11 @@ func refresh_save_list() -> void:
 		return
 
 	var save_files: Array = result.get("save_files", [])
-	print(
-		"Found "
-		+ str(save_files.size())
-		+ " save files in "
-		+ ProjectSettings.globalize_path(SavesManager.save_directory)
-	)
 
 	for save_game in save_files:
 		save_game_list.add_item(str(save_game), save_icon)
+
+
 func _on_save_button_pressed() -> void:
 	
 	var save_name : String = ""
@@ -141,7 +137,6 @@ func _create_new_game(save_name: String) -> void:
 	if not success:
 		push_warning("Failed to create new game: " + save_name)
 		return
-
 
 
 func _normalize_save_name(save_name: String) -> String:

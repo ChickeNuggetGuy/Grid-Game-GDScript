@@ -4,14 +4,12 @@ class_name GlobeManager
 
 @export var hex_globe_Decorator : HexGridDecorator
 @export var hex_grid_data : HexGridData
-@export var funds : int = 400000
 
 
 var build_base_mode : bool  = false
 
 
 #region signals
-signal funds_changed(current_funds : int)
 #endregion
 #region Functions
 
@@ -23,7 +21,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 		if build_base_mode:
 			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-				try_place_base()
+				try_place_base(Enums.unitTeam.PLAYER)
 		else:
 			
 			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
@@ -40,7 +38,7 @@ func open_base_scene(base: TeamBaseDefinition) -> void:
 		Enums.SceneType.GLOBE,
 		{}
 	)
-
+	print(globe_transition_data)
 	SceneManager.set_session_value("globe_state", globe_transition_data)
 	SceneManager.set_session_value("current_base", base)
 
@@ -65,26 +63,45 @@ func get_cell_definitions(def_type_filter: Enums.HexCellDefinitionType) -> Array
 	return valid_cells
 
 
-func try_place_base():
+func try_place_base(target_team : Enums.unitTeam):
+	var globe_team_manager : GlobeTeamManager = GameManager.get_manager("GlobeTeamManager")
+	if not globe_team_manager:
+		return
+		
 	
-	if funds >= 300000:
+	var team : GlobeTeamHolder = globe_team_manager.get_team_holder(target_team)
+	
+	if not team:
+		return
+	
+	if team.get_current_funds() >= 300000:
 		var index = hex_globe_Decorator.hovered_cell
 		var new_base: TeamBaseDefinition = TeamBaseDefinition.new(index, Enums.unitTeam.PLAYER)
 		hex_grid_data.add_cell_definition(index,Enums.HexCellDefinitionType.BASE, new_base, hex_globe_Decorator)
 		
-
+		team.add_base_index(index)
 		print("Added Base: test: " + str(hex_grid_data.get_cell_definitions(index).size()))
-		try_spend_funds(300000)
+		try_spend_funds(target_team, 300000)
 	
 	build_base_mode = false
 
 
-func try_spend_funds(amount_to_spend: int) -> bool:
-	if funds < amount_to_spend:
+func try_spend_funds(target_team : Enums.unitTeam, amount_to_spend: int) -> bool:
+	var globe_team_manager : GlobeTeamManager = GameManager.get_manager("GlobeTeamManager")
+	if not globe_team_manager:
+		return false
+		
+	
+	var team : GlobeTeamHolder = globe_team_manager.get_team_holder(target_team)
+	
+	if not team:
 		return false
 	
-	funds -= amount_to_spend
-	funds_changed.emit(funds)
+	
+	if team.get_current_funds() < amount_to_spend:
+		return false
+	
+	team.remove_funds(amount_to_spend)
 	return true
 
 
@@ -107,9 +124,6 @@ func _execute_conditions() -> bool:
 
 func _execute():
 	if not load_data.is_empty():
-		if load_data.has("funds"):
-			funds = int(load_data["funds"])
-			funds_changed.emit(funds)
 
 		if load_data.has("cell_definitions"):
 			hex_grid_data.clear()
@@ -142,8 +156,7 @@ func save_data() -> Dictionary:
 	var save_dict = {
 		"filename": get_scene_file_path(),
 		"parent": get_parent().get_path(),
-		"cell_definitions": save_cell_definitions,
-		"funds": funds
+		"cell_definitions": save_cell_definitions
 	}
 	print(save_dict["cell_definitions"].keys())  # expect MissionDefinition in here
 	print(((save_dict["cell_definitions"].get("MissionDefinition", []) as Array)).size())

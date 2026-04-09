@@ -120,6 +120,11 @@ func set_selected_unit(gridObject: Unit):
 	var oldUnit = selectedUnit
 	selectedUnit = gridObject
 	unit_selected.emit(selectedUnit, oldUnit)
+	
+	var unit_action_manager :  UnitActionManager  = GameManager.get_manager("UnitActionManager")
+	
+	if unit_action_manager:
+		unit_action_manager._set_selected_action(selectedUnit.get_all_action_definitions()[0])
 
 
 func set_selected_unit_next():

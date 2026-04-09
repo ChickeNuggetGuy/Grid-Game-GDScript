@@ -1,5 +1,6 @@
 @tool
-class_name Item extends Resource
+class_name Item 
+extends Resource
 
 @export var item_name: String
 @export_multiline var description: String
