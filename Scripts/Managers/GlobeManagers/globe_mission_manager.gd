@@ -192,7 +192,7 @@ func send_ship_to_mission(
 	)
 	SavesManager.map_size = Vector2i(2, 2)
 
-	await SceneManager.try_load_scene_by_type(
+	await SceneManager.change_scene(
 		Enums.SceneType.BATTLESCENE,
 		SavesManager.get_current_scene_data(Enums.SceneType.GLOBE)
 	)
@@ -209,7 +209,7 @@ func _spawn_craft_visual(craft: Craft) -> Node3D:
 
 	var fallback := CSGSphere3D.new()
 	fallback.name = craft.craft_name
-	fallback.radius = 1.0
+	fallback.radius = .1
 	return fallback
 
 

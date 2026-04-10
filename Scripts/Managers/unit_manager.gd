@@ -123,8 +123,8 @@ func set_selected_unit(gridObject: Unit):
 	
 	var unit_action_manager :  UnitActionManager  = GameManager.get_manager("UnitActionManager")
 	
-	if unit_action_manager:
-		unit_action_manager._set_selected_action(selectedUnit.get_all_action_definitions()[0])
+	if unit_action_manager and selectedUnit.default_action:
+		unit_action_manager._set_selected_action(selectedUnit.default_action)
 
 
 func set_selected_unit_next():

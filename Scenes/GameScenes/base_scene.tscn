@@ -334,6 +334,7 @@ offset_top = -67.0
 grow_horizontal = 2
 script = ExtResource("5_0537q")
 start_hidden = true
+block_inputs = true
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 

@@ -578,4 +578,3 @@ func comfirm_rename_pressed():
 	craft.craft_name = text_edit.text
 	rename_window.hide_call()
 	construct_craft_tree(_get_current_base().craft_hangers)
-	pass

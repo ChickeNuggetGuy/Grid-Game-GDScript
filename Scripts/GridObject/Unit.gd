@@ -6,6 +6,7 @@ class_name Unit
 @export var unit_movement_stance : Enums.UnitMovementStance = Enums.UnitMovementStance.STATIONARY
 
 @export var _action_library: Array[BaseActionDefinition] = []
+@export var default_action: BaseActionDefinition
 var action_queue : Array[Action]
 
 
@@ -44,7 +45,8 @@ func is_moving() -> bool:
 	return unit_movement_stance == Enums.UnitMovementStance.MOVING
 #endregion
 func get_default_action() -> BaseActionDefinition:
-	return try_get_action_definition_by_type("MoveActionDefinition")["action_definition"]
+	return default_action
+	
 func get_action_node_by_index(i: int) -> BaseActionDefinition:
 	var a = _action_library[i]
 	if a == null:

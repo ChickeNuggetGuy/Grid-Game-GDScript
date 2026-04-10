@@ -62,8 +62,8 @@ func update_header_text():
 		return 
 	
 	var data = SceneManager.session_data.get("globe_state")
-	var team_manager = SceneManager.session_data.get("GlobeTeamManager", {})
-	var team_1 = team_manager.get(1, {})
+	var team_manager = data.get("GlobeTeamManager", {})
+	var team_1 = team_manager.get("1", {})
 	var current_funds = team_1.get("_current_funds", -1)
 
 	header_label.text = base_data.base_name + " \n" + str(current_funds)
