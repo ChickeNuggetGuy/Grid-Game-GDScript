@@ -1,7 +1,9 @@
 @tool
-class_name Item 
+class_name ItemData
 extends Resource
 
+
+@export var item_id: int = -1
 @export var item_name: String
 @export_multiline var description: String
 @export var icon: Texture2D
@@ -56,7 +58,7 @@ func _ensure_shape_exists_and_matches(): # No arguments needed now
 
 
 func _duplicate() -> Resource:
-	var new_item = Item.new()
+	var new_item = ItemData.new()
 
 	new_item.item_name = item_name
 	new_item.description = description
@@ -105,7 +107,7 @@ func try_get_item_component(component_type : String) -> Dictionary:
 	for component in item_components:
 		if component.get_class_name().to_lower() == component_type.to_lower():
 			found_component = component
-		break
+			break
 	
 	if found_component != null:
 		ret_val["success"] =  true
@@ -116,4 +118,3 @@ func try_get_item_component(component_type : String) -> Dictionary:
 		ret_val["component"] = null
 	
 	return ret_val
-	

@@ -25,6 +25,12 @@ func _on_exit_tree() -> void:
 
 func _process(_delta: float) -> void:
 	if not execute_complete: return
+	
+	var ui_manager : UIManager = GameManager.get_manager("UIManager")
+	
+	if ui_manager and ui_manager.blocking_input:
+		current_grid_cell = null
+		return
 
 	# Clear old debug visuals first
 	for child in label_3d_holder.get_children():
@@ -88,7 +94,7 @@ func _process(_delta: float) -> void:
 	if not unit_manager:
 		return
 
-	var selected_unit : Unit = unit_manager.selectedUnit
+	var selected_unit : Unit = unit_manager.selected_unit
 	if not selected_unit:
 		return
 

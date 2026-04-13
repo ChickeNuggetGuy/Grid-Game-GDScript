@@ -54,7 +54,7 @@ func init_fog_globals() -> void:
 		push_error("FogManager: UnitManager not found!")
 		return
 	
-	var player_team_holder: UnitTeamHolder = unit_manager.UnitTeams.get(Enums.unitTeam.PLAYER) as UnitTeamHolder
+	var player_team_holder: UnitTeamHolder = unit_manager.unit_teams.get(Enums.unitTeam.PLAYER) as UnitTeamHolder
 	if player_team_holder == null:
 		push_error("FogManager: Player's UnitTeamHolder not found!")
 		return
@@ -95,7 +95,7 @@ func update_fow_texture():
 		push_error("FogManager: UnitManager not found!")
 		return
 	
-	var player_team_holder: UnitTeamHolder = unit_manager.UnitTeams.get(Enums.unitTeam.PLAYER) as UnitTeamHolder
+	var player_team_holder: UnitTeamHolder = unit_manager.unit_teams.get(Enums.unitTeam.PLAYER) as UnitTeamHolder
 	if player_team_holder == null:
 		return
 	

@@ -3,7 +3,7 @@ class_name AIActionsTurnSegment
 
 
 func execute(parent_turn : TurnData):
-	var unit_team : UnitTeamHolder = GameManager.managers["UnitManager"].UnitTeams[parent_turn.team]
+	var unit_team : UnitTeamHolder = GameManager.managers["UnitManager"].unit_teams[parent_turn.team]
 	
 	if unit_team == null:
 		push_error("Unit Team was null!")

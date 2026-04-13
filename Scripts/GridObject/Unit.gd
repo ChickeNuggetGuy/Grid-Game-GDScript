@@ -1,6 +1,9 @@
 extends GridObject
 class_name Unit
 
+
+var data : UnitData
+
 @warning_ignore("int_as_enum_without_cast", "int_as_enum_without_match")
 @export var _stance : Enums.UnitStance = Enums.UnitStance.NORMAL
 @export var unit_movement_stance : Enums.UnitMovementStance = Enums.UnitMovementStance.STATIONARY
@@ -44,6 +47,7 @@ func is_crouched() -> bool:
 func is_moving() -> bool:
 	return unit_movement_stance == Enums.UnitMovementStance.MOVING
 #endregion
+
 func get_default_action() -> BaseActionDefinition:
 	return default_action
 	
@@ -100,7 +104,7 @@ func get_all_action_definitions() -> Dictionary:
 			
 			if items.size() != 0:
 				for item in items:
-					var typed_item = item as Item
+					var typed_item = item as ItemData
 					
 					for definition in typed_item.action_blueprints:
 						ret_values["item_action_definitions"][definition] = typed_item

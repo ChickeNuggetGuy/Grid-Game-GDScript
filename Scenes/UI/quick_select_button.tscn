@@ -1,0 +1,93 @@
+[gd_scene format=3 uid="uid://cjj1kjhadad5k"]
+
+[ext_resource type="Script" uid="uid://m5yeyrknt3lb" path="res://Scripts/UI/QuickSelectWindow/quick_select_button.gd" id="1_3e8du"]
+[ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="2_i5rm6"]
+[ext_resource type="Script" uid="uid://cyrbxh22vfj6b" path="res://Scripts/UI/stat_progress_bar.gd" id="3_mv7j6"]
+
+[node name="QuickSelectButton" type="Control" unique_id=1879627379 node_paths=PackedStringArray("name_label", "unit_icon", "stat_progress_bars", "button")]
+custom_minimum_size = Vector2(100, 120)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_3e8du")
+name_label = NodePath("Button/VBoxContainer/HBoxContainer/VBoxContainer2/Label")
+unit_icon = NodePath("Button/VBoxContainer/HBoxContainer/VBoxContainer2/AspectRatioContainer/TextureRect")
+stat_progress_bars = {
+0: NodePath("Button/VBoxContainer/HBoxContainer/VBoxContainer/StatProgressBar"),
+1: NodePath("Button/VBoxContainer/HBoxContainer/VBoxContainer/StatProgressBar2"),
+2: NodePath("Button/VBoxContainer/HBoxContainer/VBoxContainer/StatProgressBar3"),
+3: NodePath("Button/VBoxContainer/HBoxContainer/VBoxContainer/StatProgressBar4")
+}
+button = NodePath("Button")
+metadata/_custom_type_script = "uid://m5yeyrknt3lb"
+
+[node name="Button" type="Button" parent="." unique_id=1563961772]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Button" unique_id=1014237538]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Button/VBoxContainer" unique_id=1578156810]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Button/VBoxContainer/HBoxContainer" unique_id=1752783698]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=2046887125]
+layout_mode = 2
+text = "Name "
+horizontal_alignment = 1
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=785900870]
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+stretch_mode = 0
+
+[node name="TextureRect" type="TextureRect" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer2/AspectRatioContainer" unique_id=1714603162]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("2_i5rm6")
+expand_mode = 4
+stretch_mode = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Button/VBoxContainer/HBoxContainer" unique_id=76366687]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatProgressBar" type="ProgressBar" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1149512406]
+propagate_maximum_size = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_mv7j6")
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="StatProgressBar2" type="ProgressBar" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=2043324640]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_mv7j6")
+stat_type = 3
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="StatProgressBar3" type="ProgressBar" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1503217942]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_mv7j6")
+stat_type = 1
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="StatProgressBar4" type="ProgressBar" parent="Button/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1888331559]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_mv7j6")
+stat_type = 2
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"

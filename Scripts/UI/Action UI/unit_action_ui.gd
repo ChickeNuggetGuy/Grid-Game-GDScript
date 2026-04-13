@@ -15,7 +15,7 @@ func _setup() -> void:
 	GameManager.managers["UnitManager"].unit_selected.connect( unitManager_unit_selected)
 	GameManager.managers["UnitActionManager"].action_execution_finished.connect( UnitActionManager_action_execution_finished)
 	
-	var selected_unit = GameManager.managers["UnitManager"].selectedUnit
+	var selected_unit = GameManager.managers["UnitManager"].selected_unit
 	
 	if selected_unit == null:
 		return
@@ -30,7 +30,7 @@ func unitManager_unit_selected(selectedUnit : Unit, _old_unit : Unit):
 func UnitActionManager_action_execution_finished(_current_action : BaseActionDefinition,
 	_grid_object : GridObject):
 	print("Stat bars should be updating")
-	update_stat_bars(GameManager.managers["UnitManager"].selectedUnit)
+	update_stat_bars(GameManager.managers["UnitManager"].selected_unit)
 
 
 func update_stat_bars(unit : Unit):

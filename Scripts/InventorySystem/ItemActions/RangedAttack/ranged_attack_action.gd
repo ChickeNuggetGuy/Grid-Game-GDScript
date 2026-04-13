@@ -1,7 +1,7 @@
 extends CompositeAction
 class_name RangedAttackAction
 
-var item : Item
+var item : ItemData
 var attack_count : int
 
 const MAX_PROJECTILE_RANGE := 30.0

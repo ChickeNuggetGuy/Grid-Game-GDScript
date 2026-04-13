@@ -29,7 +29,7 @@ func UnitManager_UnitSelected(_new_unit : Unit, _old_unit : Unit):
 
 
 func update_quick_target_buttons():
-	var current_unit = GameManager.managers["UnitManager"].selectedUnit
+	var current_unit = GameManager.managers["UnitManager"].selected_unit
 	if current_unit == null:
 		return
 

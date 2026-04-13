@@ -275,7 +275,11 @@ func _update_world_visibility(previous_objects: Array[GridObject], current_objec
 			grid_object.visual.visible = true
 
 	# Update all units' visibility based on fog state
-	for team_holder in GameManager.managers["UnitManager"].UnitTeams.values():
+	var unit_manager : UnitManager =  GameManager.managers["UnitManager"]
+	if not unit_manager:
+		return
+		
+	for team_holder in unit_manager.unit_teams.values():
 		for grid_object in team_holder.grid_objects["active"]:
 			if is_instance_valid(grid_object) and grid_object.grid_position_data:
 				grid_object.grid_position_data.update_parent_visability()

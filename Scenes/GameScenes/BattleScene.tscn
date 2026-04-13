@@ -113,21 +113,22 @@ grow_horizontal = 1
 grow_vertical = 1
 
 [node name="InventoryGrids" parent="Managers/UIManager/Control" index="1" unique_id=2114284367]
-offset_top = 0.0
-offset_bottom = 339.0
-
-[node name="Backpack" parent="Managers/UIManager/Control/InventoryGrids/Panel" parent_id_path=PackedInt32Array(1361052491, 936716818) index="1" unique_id=977599107]
-offset_left = -100.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 100.0
+anchors_preset = 8
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -169.5
+offset_bottom = 169.5
+grow_vertical = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -50)
+offset_transform_visual_only = false
 
 [node name="MouseHeldInventory" parent="Managers/UIManager/Control" index="2" unique_id=549389804 node_paths=PackedStringArray("inventory_holder")]
 offset_top = -20.0
 offset_bottom = 20.0
 inventory_holder = NodePath("MouseHeldInventory")
 
-[node name="UIWindow" parent="Managers/UIManager/Control" index="4" unique_id=2144268231]
+[node name="CurrentTurnUI" parent="Managers/UIManager/Control" index="4" unique_id=2144268231]
 offset_left = -150.0
 offset_top = 0.0
 offset_right = 0.0

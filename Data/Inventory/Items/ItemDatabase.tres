@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDatabase" format=3 uid="uid://7ook8qvmt8pg"]
+
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="1_58ljk"]
+[ext_resource type="Script" uid="uid://5bam0mao723m" path="res://addons/item_database/item_database.gd" id="2_kgndf"]
+[ext_resource type="Resource" uid="uid://cd7jqga4nbpmf" path="res://Data/Inventory/Items/test_grenade.tres" id="2_n0fdd"]
+[ext_resource type="Resource" uid="uid://bbh6i4n78umlj" path="res://Data/Inventory/Items/Sword_Item.tres" id="3_n0fdd"]
+[ext_resource type="Resource" uid="uid://b867r0rqqey0b" path="res://Data/Inventory/Items/Pistol_Item.tres" id="4_n0fdd"]
+
+[resource]
+script = ExtResource("2_kgndf")
+items = Dictionary[int, ExtResource("1_58ljk")]({
+0: ExtResource("2_n0fdd"),
+1: ExtResource("3_n0fdd"),
+2: ExtResource("4_n0fdd")
+})

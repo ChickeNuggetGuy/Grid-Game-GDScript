@@ -208,7 +208,7 @@ func construct_units_item_list(all_units: Array[UnitData]) -> void:
 		)
 
 
-func construct_equipment_item_list(all_equipment: Array[Item]) -> void:
+func construct_equipment_item_list(all_equipment: Array[ItemData]) -> void:
 	if not equipment_item_list:
 		push_error("Equipment Item List is null!")
 		return
@@ -425,7 +425,7 @@ func _add_selected_equipment_to_craft(
 	base_data: TeamBaseDefinition,
 	selected_craft: Craft
 ) -> void:
-	var selected_items: Array[Item] = []
+	var selected_items: Array[ItemData] = []
 
 	for row in equipment_item_list.get_selected_items():
 		var meta = equipment_item_list.get_item_metadata(row)
@@ -490,7 +490,7 @@ func remove_button_pressed() -> void:
 						)
 
 			"craft_item":
-				var item_ref: Item = meta.get("item_ref", null)
+				var item_ref: ItemData = meta.get("item_ref", null)
 				if item_ref:
 					item_removals.append(
 						{
@@ -513,7 +513,7 @@ func remove_button_pressed() -> void:
 
 	for removal in item_removals:
 		var craft: Craft = removal.get("craft", null)
-		var item: Item = removal.get("item", null)
+		var item: ItemData = removal.get("item", null)
 
 		if craft and item and craft.try_remove_item_from_craft(item, base_data):
 			changed = true

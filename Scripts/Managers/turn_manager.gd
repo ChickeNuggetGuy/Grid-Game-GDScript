@@ -55,7 +55,7 @@ func _execute():
 			break
 		if turn is TeamTurnData:
 			var team_turn : TeamTurnData = turn as TeamTurnData
-			team_turn.team_holder = GameManager.managers["UnitManager"].UnitTeams[team_turn.team]
+			team_turn.team_holder = GameManager.managers["UnitManager"].unit_teams[team_turn.team]
 	
 	execute_current_turn()
 	return;

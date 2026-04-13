@@ -4,7 +4,7 @@ class_name CheckGameStateTurnSegment
 
 
 func execute(parent_turn: TurnData) -> void:
-	var unit_team_holder: UnitTeamHolder = GameManager.managers["UnitManager"].UnitTeams.get(parent_turn.team)
+	var unit_team_holder: UnitTeamHolder = GameManager.managers["UnitManager"].unit_teams.get(parent_turn.team)
 
 	if not unit_team_holder:
 		printerr("CheckGameStateTurnSegment: Could not find UnitTeamHolder for team %s." % Enums.unitTeam.find_key(parent_turn.team))

@@ -109,7 +109,7 @@ func update_parent_visability():
 	if !grid_cell:
 		return
 		
-	var team_holder = GameManager.managers["UnitManager"].UnitTeams[Enums.unitTeam.PLAYER]
+	var team_holder = GameManager.managers["UnitManager"].unit_teams[Enums.unitTeam.PLAYER]
 	var grid_data = team_holder.get_grid_cell_visibility_data(grid_cell)
 		
 	if grid_data["fog_state"] == Enums.FogState.UNSEEN:

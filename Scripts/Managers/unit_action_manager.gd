@@ -129,7 +129,7 @@ func _handle_left_click() -> void:
 
 
 func _handle_right_click() -> void:
-	var selected_unit = GameManager.managers["UnitManager"].selectedUnit
+	var selected_unit = GameManager.managers["UnitManager"].selected_unit
 	if not selected_unit:
 		return
 
@@ -146,7 +146,7 @@ func _handle_right_click() -> void:
 
 #region Action Execution
 func try_execute_selected_action(grid_cell: GridCell) -> void:
-	var selected_unit: Unit = GameManager.managers["UnitManager"].selectedUnit
+	var selected_unit: Unit = GameManager.managers["UnitManager"].selected_unit
 	if not selected_unit or not selected_action:
 		return
 	try_execute_action(grid_cell, selected_unit, selected_action)
@@ -172,7 +172,7 @@ func try_execute_action(grid_cell: GridCell, unit: Unit, action_to_execute: Base
 
 func try_execute_item_action(action_to_execute: BaseItemActionDefinition,
 		unit : Unit,
-		item: Item,
+		item: ItemData,
 		starting_inventory: InventoryGrid,
 		target_grid_cell : GridCell = null) -> Dictionary:
 	GameManager.managers["UIManager"].hide_non_persitent_windows()
@@ -259,6 +259,6 @@ func cancel_current_action():
 func turn_manager_turn_changed(_current_turn : TurnData) -> void:
 	var unit_manager : UnitManager = GameManager.managers["UnitManager"]
 	
-	var selected_unit = unit_manager.selectedUnit
+	var selected_unit = unit_manager.selected_unit
 	
 	_set_selected_action(selected_unit.get_default_action())

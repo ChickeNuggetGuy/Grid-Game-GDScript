@@ -79,11 +79,9 @@ func _execute():
 
 
 func _unitmanager_unitselected(newUnit : GridObject, _oldUnit : GridObject):
-	print("_unitmanager_unitselected")
 	quick_switch_target(newUnit)
 
 func quick_switch_target(target: Node3D) -> void:
-	print("quick_switch_target")
 	if target != null:
 		transposer.global_position = target.global_position
 
@@ -101,7 +99,7 @@ func _unhandled_input(event):
 	
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_F:
-			quick_switch_target(GameManager.managers["UnitManager"].selectedUnit)
+			quick_switch_target(GameManager.managers["UnitManager"].selected_unit)
 
 func _transposer_movement(delta: float) -> void:
 	var move_dir := Vector3.ZERO

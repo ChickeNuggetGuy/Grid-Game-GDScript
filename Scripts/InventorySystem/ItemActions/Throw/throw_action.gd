@@ -2,7 +2,7 @@ extends CompositeAction
 
 var grid_cell_path : Array
 var vector3_path : Array
-var item : Item
+var item : ItemData
 var starting_inventory : InventoryGrid
 
 func _init(parameters : Dictionary) -> void:

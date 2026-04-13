@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bbh6i4n78umlj"]
+
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_q0y0q"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="2_p1voj"]
+[ext_resource type="Script" uid="uid://bf1isr1wcokqf" path="res://Scripts/InventorySystem/ItemActions/MeleeAttack/melee_attack_action_definition.gd" id="3_rgo3a"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="4_8xurk"]
+[ext_resource type="Texture2D" uid="uid://byb7gikisgnmc" path="res://art/ground_albedo.png" id="5_s6lwe"]
+[ext_resource type="Script" uid="uid://c5pmnd42jig4o" path="res://Scripts/InventorySystem/ItemComponents/item_component.gd" id="6_rfryc"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="7_0hyw8"]
+
+[sub_resource type="Resource" id="Resource_tbkrc"]
+script = ExtResource("2_p1voj")
+action_name = "Throw Action"
+metadata/_custom_type_script = "uid://bj86rurumq14y"
+
+[sub_resource type="Resource" id="Resource_gxh6s"]
+script = ExtResource("3_rgo3a")
+attack_count = 2
+action_name = "Melee"
+metadata/_custom_type_script = "uid://bf1isr1wcokqf"
+
+[sub_resource type="Resource" id="Resource_34uyp"]
+resource_local_to_scene = true
+script = ExtResource("4_8xurk")
+grid_width = 1
+shape_grid = Array[int]([0])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[resource]
+resource_local_to_scene = true
+resource_name = "Sword_Item"
+script = ExtResource("7_0hyw8")
+item_id = 1
+item_name = "Sword"
+description = "Test Item"
+icon = ExtResource("5_s6lwe")
+grid_shape = SubResource("Resource_34uyp")
+action_blueprints = Array[ExtResource("1_q0y0q")]([SubResource("Resource_tbkrc"), SubResource("Resource_gxh6s")])
+item_costs = Dictionary[int, int]({
+1: 26,
+3: 8
+})
+extra_values = Dictionary[String, Variant]({
+"attack_count": 3,
+"damage": 45
+})
+metadata/_custom_type_script = "uid://8if3mtpocl51"

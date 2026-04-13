@@ -3,7 +3,7 @@ class_name ItemComponent
 extends  Resource
 var parent_item
 
-func setup_call(item : Item) -> void:
+func setup_call(item : ItemData) -> void:
 	parent_item = item
 	setup()
 

@@ -912,11 +912,15 @@ func try_get_random_walkable_cell(team_filter: Enums.unitTeam = Enums.unitTeam.A
 	var ret_value: Dictionary = {"success": false, "grid_cell": null}
 	var valid_grid_cells: Array[GridCell] = []
 	
-	for grid_cell in grid_cells.values():
+	for grid_cell : GridCell in grid_cells.values():
+		
 		if not grid_cell:
 			continue
 		
 		if not (grid_cell.grid_cell_state & Enums.cellState.WALKABLE):
+			continue
+		
+		if grid_cell.grid_cell_connections.is_empty():
 			continue
 		
 		if team_filter != Enums.unitTeam.ANY and grid_cell.team_spawn != team_filter:

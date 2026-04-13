@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="Item" format=3 uid="uid://cd7jqga4nbpmf"]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://cd7jqga4nbpmf"]
 
 [ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_i1ls4"]
 [ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="2_eeut8"]
-[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item.gd" id="2_vvekw"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="2_vvekw"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="2_wpw8i"]
 [ext_resource type="Script" uid="uid://jkvvnktv2oyh" path="res://Scripts/InventorySystem/ItemActions/PrimeAction/prime_action_definition.gd" id="3_56gy7"]
 [ext_resource type="Texture2D" uid="uid://bqjfd3o63yup0" path="res://Third-Party Assests/Import/Polygon_Meadow/Textures/Plants/Branches_02.tga" id="3_hg2v2"]
@@ -11,7 +11,6 @@
 
 [sub_resource type="Resource" id="Resource_56gy7"]
 script = ExtResource("2_eeut8")
-show_in_ui = true
 double_click_activation = true
 metadata/_custom_type_script = "uid://bj86rurumq14y"
 
@@ -37,6 +36,8 @@ metadata/_custom_type_script = "uid://du6myjy8emtyk"
 [resource]
 resource_local_to_scene = true
 script = ExtResource("2_vvekw")
+item_id = 0
+item_name = "Grenade"
 icon = ExtResource("3_hg2v2")
 grid_shape = SubResource("Resource_phox0")
 item_components = Array[ExtResource("4_hg2v2")]([SubResource("Resource_eeut8")])

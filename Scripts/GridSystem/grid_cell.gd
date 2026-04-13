@@ -49,7 +49,7 @@ func has_specific_gridObject(gridObjectToCheck) -> bool:
 func _to_string() -> String:
 	return str(grid_coordinates) + " state: " + str(grid_cell_state)
 
-func inventory_grid_item_added(item_added: Item) -> void:
+func inventory_grid_item_added(item_added: ItemData) -> void:
 	var grid_system : GridSystem = GameManager.managers["GridSystem"]
 	if item_added == null:
 		print("item added was null")

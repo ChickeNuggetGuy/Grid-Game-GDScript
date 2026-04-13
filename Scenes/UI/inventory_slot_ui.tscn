@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://mtb3au1134nr" path="res://Scripts/UI/inventory_slot_ui.gd" id="1_o8sks"]
 
-[node name="InventorySlotUI" type="Button"]
+[node name="InventorySlotUI" type="Button" unique_id=582285893]
 custom_minimum_size = Vector2(20, 20)
 size_flags_horizontal = 3
 size_flags_vertical = 3

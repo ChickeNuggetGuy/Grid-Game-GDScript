@@ -7,7 +7,7 @@ var team_holder : UnitTeamHolder
 
 func _setup():
 	var unit_manager : UnitManager = GameManager.managers["UnitManager"]
-	team_holder = unit_manager.UnitTeams[team]
+	team_holder = unit_manager.unit_teams[team]
 	
 	
 func _execute():
@@ -22,7 +22,7 @@ func _execute():
 	
 	if team == Enums.unitTeam.PLAYER:
 		var unit_manager : UnitManager = GameManager.managers["UnitManager"]
-		if unit_manager.selectedUnit == null:
+		if unit_manager.selected_unit == null:
 			unit_manager.set_selected_unit_next()
 	
 	

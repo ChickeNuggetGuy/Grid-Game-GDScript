@@ -5,7 +5,7 @@ var base_name : String = "New Base"
 var team_affiliation: Enums.unitTeam
 var craft_hangers: Array[Craft]
 var stationed_units: Array[UnitData]
-var equipment : Array[Item]
+var equipment : Array[ItemData]
 
 func get_class_name() -> String:
 	return "TeamBaseDefinition"

@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://b867r0rqqey0b"]
+
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_mjbp7"]
+[ext_resource type="Script" uid="uid://bkr8ehc1y044m" path="res://Scripts/InventorySystem/ItemActions/RangedAttack/ranged_attack_action_definition.gd" id="2_hou0f"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="3_h4np4"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="4_h86a1"]
+[ext_resource type="Texture2D" uid="uid://di7uxdbvt4b7y" path="res://icon.png" id="5_a6yna"]
+[ext_resource type="Script" uid="uid://c5pmnd42jig4o" path="res://Scripts/InventorySystem/ItemComponents/item_component.gd" id="6_hbjbj"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="7_1m7n1"]
+
+[sub_resource type="Resource" id="Resource_pa26x"]
+script = ExtResource("2_hou0f")
+metadata/_custom_type_script = "uid://bkr8ehc1y044m"
+
+[sub_resource type="Resource" id="Resource_f7t27"]
+script = ExtResource("3_h4np4")
+metadata/_custom_type_script = "uid://bj86rurumq14y"
+
+[sub_resource type="Resource" id="Resource_egbvn"]
+resource_local_to_scene = true
+script = ExtResource("4_h86a1")
+grid_width = 2
+grid_height = 2
+shape_grid = Array[int]([1, 1, 1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[resource]
+resource_local_to_scene = true
+resource_name = "Pistol_Item"
+script = ExtResource("7_1m7n1")
+item_id = 2
+item_name = "Pistol"
+description = "Test Item"
+icon = ExtResource("5_a6yna")
+grid_shape = SubResource("Resource_egbvn")
+action_blueprints = Array[ExtResource("1_mjbp7")]([SubResource("Resource_pa26x"), SubResource("Resource_f7t27")])
+item_costs = Dictionary[int, int]({
+1: 4,
+3: 24
+})
+extra_values = Dictionary[String, Variant]({
+"attack_cost": 24,
+"attack_count": 2,
+"damage": 35
+})
+metadata/_custom_type_script = "uid://8if3mtpocl51"

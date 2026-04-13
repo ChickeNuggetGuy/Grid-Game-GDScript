@@ -185,7 +185,9 @@ func send_ship_to_mission(
 	craft.current_cell_index = mission_cell_index
 
 	ship_visual.queue_free()
-
+	
+	SceneManager.set_session_value("current_craft", craft.serialize())
+	
 	SavesManager.spawn_counts = Vector2i(
 		craft.units_on_board.size(),
 		mission_def.enemy_spawn

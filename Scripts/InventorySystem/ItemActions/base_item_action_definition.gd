@@ -1,7 +1,7 @@
 @abstract extends  BaseActionDefinition
 class_name BaseItemActionDefinition
 
-var parent_item : Item
+var parent_item : ItemData
 var starting_inventory : InventoryGrid
 
 

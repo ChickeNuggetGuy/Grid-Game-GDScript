@@ -1,3 +1,3 @@
 @abstract extends Action
 
-var owned_item : Item
+var owned_item : ItemData

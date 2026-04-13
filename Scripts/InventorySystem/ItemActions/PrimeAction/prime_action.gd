@@ -1,6 +1,6 @@
 extends Action
 
-var item : Item
+var item : ItemData
 var explosive_component : ExplosiveComponent 
 
 func _init(parameters : Dictionary) -> void:

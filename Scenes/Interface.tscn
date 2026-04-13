@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c8ylwvjtychxr"]
 
-[ext_resource type="Script" uid="uid://d222p848qf3w4" path="res://Scripts/UI/unit_action_ui.gd" id="1_o0cgi"]
+[ext_resource type="Script" uid="uid://d222p848qf3w4" path="res://Scripts/UI/Action UI/unit_action_ui.gd" id="1_o0cgi"]
 [ext_resource type="PackedScene" uid="uid://ccej7wk8dhb5y" path="res://Scenes/UI/action_button.tscn" id="2_ga4cb"]
 [ext_resource type="Texture2D" uid="uid://bpgmnltmxqfvl" path="res://icon.svg" id="3_6lbs1"]
 [ext_resource type="Script" uid="uid://cyrbxh22vfj6b" path="res://Scripts/UI/stat_progress_bar.gd" id="4_odcd3"]
@@ -12,8 +12,11 @@
 [ext_resource type="PackedScene" uid="uid://depe88mv4kasb" path="res://Scenes/UI/quick_target_button.tscn" id="8_tc1k7"]
 [ext_resource type="Script" uid="uid://e3rapksgaklp" path="res://Scripts/InventorySystem/inventory_grid_holder.gd" id="8_v4j0p"]
 [ext_resource type="Script" uid="uid://7pg2k3prf8d4" path="res://Scripts/UI/ContextMenuUI/context_menu_ui.gd" id="10_0vakw"]
+[ext_resource type="Script" uid="uid://cows67aqar7j1" path="res://Scripts/UI/UIWindows/unit_stats_ui.gd" id="10_lh1gk"]
 [ext_resource type="PackedScene" uid="uid://d12db22xd5d15" path="res://Scenes/UI/context_menu_button.tscn" id="11_r7ian"]
 [ext_resource type="Script" uid="uid://d26a3o4ljalyy" path="res://Scripts/UI/turn_ui.gd" id="12_rtqjj"]
+[ext_resource type="Script" uid="uid://c20u6041yjgbf" path="res://Scripts/UI/QuickSelectWindow/quick_select_panel.gd" id="15_gnic8"]
+[ext_resource type="PackedScene" uid="uid://cjj1kjhadad5k" path="res://Scenes/UI/quick_select_button.tscn" id="16_xxbeb"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ga4cb"]
 font_size = 24
@@ -43,8 +46,11 @@ script = ExtResource("1_o0cgi")
 action_button_prefab = ExtResource("2_ga4cb")
 action_button_holder = NodePath("PanelContainer/HBoxContainer/RightSide/Top - Action Buttons")
 stat_progress_bars = [NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar"), NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar2"), NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar3"), NodePath("PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars/ProgressBar4")]
+start_hidden = null
+block_inputs = null
 input_key = 85
 visual = NodePath("PanelContainer")
+is_persistent_window = null
 ui_name = "UnitActionUI"
 metadata/_custom_type_script = "uid://d222p848qf3w4"
 
@@ -110,7 +116,6 @@ step = 1.0
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "Health"
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="ProgressBar2" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=874262558]
@@ -119,7 +124,7 @@ layout_mode = 2
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "time_units"
+stat_type = 3
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="ProgressBar3" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=1200946447]
@@ -128,7 +133,7 @@ layout_mode = 2
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "stamina"
+stat_type = 1
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="ProgressBar4" type="ProgressBar" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/Stat Bars" unique_id=673027343]
@@ -137,16 +142,15 @@ layout_mode = 2
 value = 100.0
 show_percentage = false
 script = ExtResource("4_odcd3")
-stat_name = "bravery"
+stat_type = 2
 metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
-[node name="EquipmentUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" unique_id=1220578484 node_paths=PackedStringArray("visual", "ui_elements")]
+[node name="EquipmentUI" type="Control" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items" unique_id=1220578484 node_paths=PackedStringArray("visual")]
 custom_minimum_size = Vector2(250, 0)
 layout_direction = 2
 layout_mode = 2
 script = ExtResource("4_wi8ec")
 visual = NodePath("HBoxContainer")
-ui_elements = [NodePath("HBoxContainer/LeftSide/InventoryGridUI"), NodePath("HBoxContainer/RightSide/InventoryGridUI")]
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UnitDetailPanel/PanelContainer/HBoxContainer/RightSide/Bottom - Stats - Equiped Items/EquipmentUI" unique_id=982397436]
@@ -291,49 +295,46 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GroundInventory" type="Control" parent="InventoryGrids/Panel" unique_id=1381460672 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
-custom_minimum_size = Vector2(0, 50)
-anchors_preset = 0
-offset_top = 234.0
-offset_right = 450.0
-offset_bottom = 339.0
-size_flags_vertical = 8
-script = ExtResource("7_xn8c0")
-inventory_slot_holder = NodePath("GridContainer")
-visual = NodePath("GridContainer")
-ui_name = "GroundUI"
-metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
-
-[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/GroundInventory" unique_id=1295896530]
-custom_minimum_size = Vector2(0, 75)
+[node name="VBoxContainer" type="VBoxContainer" parent="InventoryGrids/Panel" unique_id=226538189]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_vertical = 8
 
-[node name="Backpack" type="Control" parent="InventoryGrids/Panel" unique_id=977599107 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+[node name="MarginContainer" type="MarginContainer" parent="InventoryGrids/Panel/VBoxContainer" unique_id=29232219]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
+
+[node name="Backpack" type="Control" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer" unique_id=977599107 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 custom_minimum_size = Vector2(100, 100)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -125.0
-offset_top = 30.0
-offset_right = -25.0
-offset_bottom = 130.0
-grow_horizontal = 0
+layout_mode = 2
+size_flags_horizontal = 8
 size_flags_vertical = 0
+offset_transform_enabled = true
+offset_transform_position = Vector2(-25, 25)
+offset_transform_visual_only = false
 script = ExtResource("7_xn8c0")
 inventory_grid_type = 2
 inventory_slot_holder = NodePath("GridContainer")
 visual = NodePath("GridContainer")
-ui_name = "GroundUI"
+ui_name = "BackpackUI"
 metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
 
-[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/Backpack" unique_id=957137538]
+[node name="Panel" type="Panel" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer/Backpack" unique_id=1778326658]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer/Backpack" unique_id=957137538]
 custom_minimum_size = Vector2(0, 75)
 layout_mode = 1
 anchors_preset = 15
@@ -342,6 +343,185 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 8
+
+[node name="Belt" type="Control" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer" unique_id=423006857 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+offset_transform_enabled = true
+offset_transform_position = Vector2(-25, 0)
+offset_transform_visual_only = false
+script = ExtResource("7_xn8c0")
+inventory_grid_type = 1
+inventory_slot_holder = NodePath("GridContainer")
+visual = NodePath("GridContainer")
+ui_name = "BeltUI"
+metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
+
+[node name="Panel" type="Panel" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer/Belt" unique_id=1784914691]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer/Belt" unique_id=2071527606]
+custom_minimum_size = Vector2(0, 75)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 8
+
+[node name="QuickDraw" type="Control" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer" unique_id=1559653852 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+custom_minimum_size = Vector2(25, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+offset_transform_enabled = true
+offset_transform_position = Vector2(75, 0)
+offset_transform_visual_only = false
+script = ExtResource("7_xn8c0")
+inventory_grid_type = 3
+inventory_slot_holder = NodePath("GridContainer")
+visual = NodePath("GridContainer")
+ui_name = "QuicDrawUI"
+metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
+
+[node name="Panel" type="Panel" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer/QuickDraw" unique_id=1680598629]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/VBoxContainer/MarginContainer/QuickDraw" unique_id=1331074008]
+custom_minimum_size = Vector2(0, 75)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 8
+
+[node name="GroundInventory" type="Control" parent="InventoryGrids/Panel/VBoxContainer" unique_id=1381460672 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
+custom_minimum_size = Vector2(0, 125)
+layout_mode = 2
+size_flags_vertical = 8
+script = ExtResource("7_xn8c0")
+inventory_slot_holder = NodePath("GridContainer")
+visual = NodePath("GridContainer")
+ui_name = "GroundUI"
+metadata/_custom_type_script = "uid://ngmp1p2lmuk1"
+
+[node name="Panel" type="Panel" parent="InventoryGrids/Panel/VBoxContainer/GroundInventory" unique_id=791930319]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="InventoryGrids/Panel/VBoxContainer/GroundInventory" unique_id=1295896530]
+custom_minimum_size = Vector2(0, 75)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 8
+
+[node name="Stats UI Window" type="Control" parent="InventoryGrids/Panel" unique_id=1185062079 node_paths=PackedStringArray("stat_progress_bars", "visual", "toggle_button")]
+custom_minimum_size = Vector2(150, 300)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 150.0
+grow_horizontal = 0
+grow_vertical = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(5, 0)
+offset_transform_visual_only = false
+script = ExtResource("10_lh1gk")
+stat_progress_bars = {
+0: NodePath("Panel/ScrollContainer/VBoxContainer/StatProgressBar"),
+1: NodePath("Panel/ScrollContainer/VBoxContainer/StatProgressBar2"),
+2: NodePath("Panel/ScrollContainer/VBoxContainer/StatProgressBar3"),
+3: NodePath("Panel/ScrollContainer/VBoxContainer/StatProgressBar4")
+}
+visual = NodePath("Panel")
+toggle_button = NodePath("Panel/ScrollContainer/VBoxContainer/HBoxContainer/Button")
+metadata/_custom_type_script = "uid://cows67aqar7j1"
+
+[node name="Panel" type="Panel" parent="InventoryGrids/Panel/Stats UI Window" unique_id=1191201704]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="InventoryGrids/Panel/Stats UI Window/Panel" unique_id=1056791992]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer" unique_id=606614752]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer" unique_id=178556985]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer/HBoxContainer" unique_id=2036338439]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Stats"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer/HBoxContainer" unique_id=893005875]
+layout_mode = 2
+text = "close"
+
+[node name="HSeparator" type="HSeparator" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer" unique_id=967656930]
+layout_mode = 2
+
+[node name="StatProgressBar" type="ProgressBar" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer" unique_id=873816770]
+layout_mode = 2
+script = ExtResource("4_odcd3")
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="StatProgressBar2" type="ProgressBar" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer" unique_id=292329669]
+layout_mode = 2
+script = ExtResource("4_odcd3")
+stat_type = 1
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="StatProgressBar3" type="ProgressBar" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer" unique_id=496037634]
+layout_mode = 2
+script = ExtResource("4_odcd3")
+stat_type = 3
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
+
+[node name="StatProgressBar4" type="ProgressBar" parent="InventoryGrids/Panel/Stats UI Window/Panel/ScrollContainer/VBoxContainer" unique_id=1973561831]
+layout_mode = 2
+script = ExtResource("4_odcd3")
+stat_type = 2
+metadata/_custom_type_script = "uid://cyrbxh22vfj6b"
 
 [node name="MouseHeldInventory" type="Control" parent="." unique_id=549389804 node_paths=PackedStringArray("inventory_slot_holder", "visual")]
 layout_mode = 1
@@ -371,6 +551,7 @@ inventory_grid_type = 8
 metadata/_custom_type_script = "uid://e3rapksgaklp"
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="MouseHeldInventory" unique_id=1754656310]
+visible = false
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
@@ -391,6 +572,7 @@ is_persistent_window = false
 metadata/_custom_type_script = "uid://7pg2k3prf8d4"
 
 [node name="Panel" type="Panel" parent="ContextMenuUI" unique_id=545194766]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -405,7 +587,7 @@ offset_bottom = 40.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="UIWindow" type="Control" parent="." unique_id=2144268231 node_paths=PackedStringArray("turn_label", "end_turn_button", "visual")]
+[node name="CurrentTurnUI" type="Control" parent="." unique_id=2144268231 node_paths=PackedStringArray("turn_label", "end_turn_button", "visual")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -422,7 +604,7 @@ visual = NodePath("Panel")
 ui_name = "TurnUI"
 metadata/_custom_type_script = "uid://d26a3o4ljalyy"
 
-[node name="Panel" type="Panel" parent="UIWindow" unique_id=1010298774]
+[node name="Panel" type="Panel" parent="CurrentTurnUI" unique_id=1010298774]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -430,7 +612,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UIWindow/Panel" unique_id=424384073]
+[node name="VBoxContainer" type="VBoxContainer" parent="CurrentTurnUI/Panel" unique_id=424384073]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -438,7 +620,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="UIWindow/Panel/VBoxContainer" unique_id=1203048968]
+[node name="Label" type="Label" parent="CurrentTurnUI/Panel/VBoxContainer" unique_id=1203048968]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 text = "Current Turn: Player"
@@ -446,7 +628,49 @@ label_settings = SubResource("LabelSettings_r7ian")
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="Button" type="Button" parent="UIWindow/Panel/VBoxContainer" unique_id=1089665751]
+[node name="Button" type="Button" parent="CurrentTurnUI/Panel/VBoxContainer" unique_id=1089665751]
 layout_mode = 2
 size_flags_vertical = 3
 text = "End Turn"
+
+[node name="QuickSelectUI" type="Control" parent="." unique_id=1816364880 node_paths=PackedStringArray("quick_select_holder", "visual")]
+custom_minimum_size = Vector2(175, 360)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -204.0
+offset_right = 175.0
+offset_bottom = 156.0
+grow_vertical = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -75)
+offset_transform_visual_only = false
+script = ExtResource("15_gnic8")
+quick_select_button_scene = ExtResource("16_xxbeb")
+quick_select_holder = NodePath("Panel/ScrollContainer/VBoxContainer")
+visual = NodePath("Panel")
+metadata/_custom_type_script = "uid://c20u6041yjgbf"
+
+[node name="Panel" type="Panel" parent="QuickSelectUI" unique_id=1404992422]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="QuickSelectUI/Panel" unique_id=1199773956]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+scroll_hint_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="QuickSelectUI/Panel/ScrollContainer" unique_id=1148747183]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

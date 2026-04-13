@@ -3,7 +3,7 @@ extends Node3D
 
 var craft_name: String = "New Craft"
 var units_on_board: Array[UnitData]
-var items: Dictionary[Item, int]
+var items: Dictionary[ItemData, int]
 
 var current_cell_index: int = -1
 var home_cell_index: int = -1
@@ -64,7 +64,7 @@ func try_remove_unit_from_craft(
 
 
 func try_add_item_to_craft(
-	item_to_add: Item,
+	item_to_add: ItemData,
 	origin_base: TeamBaseDefinition
 ) -> bool:
 	if not item_to_add:
@@ -88,7 +88,7 @@ func try_add_item_to_craft(
 
 
 func try_remove_item_from_craft(
-	item_to_remove: Item,
+	item_to_remove: ItemData,
 	target_base: TeamBaseDefinition
 ) -> bool:
 	if not item_to_remove:
@@ -142,11 +142,18 @@ func serialize() -> Dictionary:
 			units_data.append(unit.serialize())
 
 	ret_data["units_on_board"] = units_data
+	
+	
+	var item_data: Dictionary = {}
+	for item in items:
+		if item != null:
+			item_data[item.item_id] = items[item]
 
 	# TODO: Serialize item data as well.
 	ret_data["current_cell_index"] = current_cell_index
 	ret_data["home_cell_index"] = home_cell_index
 	ret_data["position"] = position
+	ret_data["items"] = item_data
 
 	return ret_data
 
@@ -166,5 +173,20 @@ static func deserialize(data: Dictionary) -> Craft:
 		if unit_data is Dictionary:
 			instance.units_on_board.append(UnitData.deserialize(unit_data))
 
-	instance.items = {}
+
+	var items_data: Dictionary = data.get("items", {})
+	for item_id in items_data:
+			if item_id == -1:
+				push_error("Failed to load item data ")
+				return
+			
+			var inventory_manager : InventoryManager = GameManager.get_manager("InventoryManager")
+			if not inventory_manager:
+				return
+			
+			var result = inventory_manager.try_get_inventory_item(item_id)
+			if not result["success"]:
+				return
+				
+			instance.items[result["inventory_item"]] = items_data[item_id]
 	return instance

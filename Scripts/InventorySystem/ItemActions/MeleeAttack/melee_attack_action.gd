@@ -1,7 +1,7 @@
 extends CompositeAction
 class_name MeleeAttackAction
 
-var item : Item
+var item : ItemData
 var path : Array[GridCell]
 
 const MAX_TWEEN_DURATION := 0.6
