@@ -8,6 +8,9 @@ extends Resource
 @export_multiline var description: String
 @export var icon: Texture2D
 
+@export var buy_price : int
+@export var sell_price : int
+
 var parent_grid_object: GridObject
 var current_inventory_grid : InventoryGrid
 var current_invenrtory_coords : Vector2i
@@ -19,6 +22,8 @@ var current_invenrtory_coords : Vector2i
 @export var action_blueprints : Array[BaseActionDefinition]
 @export var item_costs : Dictionary[Enums.Stat, int] = {}
 @export var extra_values : Dictionary [String, Variant] = {}
+
+@export var associated_items : Array[ItemData] =[]
 
 
 func _init():

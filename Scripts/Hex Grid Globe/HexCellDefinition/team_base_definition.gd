@@ -5,7 +5,7 @@ var base_name : String = "New Base"
 var team_affiliation: Enums.unitTeam
 var craft_hangers: Array[Craft]
 var stationed_units: Array[UnitData]
-var equipment : Array[ItemData]
+var equipment : Dictionary[int, int ]
 
 func get_class_name() -> String:
 	return "TeamBaseDefinition"
@@ -22,12 +22,39 @@ func _init(
 
 	craft_hangers = []
 	stationed_units = []
-	equipment = []
+	equipment = {}
 
 	super._init(index)
 
 	if stationed_units.is_empty():
 		stationed_units.append(UnitData.new("Unit 1", index))
+
+
+func has_item(item : ItemData) -> bool:
+	for item_id in equipment.keys():
+		if item_id == item.item_id:
+			return true
+	
+	return false
+
+
+func add_item(item : ItemData, count : int = 1):
+	if has_item(item):
+		equipment[item.item_id] += count
+	else:
+		equipment[item.item_id] = count
+
+
+func remove_item(item : ItemData, count : int = 1):
+	if has_item(item):
+		if equipment[item.item_id] >= count:
+			equipment[item.item_id] -= count
+		else:
+			equipment.erase(item.item_id)
+	else:
+		push_warning("base does not have item trying to remove!")
+		return
+
 
 func serialize() -> Dictionary:
 	var units_data: Array = []
@@ -72,5 +99,10 @@ static func deserialize(data: Dictionary) -> TeamBaseDefinition:
 			instance.craft_hangers.append(Craft.deserialize(craft))
 	
 	instance.base_name = data.get("base_name")
-	instance.equipment = []
+	
+	var saved_equipment: Dictionary = data.get("equipment", {})
+	instance.equipment = {}
+	for key in saved_equipment:
+		instance.equipment[int(key)] = int(saved_equipment[key])
+
 	return instance

@@ -208,26 +208,34 @@ func construct_units_item_list(all_units: Array[UnitData]) -> void:
 		)
 
 
-func construct_equipment_item_list(all_equipment: Array[ItemData]) -> void:
+func construct_equipment_item_list(
+	all_equipment: Dictionary[int, int]
+) -> void:
 	if not equipment_item_list:
 		push_error("Equipment Item List is null!")
 		return
 
 	equipment_item_list.clear()
 
-	for i in range(all_equipment.size()):
-		var equipment := all_equipment[i]
-		if not equipment:
-			push_error("Equipment instance was null")
+	for item_id in all_equipment.keys():
+		var count: int = all_equipment[item_id]
+		var result := InventoryManager.try_get_inventory_item(item_id)
+
+		if not result["success"]:
+			push_error("Could not find item with id: " + str(item_id))
 			continue
 
-		equipment_item_list.add_item(equipment.item_name)
+		var equipment: ItemData = result["inventory_item"]
+
+		equipment_item_list.add_item(
+			equipment.item_name + " x" + str(count)
+		)
 		var row := equipment_item_list.get_item_count() - 1
 		equipment_item_list.set_item_metadata(
 			row,
 			{
 				"type": "base_item",
-				"item_index": i
+				"item_id": item_id
 			}
 		)
 #endregion
@@ -425,30 +433,27 @@ func _add_selected_equipment_to_craft(
 	base_data: TeamBaseDefinition,
 	selected_craft: Craft
 ) -> void:
-	var selected_items: Array[ItemData] = []
+	var changed := false
 
 	for row in equipment_item_list.get_selected_items():
 		var meta = equipment_item_list.get_item_metadata(row)
 		if not (meta is Dictionary):
 			continue
 
-		var item_index := int(meta.get("item_index", -1))
-		if item_index < 0 or item_index >= base_data.equipment.size():
+		var item_id: int = int(meta.get("item_id", -1))
+		if item_id < 0 or not base_data.equipment.has(item_id):
 			continue
 
-		var selected_item := base_data.equipment[item_index]
-		if selected_item:
-			selected_items.append(selected_item)
+		var result := InventoryManager.try_get_inventory_item(item_id)
+		if not result["success"]:
+			continue
 
-	var changed := false
-
-	for item in selected_items:
-		if selected_craft.try_add_item_to_craft(item, base_data):
+		var item_data: ItemData = result["inventory_item"]
+		if selected_craft.try_add_item_to_craft(item_data, base_data):
 			changed = true
 
 	if changed:
 		refresh_item_lists()
-
 
 func remove_button_pressed() -> void:
 	var base_data := _get_current_base()

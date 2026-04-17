@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://brpr7agep7sxs"]
+
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_5dvm3"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="2_ekde7"]
+[ext_resource type="Script" uid="uid://jkvvnktv2oyh" path="res://Scripts/InventorySystem/ItemActions/PrimeAction/prime_action_definition.gd" id="3_yvpcb"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="4_ppmjx"]
+[ext_resource type="Texture2D" uid="uid://bqjfd3o63yup0" path="res://Third-Party Assests/Import/Polygon_Meadow/Textures/Plants/Branches_02.tga" id="5_bfhta"]
+[ext_resource type="Script" uid="uid://c5pmnd42jig4o" path="res://Scripts/InventorySystem/ItemComponents/item_component.gd" id="6_w17nk"]
+[ext_resource type="Script" uid="uid://du6myjy8emtyk" path="res://Scripts/InventorySystem/ItemComponents/explosive_item.gd" id="7_50vnl"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="8_dxops"]
+
+[sub_resource type="Resource" id="Resource_56gy7"]
+script = ExtResource("2_ekde7")
+double_click_activation = true
+metadata/_custom_type_script = "uid://bj86rurumq14y"
+
+[sub_resource type="Resource" id="Resource_ugd1d"]
+script = ExtResource("3_yvpcb")
+metadata/_custom_type_script = "uid://jkvvnktv2oyh"
+
+[sub_resource type="Resource" id="Resource_phox0"]
+resource_local_to_scene = true
+script = ExtResource("4_ppmjx")
+grid_width = 2
+grid_depth = 2
+shape_grid = Array[int]([1, 1, 1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[sub_resource type="Resource" id="Resource_eeut8"]
+script = ExtResource("7_50vnl")
+costs = Dictionary[int, int]({
+3: 4
+})
+metadata/_custom_type_script = "uid://du6myjy8emtyk"
+
+[resource]
+resource_local_to_scene = true
+resource_name = "Grenade_Item"
+script = ExtResource("8_dxops")
+item_id = 0
+item_name = "Grenade"
+icon = ExtResource("5_bfhta")
+buy_price = 250
+sell_price = 250
+grid_shape = SubResource("Resource_phox0")
+item_components = Array[ExtResource("6_w17nk")]([SubResource("Resource_eeut8")])
+action_blueprints = Array[ExtResource("1_5dvm3")]([SubResource("Resource_56gy7"), SubResource("Resource_ugd1d")])
+associated_items = null
+metadata/_custom_type_script = "uid://8if3mtpocl51"

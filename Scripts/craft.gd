@@ -62,7 +62,6 @@ func try_remove_unit_from_craft(
 	target_base.stationed_units.append(units_on_board.pop_at(unit_index))
 	return true
 
-
 func try_add_item_to_craft(
 	item_to_add: ItemData,
 	origin_base: TeamBaseDefinition
@@ -72,12 +71,11 @@ func try_add_item_to_craft(
 	if not origin_base:
 		return false
 
-	if not origin_base.equipment.has(item_to_add):
+	if not origin_base.has_item(item_to_add):
 		print("Item not at base of origin specified!")
 		return false
 
-	var item_index := origin_base.equipment.find(item_to_add)
-	origin_base.equipment.pop_at(item_index)
+	origin_base.remove_item(item_to_add, 1)
 
 	if items.has(item_to_add):
 		items[item_to_add] += 1
@@ -107,7 +105,7 @@ func try_remove_item_from_craft(
 	else:
 		items[item_to_remove] = item_count - 1
 
-	target_base.equipment.append(item_to_remove)
+	target_base.add_item(item_to_remove)
 	return true
 
 
@@ -126,7 +124,7 @@ func return_all_contents_to_base(target_base: TeamBaseDefinition) -> void:
 
 		for i in range(item_count):
 			if item:
-				target_base.equipment.append(item)
+				target_base.add_item(item)
 
 	items.clear()
 
@@ -176,17 +174,20 @@ static func deserialize(data: Dictionary) -> Craft:
 
 	var items_data: Dictionary = data.get("items", {})
 	for item_id in items_data:
-			if item_id == -1:
-				push_error("Failed to load item data ")
-				return
-			
-			var inventory_manager : InventoryManager = GameManager.get_manager("InventoryManager")
-			if not inventory_manager:
-				return
-			
-			var result = inventory_manager.try_get_inventory_item(item_id)
-			if not result["success"]:
-				return
-				
-			instance.items[result["inventory_item"]] = items_data[item_id]
+		var id_int := int(item_id)
+		if id_int == -1:
+			push_error("Failed to load item data")
+			continue
+
+		var inventory_manager: InventoryManager = GameManager.get_manager("InventoryManager")
+		if not inventory_manager:
+			push_error("InventoryManager not found")
+			continue
+
+		var result = inventory_manager.try_get_inventory_item(id_int)
+		if not result["success"]:
+			push_error("Could not resolve item id: " + str(id_int))
+			continue
+
+		instance.items[result["inventory_item"]] = int(items_data[item_id])
 	return instance

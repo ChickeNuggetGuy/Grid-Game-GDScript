@@ -1,4 +1,3 @@
-class_name InventoryManager
 extends Manager
 
 var database : ItemDatabase = preload("res://Data/Inventory/Items/ItemDatabase.tres")

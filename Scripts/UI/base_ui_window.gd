@@ -3,11 +3,15 @@ class_name BaseUIWindow
 
 @export var header_label : Label
 @export var back_to_globe_button: Button
+@export var buy_sell_button : Button
 @export var units_panel_button: Button
 @export var units_panel: UnitsPanelUI
 
+
 @export var craft_panel_button: Button
 @export var craft_panel: CraftPanelUI
+
+@export var buy_sell_panel : BuySellWindow
 
 var base_data : TeamBaseDefinition
 
@@ -28,6 +32,10 @@ func _setup() -> void:
 	if craft_panel_button \
 	and not craft_panel_button.pressed.is_connected(craft_panel_button_pressed):
 		craft_panel_button.pressed.connect(craft_panel_button_pressed)
+
+	if buy_sell_button \
+	and not buy_sell_button.pressed.is_connected(buy_sell_panel_button_pressed):
+		buy_sell_button.pressed.connect(buy_sell_panel_button_pressed)
 
 func back_to_globe_button_pressed() -> void:
 	print("Back to globe pressed")
@@ -54,6 +62,8 @@ func units_panel_button_pressed() -> void:
 func craft_panel_button_pressed() -> void:
 	craft_panel.toggle()
 
+func buy_sell_panel_button_pressed() -> void:
+	buy_sell_panel.toggle()
 
 func update_header_text():
 	if not header_label:

@@ -12,6 +12,13 @@
 [ext_resource type="Script" uid="uid://c765wp6o6lpyo" path="res://Scripts/UI/Units Panel UI/units_panel_ui.gd" id="7_0537q"]
 [ext_resource type="Script" uid="uid://dujgqeredbamg" path="res://Scripts/UI/BuildingUI/BuildingButtonUI.gd" id="9_8jjf8"]
 [ext_resource type="Script" uid="uid://chij4u271t5e3" path="res://Scripts/UI/Craft Panel/CraftPanelUI.gd" id="9_e36me"]
+[ext_resource type="Script" uid="uid://dk5awkmpux2e4" path="res://Scripts/UI/buy_sell_window.gd" id="9_iqgji"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_iqgji"]
+size = Vector2(25, 25)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_6i7wn"]
+size = Vector2(25, 25)
 
 [sub_resource type="LabelSettings" id="LabelSettings_bhp48"]
 font_size = 20
@@ -66,7 +73,7 @@ script = ExtResource("5_0537q")
 visual = NodePath("BaseMainUI")
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="BaseMainUI" type="Control" parent="Managers/UIManager/UIWindow" unique_id=161226527 node_paths=PackedStringArray("header_label", "back_to_globe_button", "units_panel_button", "units_panel", "craft_panel_button", "craft_panel", "visual")]
+[node name="BaseMainUI" type="Control" parent="Managers/UIManager/UIWindow" unique_id=161226527 node_paths=PackedStringArray("header_label", "back_to_globe_button", "buy_sell_button", "units_panel_button", "units_panel", "craft_panel_button", "craft_panel", "buy_sell_panel", "visual")]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 1
 anchors_preset = 11
@@ -78,10 +85,12 @@ grow_vertical = 2
 script = ExtResource("6_45agt")
 header_label = NodePath("Panel/VBoxContainer/Label")
 back_to_globe_button = NodePath("Panel/VBoxContainer/Baack To Globe Button")
+buy_sell_button = NodePath("Panel/VBoxContainer/Buy_Sell Panel button2")
 units_panel_button = NodePath("Panel/VBoxContainer/Units Panel button")
 units_panel = NodePath("../Units Panel")
 craft_panel_button = NodePath("Panel/VBoxContainer/Craft Panel button")
 craft_panel = NodePath("../Craft Panel")
+buy_sell_panel = NodePath("../Buy_Sell Panel")
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
@@ -114,6 +123,11 @@ text = "Stationed Units
 [node name="Craft Panel button" type="Button" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel/VBoxContainer" unique_id=1458491215]
 layout_mode = 2
 text = "Equip Craft"
+
+[node name="Buy_Sell Panel button2" type="Button" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel/VBoxContainer" unique_id=250324352]
+layout_mode = 2
+text = "Buy/Sell
+"
 
 [node name="Baack To Globe Button" type="Button" parent="Managers/UIManager/UIWindow/BaseMainUI/Panel/VBoxContainer" unique_id=921807132]
 layout_mode = 2
@@ -192,6 +206,92 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Fire Unit"
 
+[node name="Buy_Sell Panel" type="Control" parent="Managers/UIManager/UIWindow" unique_id=2012630624 node_paths=PackedStringArray("item_tree", "cancel_button", "confirm_button", "current_transaction_total_label", "visual", "toggle_button")]
+custom_minimum_size = Vector2(450, 500)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -225.0
+offset_top = -250.0
+offset_right = 225.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("9_iqgji")
+item_tree = NodePath("Panel/VBoxContainer/Tree")
+cancel_button = NodePath("Panel/VBoxContainer/HBoxContainer/Cancel Button")
+confirm_button = NodePath("Panel/VBoxContainer/HBoxContainer/Confirm Button")
+current_transaction_total_label = NodePath("Panel/VBoxContainer/HBoxContainer/Label")
+buy_button_texture = SubResource("PlaceholderTexture2D_iqgji")
+sell_button_texture = SubResource("PlaceholderTexture2D_6i7wn")
+start_hidden = true
+visual = NodePath("Panel")
+toggle_button = NodePath("Panel/VBoxContainer/HBoxContainer2/Close Button")
+metadata/_custom_type_script = "uid://dk5awkmpux2e4"
+
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Buy_Sell Panel" unique_id=927347277]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel" unique_id=1576506749]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer" unique_id=267288350]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=2028665619]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Buy/Sell Panel"
+
+[node name="Close Button" type="Button" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=1768838429]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+text = "close"
+
+[node name="Tree" type="Tree" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer" unique_id=1263321654]
+layout_mode = 2
+size_flags_vertical = 3
+columns = 5
+hide_root = true
+scroll_horizontal_enabled = false
+scroll_hint_mode = 2
+tile_scroll_hint = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer" unique_id=1091393854]
+layout_mode = 2
+
+[node name="Cancel Button" type="Button" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer/HBoxContainer" unique_id=1538487952]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cancel
+"
+
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer/HBoxContainer" unique_id=244473506]
+layout_mode = 2
+text = "$0"
+
+[node name="Confirm Button" type="Button" parent="Managers/UIManager/UIWindow/Buy_Sell Panel/Panel/VBoxContainer/HBoxContainer" unique_id=1271892878]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Confirm
+"
+
 [node name="Craft Panel" type="Control" parent="Managers/UIManager/UIWindow" unique_id=588141834 node_paths=PackedStringArray("craft_tree", "add_button", "remove_button", "sell_craft_button", "tab_container", "units_item_list", "equipment_item_list", "buy_craft_button", "rename_craft_button", "rename_window", "text_edit", "confirm_button", "visual", "toggle_button")]
 custom_minimum_size = Vector2(400, 450)
 layout_mode = 1
@@ -220,11 +320,13 @@ rename_craft_button = NodePath("Panel/VBoxContainer/Bottom Section/Rename Craft 
 rename_window = NodePath("Panel/Rename Window")
 text_edit = NodePath("Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2/TextEdit")
 confirm_button = NodePath("Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2/Button")
+start_hidden = true
 visual = NodePath("Panel")
 toggle_button = NodePath("Panel/VBoxContainer/HBoxContainer2/Close Button")
 metadata/_custom_type_script = "uid://chij4u271t5e3"
 
 [node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel" unique_id=1893974886]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -339,6 +441,7 @@ visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
 [node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window" unique_id=113947288]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
