@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://v5b4bad3tpwp"]
+
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_jjuna"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="2_tor80"]
+[ext_resource type="Script" uid="uid://c5pmnd42jig4o" path="res://Scripts/InventorySystem/ItemComponents/item_component.gd" id="3_ofjw7"]
+
+[resource]
+resource_local_to_scene = true
+script = ExtResource("2_tor80")
+item_id = 4
+item_name = "New ItemData"

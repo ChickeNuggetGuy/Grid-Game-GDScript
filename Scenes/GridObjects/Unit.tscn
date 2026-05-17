@@ -21,19 +21,22 @@ show_in_ui = true
 double_click_activation = true
 metadata/_custom_type_script = "uid://kvwmhrhi3w7q"
 
-[sub_resource type="Resource" id="Resource_oew58"]
-script = ExtResource("5_3ea33")
-action_name = "Move step"
-metadata/_custom_type_script = "uid://cy7d6drefeg4t"
-
 [sub_resource type="Resource" id="Resource_knkat"]
 script = ExtResource("6_e636m")
 action_name = "Rotate"
+multiple_exectutions = false
 metadata/_custom_type_script = "uid://ov18vmu15p05"
+
+[sub_resource type="Resource" id="Resource_oew58"]
+script = ExtResource("5_3ea33")
+action_name = "Move step"
+multiple_exectutions = false
+metadata/_custom_type_script = "uid://cy7d6drefeg4t"
 
 [sub_resource type="Resource" id="Resource_e636m"]
 script = ExtResource("6_3ea33")
 show_in_ui = true
+multiple_exectutions = false
 metadata/_custom_type_script = "uid://bblv0tsronkfy"
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_qwska"]
@@ -276,7 +279,8 @@ metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
 
 [node name="Unit" type="Node3D" unique_id=529937144 node_paths=PackedStringArray("grid_position_data", "visual", "collider", "stat_holder", "grid_object_animator", "grid_object_component_holder") groups=["GridObject"]]
 script = ExtResource("1_33ww8")
-_action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_oew58"), SubResource("Resource_knkat"), SubResource("Resource_e636m")])
+_action_library = Array[ExtResource("2_45onm")]([SubResource("Resource_lwuqk"), SubResource("Resource_knkat"), SubResource("Resource_oew58"), SubResource("Resource_e636m")])
+_default_second_action_index = 1
 is_selectable = true
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("SK_Character_Dummy_Male_02")

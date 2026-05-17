@@ -37,6 +37,14 @@ func _setup() -> void:
 	and not buy_sell_button.pressed.is_connected(buy_sell_panel_button_pressed):
 		buy_sell_button.pressed.connect(buy_sell_panel_button_pressed)
 
+	if buy_sell_panel and not buy_sell_panel.base_data_changed.is_connected(_on_base_data_changed):
+		buy_sell_panel.base_data_changed.connect(_on_base_data_changed)
+
+	if craft_panel and not craft_panel.base_data_changed.is_connected(_on_base_data_changed):
+		craft_panel.base_data_changed.connect(_on_base_data_changed)
+
+	if units_panel and not units_panel.base_data_changed.is_connected(_on_base_data_changed):
+		units_panel.base_data_changed.connect(_on_base_data_changed)
 func back_to_globe_button_pressed() -> void:
 	print("Back to globe pressed")
 
@@ -44,7 +52,7 @@ func back_to_globe_button_pressed() -> void:
 		"current_base",
 		null
 	)
-	_commit_definition_to_globe_state(current_base)
+	SceneManager.commit_definition_to_globe_state(current_base)
 
 	var globe_data: Dictionary = SceneManager.get_session_value(
 		"globe_state",
@@ -78,55 +86,16 @@ func update_header_text():
 
 	header_label.text = base_data.base_name + " \n" + str(current_funds)
 
-
-func _commit_definition_to_globe_state(definition: HexCellDefinition) -> void:
-	if definition == null:
-		push_warning("No definition to commit.")
+func _on_base_data_changed() -> void:
+	base_data = SceneManager.get_session_value("current_base", null)
+	if base_data == null:
 		return
 
-	var globe_data: Dictionary = SceneManager.get_session_value(
-		"globe_state",
-		{}
-	)
-	if globe_data.is_empty():
-		push_warning("No globe_state found in session data.")
-		return
+	update_header_text()
 
-	if not globe_data.has("GlobeManager"):
-		push_warning("No GlobeManager data found in globe_state.")
-		return
-
-	var globe_manager_data: Dictionary = globe_data.get("GlobeManager", {})
-	var cell_definitions: Dictionary = globe_manager_data.get(
-		"cell_definitions",
-		{}
-	)
-
-	var definition_type: int = definition.definition_type
-	var serialized_definition := definition.serialize()
-
-	var definition_array: Array = cell_definitions.get(definition_type, [])
-	var found := false
-
-	for i in range(definition_array.size()):
-		var existing_data = definition_array[i]
-		if not existing_data is Dictionary:
-			continue
-
-		var existing_cell_index := int(existing_data.get("cell_index", -1))
-		var existing_class_name := str(existing_data.get("class_name", ""))
-
-		if existing_cell_index == definition.cell_index \
-		and existing_class_name == definition.get_class_name():
-			definition_array[i] = serialized_definition
-			found = true
-			break
-
-	if not found:
-		definition_array.append(serialized_definition)
-
-	cell_definitions[definition_type] = definition_array
-	globe_manager_data["cell_definitions"] = cell_definitions
-	globe_data["GlobeManager"] = globe_manager_data
-
-	SceneManager.set_session_value("globe_state", globe_data)
+	if units_panel:
+		units_panel.refresh_unit_list(base_data.stationed_units)
+		
+	if craft_panel:
+		craft_panel.refresh_item_lists()
+		

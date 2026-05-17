@@ -15,8 +15,7 @@ resource_local_to_scene = true
 script = ExtResource("3_8dqx1")
 grid_width = 4
 grid_depth = 5
-grid_height = 3
-shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_sng4x"]
@@ -130,12 +129,15 @@ buffer = PackedFloat32Array(0, 0, -0.201, 6.710799, 0, 0.201, 0, 1, 0.201, 0, 0,
 [node name="SpawnChunk" type="Node3D" unique_id=584262143]
 
 [node name="GridCellStateOverride - Spawm" type="Node3D" parent="." unique_id=1930304013 node_paths=PackedStringArray("grid_position_data") groups=["grid_cell_overrides"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 4)
 script = ExtResource("1_vwmlq")
 grid_position_data = NodePath("GridPositionData")
 _spawn_override = true
 team_spawn_override = 1
 team_spawn_state_filter = 16
+state_override = true
+cell_state_override = 16
+cell_state_filter = 2
 metadata/_custom_type_script = "uid://d4hr6o3rcvuwi"
 
 [node name="GridPositionData" type="Node3D" parent="GridCellStateOverride - Spawm" unique_id=423301491]
@@ -157,14 +159,13 @@ collision_layer = 2
 shape = SubResource("ConcavePolygonShape3D_07dbh")
 
 [node name="Door" type="Node3D" parent="." unique_id=1287395831 node_paths=PackedStringArray("grid_cell_override", "grid_position_data", "visual", "collider")]
-transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 1, 1.5, 6.25)
+transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 7, 1.5, 9.25)
 script = ExtResource("2_7tomj")
 grid_cell_override = NodePath("GridCellStateOverride")
 is_selectable = true
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Door")
 collider = NodePath("Door/StaticBody3D")
-metadata/_custom_type_script = "uid://tsvmqb5mbqtu"
 
 [node name="Door" type="MeshInstance3D" parent="Door" unique_id=89840025]
 transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 1, -0.41666603, 0.75, 2)
@@ -198,7 +199,7 @@ parent_grid_object = NodePath("..")
 metadata/_custom_type_script = "uid://06anso1qbl48"
 
 [node name="Wall3" type="Node3D" parent="." unique_id=815624822 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 3.25)
 script = ExtResource("4_w0vs8")
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("CSGBakedMeshInstance3D2")
@@ -223,7 +224,7 @@ grid_shape = SubResource("Resource_5g01e")
 metadata/_custom_type_script = "uid://06anso1qbl48"
 
 [node name="Wall" type="Node3D" parent="." unique_id=2046032187 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, 0.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 0, 3.25)
 script = ExtResource("4_w0vs8")
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Wall")
@@ -250,7 +251,7 @@ parent_grid_object = NodePath("..")
 metadata/_custom_type_script = "uid://06anso1qbl48"
 
 [node name="Wall2" type="Node3D" parent="." unique_id=1737611515 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.25, 0, 3.25)
 script = ExtResource("4_w0vs8")
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Wall")
@@ -277,7 +278,7 @@ parent_grid_object = NodePath("..")
 metadata/_custom_type_script = "uid://06anso1qbl48"
 
 [node name="Wall5" type="Node3D" parent="." unique_id=1748691242 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.25, 1.5, 6.25)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.25, 1.5, 9.25)
 script = ExtResource("4_w0vs8")
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Pillar2")
@@ -303,7 +304,7 @@ parent_grid_object = NodePath("../../Door")
 metadata/_custom_type_script = "uid://06anso1qbl48"
 
 [node name="Wall4" type="Node3D" parent="." unique_id=663447707 node_paths=PackedStringArray("grid_position_data", "visual", "collider")]
-transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 5.25, 1.5, 6.25)
+transform = Transform3D(-2.6226834e-08, 0, 1, 0, 1, 0, -0.6, 0, -4.371139e-08, 11.25, 1.5, 9.25)
 script = ExtResource("4_w0vs8")
 grid_position_data = NodePath("GridPositionData")
 visual = NodePath("Pillar2")
@@ -334,5 +335,6 @@ cast_shadow = 0
 multimesh = SubResource("MultiMesh_sng4x")
 
 [node name="Node3D" parent="." unique_id=56582100 instance=ExtResource("6_ehjeo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 3)
 
 [editable path="Node3D"]

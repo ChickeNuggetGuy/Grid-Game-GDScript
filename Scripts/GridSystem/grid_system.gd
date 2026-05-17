@@ -123,16 +123,15 @@ func generate_connections_for_cell(
 	cell: GridCell,
 	space_state: PhysicsDirectSpaceState3D
 ) -> int:
-	var neighbor_offsets := _generate_halfspace_offsets()
-	var edges := 0
-	
 	if cell == null:
 		return 0
 	
-	# Allow connection generation for occupied cells (units need to move out)
-	# but not for AIR cells
+	# Do not generate outbound connections if the cell is completely AIR
 	if bool(cell.grid_cell_state & Enums.cellState.AIR):
 		return 0
+
+	var neighbor_offsets := _all_neighbor_offsets()
+	var edges := 0
 
 	for off in neighbor_offsets:
 		var b_coords = cell.grid_coordinates + off
@@ -143,16 +142,18 @@ func generate_connections_for_cell(
 		if b == null:
 			continue
 			
-		# Can connect TO walkable cells from occupied cells
+		# Can the unit walk INTO the destination cell?
 		if not _is_cell_walkable(b):
 			continue
 
+		# Verify geometry/raycasts between cell A and cell B
 		if _can_connect_cells(cell, b, off, space_state):
-			_add_connection_bidirectional(cell, b)
-			edges += 1
+			# Strictly Unidirectional: A -> B
+			if not cell.grid_cell_connections.has(b):
+				cell.grid_cell_connections.append(b)
+				edges += 1
 
 	return edges
-
 
 func setup_grid_connections():
 	for c in grid_cells.values():
@@ -228,30 +229,28 @@ func rebuild_connections_for_cells(coords_list: Array[Vector3i]) -> void:
 
 	var space_state := get_tree().root.world_3d.direct_space_state
 	var scope := {}
-
 	var neighbor_offsets := _all_neighbor_offsets()
+
+	# Gather all affected cells AND their immediate neighbors
 	for c in coords_list:
-		if not grid_cells.has(c):
-			continue
-		scope[c] = true
+		if grid_cells.has(c):
+			scope[c] = true
 		for off in neighbor_offsets:
 			var nc := c + off
 			if grid_cells.has(nc):
 				scope[nc] = true
 
+	# Clear outbound connections ONLY for the local scope
 	for coords in scope.keys():
 		var cell: GridCell = grid_cells.get(coords, null)
-		if cell == null:
-			continue
-		for n in cell.grid_cell_connections.duplicate():
-			n.grid_cell_connections.erase(cell)
-		cell.grid_cell_connections.clear()
+		if cell != null:
+			cell.grid_cell_connections.clear()
 
+	# Regenerate the local scope
 	for coords in scope.keys():
 		var cell: GridCell = grid_cells.get(coords, null)
 		if cell != null:
 			generate_connections_for_cell(cell, space_state)
-
 
 func setup_collected_grid_objects():
 	print("Setting up ", collected_grid_objects.size(), " collected grid objects")
@@ -460,7 +459,7 @@ func visualize_cell(grid_coordinates: Vector3i):
 
 func create_or_update_cell(coords: Vector3i, position: Vector3, cell_state: Enums.cellState):
 	if not grid_cells.has(coords) || grid_cells[coords] == null:
-		var result = GameManager.managers["InventoryManager"].try_get_inventory_grid(Enums.inventoryType.GROUND)
+		var result = InventoryManager.try_get_inventory_grid(Enums.inventoryType.GROUND)
 		var ground_inventory_grid  : InventoryGrid = result["inventory_grid"]
 		
 		if not load_data.is_empty():
@@ -1020,4 +1019,49 @@ func _has_clear_connection_line(
 
 	var hit := space_state.intersect_ray(rq)
 	return not hit
+
+
+func try_get_player_equipment_cell(
+	team_filter: Enums.unitTeam = Enums.unitTeam.PLAYER
+) -> Dictionary:
+	var ret := {
+		"success": false,
+		"grid_cell": null,
+	}
+
+	var candidates: Array[GridCell] = []
+
+	for grid_cell: GridCell in grid_cells.values():
+		if grid_cell == null:
+			continue
+
+		if grid_cell.inventory_grid == null:
+			continue
+
+		if not bool(grid_cell.grid_cell_state & Enums.cellState.WALKABLE):
+			continue
+
+		if bool(grid_cell.grid_cell_state & Enums.cellState.OBSTRUCTED):
+			continue
+
+		if grid_cell.team_spawn != team_filter:
+			continue
+
+		candidates.append(grid_cell)
+
+	if candidates.is_empty():
+		return ret
+
+	candidates.sort_custom(
+		func(a: GridCell, b: GridCell) -> bool:
+			if a.grid_coordinates.y != b.grid_coordinates.y:
+				return a.grid_coordinates.y < b.grid_coordinates.y
+			if a.grid_coordinates.x != b.grid_coordinates.x:
+				return a.grid_coordinates.x < b.grid_coordinates.x
+			return a.grid_coordinates.z < b.grid_coordinates.z
+	)
+
+	ret["success"] = true
+	ret["grid_cell"] = candidates[0]
+	return ret
 #endregion

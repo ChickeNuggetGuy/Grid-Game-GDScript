@@ -23,7 +23,7 @@ func _execute() -> void:
 			600000, [])
 			add_child(globe_team_holder)
 			teams_holders[team] = globe_team_holder
-		
+			globe_team_holder.setup()
 
 
 func get_team_holder(team_enum : Enums.unitTeam) -> GlobeTeamHolder:
@@ -66,6 +66,7 @@ func load_data_call(data_dict: Dictionary) -> void:
 			if team_holder:
 				add_child(team_holder)
 				teams_holders[team] = team_holder
+				team_holder.setup()
 				print("added team as child")
 			else:
 				push_error("Team holder was null")

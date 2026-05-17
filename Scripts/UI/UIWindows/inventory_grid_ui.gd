@@ -8,8 +8,15 @@ extends UIWindow
 
 var inventory_grid: InventoryGrid
 var inventory_slots: Dictionary[Vector2i, Control] = {}
-
+var manual_bind: bool = false
 func _setup():
+	if manual_bind:
+		if inventory_grid != null and inventory_grid.grid_shape != null:
+			if inventory_slot_holder is GridContainer:
+				inventory_slot_holder.columns = inventory_grid.grid_shape.grid_width
+
+			call_deferred("draw_inventory")
+		return
 	if not GameManager.managers["UnitManager"].unit_selected.is_connected(
 		unit_manager_unit_selected
 	):
@@ -22,7 +29,7 @@ func _setup():
 	].selected_unit
 
 	if selected_unit == null:
-		_set_current_inventory_grid(null)
+		set_current_inventory_grid(null)
 		print("InventoryGridUI: selected Unit null")
 		return
 
@@ -31,7 +38,7 @@ func _setup():
 	if inventory_grid_type == Enums.inventoryType.GROUND:
 		var current_grid_cell = selected_unit.grid_position_data.grid_cell
 		if current_grid_cell == null:
-			_set_current_inventory_grid(null)
+			set_current_inventory_grid(null)
 			print("InventoryGridUI: selected grid null")
 			return
 		new_inventory_grid = current_grid_cell.inventory_grid
@@ -42,11 +49,11 @@ func _setup():
 			new_inventory_grid = mouse_inventory.inventory_grid
 	else:
 		if not selected_unit.inventory_grids.has(inventory_grid_type):
-			_set_current_inventory_grid(null)
+			set_current_inventory_grid(null)
 			return
 		new_inventory_grid = selected_unit.inventory_grids[inventory_grid_type]
 
-	_set_current_inventory_grid(new_inventory_grid)
+	set_current_inventory_grid(new_inventory_grid)
 
 	if inventory_grid == null or inventory_grid.grid_shape == null:
 		return
@@ -56,7 +63,7 @@ func _setup():
 
 	call_deferred("draw_inventory")
 
-func _set_current_inventory_grid(new_grid: InventoryGrid):
+func set_current_inventory_grid(new_grid: InventoryGrid):
 	if inventory_grid == new_grid:
 		return
 
@@ -107,13 +114,13 @@ func draw_inventory():
 		_clear_slots()
 		return
 
-	if inventory_grid_type == Enums.inventoryType.GROUND:
+	if inventory_grid_type == Enums.inventoryType.GROUND and not manual_bind:
 		var selected_unit: GridObject = GameManager.managers[
 			"UnitManager"
 		].selected_unit
 
 		if selected_unit == null:
-			_set_current_inventory_grid(null)
+			set_current_inventory_grid(null)
 			_clear_slots()
 			return
 
@@ -121,14 +128,15 @@ func draw_inventory():
 
 		if current_grid_cell == null or current_grid_cell.inventory_grid == null:
 			print("ERROR: updating new grid inventory for ground failed!")
-			_set_current_inventory_grid(null)
+			set_current_inventory_grid(null)
 			_clear_slots()
 			return
 
 		if inventory_grid != current_grid_cell.inventory_grid:
-			_set_current_inventory_grid(current_grid_cell.inventory_grid)
+			set_current_inventory_grid(current_grid_cell.inventory_grid)
 
 	if inventory_grid == null or inventory_grid.grid_shape == null:
+		push_error("Inventory grid is null!")
 		_clear_slots()
 		return
 
@@ -169,13 +177,9 @@ func instantiate_inventory_slot_ui(grid_coords: Vector2i):
 		grid_coords.x,
 		grid_coords.y
 	):
-		instantiated_slot = GameManager.managers[
-			"InventoryManager"
-		].inventory_slot_prefab.instantiate()
+		instantiated_slot = InventoryManager.inventory_slot_prefab.instantiate()
 	else:
-		instantiated_slot = GameManager.managers[
-			"InventoryManager"
-		].inactive_inventory_slot_prefab.instantiate()
+		instantiated_slot = InventoryManager.inactive_inventory_slot_prefab.instantiate()
 
 	if instantiated_slot != null and instantiated_slot is InventorySlotUI:
 		instantiated_slot._setup(self, grid_coords, null)
@@ -245,7 +249,12 @@ func item_try_transfer(grid_coords: Vector2i):
 	var main_inventory_ui: MainInventoryUI = GameManager.managers[
 		"UIManager"
 	].main_inventory_ui
+	
 	var mouse_held_inventory = main_inventory_ui.mouse_held_inventory_ui.inventory_grid
+	
+	if not mouse_held_inventory:
+		return
+	
 	var mouse_held_item = mouse_held_inventory.has_item_at(Vector2i(0, 0))
 
 	if item != null:
@@ -302,3 +311,19 @@ func try_execute_item_action(grid_coords: Vector2i):
 		inventory_grid,
 		GameManager.managers["GridInputManager"].currentGridCell
 	)
+
+
+func bind(grid: InventoryGrid, use_manual_bind: bool = true) -> void:
+	manual_bind = use_manual_bind
+
+	set_current_inventory_grid(grid)
+
+	if grid == null:
+		_clear_slots()
+		return
+
+	if grid.grid_shape != null and inventory_slot_holder is GridContainer:
+		inventory_slot_holder.columns = grid.grid_shape.grid_width
+
+	draw_inventory()
+	show_call()

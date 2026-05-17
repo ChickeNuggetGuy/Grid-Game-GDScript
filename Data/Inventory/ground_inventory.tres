@@ -6,8 +6,8 @@
 [sub_resource type="Resource" id="Resource_240ow"]
 resource_local_to_scene = true
 script = ExtResource("1_6jtki")
-grid_width = 9
-shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+grid_width = 15
+shape_grid = Array[int]([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 [resource]
 script = ExtResource("1_5q8iv")

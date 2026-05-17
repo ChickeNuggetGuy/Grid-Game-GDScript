@@ -4,8 +4,8 @@ var database : ItemDatabase = preload("res://Data/Inventory/Items/ItemDatabase.t
 
 var inventory_grids : Dictionary[Enums.inventoryType, InventoryGrid] = {}
 
-var inventory_slot_prefab : PackedScene
-var inactive_inventory_slot_prefab : PackedScene
+var inventory_slot_prefab : PackedScene = preload("res://Scenes/UI/inventory_slot_ui.tscn") as PackedScene
+var inactive_inventory_slot_prefab : PackedScene =preload("res://Scenes/UI/inactive_inventory_slot_ui.tscn") as PackedScene
 
 
 #region Functions
@@ -18,17 +18,7 @@ func _get_manager_name() -> String:return "InventoryManager"
 func _setup_conditions() -> bool: return true
 
 
-func _setup():
-	pass
-
-
-func _execute_conditions() -> bool: return true
-
-
-func _execute():
-	
-	inventory_slot_prefab = load("res://Scenes/UI/inventory_slot_ui.tscn") as PackedScene
-	inactive_inventory_slot_prefab = load("res://Scenes/UI/inactive_inventory_slot_ui.tscn") as PackedScene
+func _ready() -> void:
 	
 	var array : Array = UtilityMethods.load_files_of_type_from_directory("res://Data/Inventory/","InventoryGrid")
 	print("init array count : " + str(array.size()))
@@ -36,16 +26,18 @@ func _execute():
 		if child is not InventoryGrid:
 			continue
 		inventory_grids[child.inventory_type] = child
-	
-	
-	var item_array : Array = UtilityMethods.load_files_of_type_from_directory("res://Data/Inventory/Items/", "ItemData")
-	for child in item_array:
-		if child is not ItemData:
-			continue
-		var typed_item = child as ItemData
-		typed_item._ensure_shape_exists_and_matches()
-		typed_item._setup()
-		database.inventory_items[child.item_name] = child
+
+func _setup():
+	pass
+
+
+
+
+func _execute_conditions() -> bool: return true
+
+
+func _execute():
+	pass
 
 
 

@@ -34,10 +34,10 @@ func open():
 		grid_cell_override.state_override = true
 		grid_cell_override.cell_state_filter = (
 			Enums.cellState.GROUND | Enums.cellState.OBSTRUCTED
-		)
+		) as Enums.cellState
 		grid_cell_override.cell_state_override = (
 			Enums.cellState.GROUND | Enums.cellState.WALKABLE
-		)
+		) as Enums.cellState
 		grid_cell_override.set_cell_overrides(true)
 
 func close():

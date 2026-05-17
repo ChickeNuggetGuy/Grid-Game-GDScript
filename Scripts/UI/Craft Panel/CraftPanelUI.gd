@@ -23,6 +23,8 @@ const EQUIPMENT_TAB_INDEX := 1
 @export var confirm_button : Button
 
 
+signal base_data_changed
+
 func _setup() -> void:
 	super._setup()
 
@@ -170,10 +172,14 @@ func construct_craft_tree(all_craft: Array[Craft]) -> void:
 			)
 
 		for item in craft.items.keys():
+			var item_data = InventoryManager.database.get_item(item)
+			if not item_data:
+				push_error("Could not load Item with ID: "  + str(item))
+				continue
 			var item_count: int = craft.items[item]
 			for k in range(item_count):
 				var item_entry := craft_tree.create_item(craft_item)
-				item_entry.set_text(0, "Item: " + item.item_name)
+				item_entry.set_text(0, "Item: " + item_data.item_name)
 				item_entry.set_metadata(
 					0,
 					{
@@ -426,6 +432,7 @@ func _add_selected_units_to_craft(
 			changed = true
 
 	if changed:
+		_persist_base_data(base_data)
 		refresh_item_lists()
 
 
@@ -453,6 +460,7 @@ func _add_selected_equipment_to_craft(
 			changed = true
 
 	if changed:
+		_persist_base_data(base_data)
 		refresh_item_lists()
 
 func remove_button_pressed() -> void:
@@ -525,6 +533,7 @@ func remove_button_pressed() -> void:
 
 	if changed:
 		refresh_item_lists()
+		_persist_base_data(base_data)
 
 
 func sell_craft_button_pressed() -> void:
@@ -552,6 +561,7 @@ func sell_craft_button_pressed() -> void:
 
 		base_data.craft_hangers.pop_at(craft_index)
 
+	_persist_base_data(base_data)
 	refresh_item_lists()
 
 
@@ -568,6 +578,7 @@ func buy_craft_button_pressed() -> void:
 		)
 	)
 
+	_persist_base_data(base_data)
 	refresh_item_lists()
 
 func rename_craft_pressed():
@@ -581,5 +592,18 @@ func comfirm_rename_pressed():
 	var craft =  _get_single_selected_craft(_get_current_base())
 	
 	craft.craft_name = text_edit.text
+
+	var base_data := _get_current_base()
+	_persist_base_data(base_data)
+
 	rename_window.hide_call()
-	construct_craft_tree(_get_current_base().craft_hangers)
+	construct_craft_tree(base_data.craft_hangers)
+
+
+func _persist_base_data(base_data: TeamBaseDefinition) -> void:
+	if base_data == null:
+		return
+
+	SceneManager.set_session_value("current_base", base_data)
+	SceneManager.commit_definition_to_globe_state(base_data)
+	base_data_changed.emit()

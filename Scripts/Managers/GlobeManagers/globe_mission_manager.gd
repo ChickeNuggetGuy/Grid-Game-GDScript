@@ -2,8 +2,8 @@ extends Manager
 class_name GlobeMissionManager
 
 @export var mission_timer: float = 0.0
-@export var mission_timer_min: float = 30.0
-@export var mission_timer_max: float = 90.0
+@export var mission_timer_min: float = 120.0
+@export var mission_timer_max: float = 360.0
 
 @export var craft_visual_scene: PackedScene
 @export var travel_time_per_step: float = 0.5
@@ -15,6 +15,8 @@ var globe_manager: GlobeManager
 
 var selected_base_cell_index: int = -1
 var selected_craft_index: int = -1
+
+var craft_visuals: Dictionary[int, Node3D] = {}
 
 
 func _get_manager_name() -> String:
@@ -34,13 +36,15 @@ func _execute_conditions() -> bool:
 
 
 func _execute() -> void:
-	pass
+	rebuild_active_craft_visuals()
 
 
 func _process(delta: float) -> void:
 	if not execute_complete:
 		return
-
+	
+	var globe_time_manager : GlobeTimeManager = GameManager.get_manager("GlobeTimeManager")
+	
 	var mission_defs: Array = globe_manager.hex_grid_data.get_definitions_by_type(
 		Enums.HexCellDefinitionType.MISSION
 	)
@@ -49,7 +53,7 @@ func _process(delta: float) -> void:
 		return
 
 	if mission_timer > 0.0:
-		mission_timer -= delta
+		mission_timer -= delta * globe_time_manager.time_speed
 	else:
 		spawn_mission()
 		mission_timer = randf_range(mission_timer_min, mission_timer_max)
@@ -99,23 +103,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
 		return
 
-	var mission_cell_index : int = globe_manager.hex_globe_Decorator.hovered_cell
-	if mission_cell_index < 0:
+	var cell_index : int = globe_manager.hex_globe_Decorator.hovered_cell
+	if cell_index < 0:
 		return
 
-	var mission_def := _get_mission_definition(mission_cell_index)
-	if not mission_def:
-		return
 
 	send_mission_mode = false
 	mission_in_progress = true
 
-	await send_selected_craft_to_mission(mission_cell_index)
+	await send_selected_craft_to_cell(cell_index)
 
 	mission_in_progress = false
 
 
-func send_selected_craft_to_mission(mission_cell_index: int) -> void:
+func send_selected_craft_to_cell(mission_cell_index: int) -> void:
 	var base := _get_base_definition(selected_base_cell_index)
 	if not base:
 		clear_selected_craft()
@@ -130,47 +131,54 @@ func send_selected_craft_to_mission(mission_cell_index: int) -> void:
 		clear_selected_craft()
 		return
 
-	await send_ship_to_mission(craft.current_cell_index, mission_cell_index, craft)
+	await send_ship_to_cell(craft.current_cell_index, mission_cell_index, craft)
 	clear_selected_craft()
 
 
-func send_ship_to_mission(
+func send_ship_to_cell(
 	starting_cell_index: int,
-	mission_cell_index: int,
+	cell_index: int,
 	craft: Craft
 ) -> void:
-	var mission_def := _get_mission_definition(mission_cell_index)
-	if not mission_def:
-		print("Mission definition not found at cell: ", mission_cell_index)
-		return
+
+	var mission_def := _get_mission_definition(cell_index)
+	if mission_def:
+		mission_def.on_route_craft = craft
+
+		SavesManager.spawn_counts = Vector2i(
+			craft.units_on_board.size(),
+			mission_def.enemy_spawn
+		)
+		SavesManager.map_size = Vector2i(2, 2)
 
 	var pf := GlobePathfinder.new()
 	pf.set_grid_index(globe_manager.hex_globe_Decorator.grid_index)
 
-	var path := pf.find_path(starting_cell_index, mission_cell_index)
+	var path := pf.find_path(starting_cell_index, cell_index)
 	path = pf.smooth_path_adjacent(path)
 
 	if path.is_empty():
 		print("No path found for craft")
 		return
 
-	var ship_visual := _spawn_craft_visual(craft)
+	var ship_visual := _get_or_create_craft_visual(craft)
 	if not ship_visual:
 		print("Failed to create craft visual")
 		return
 
-	var current_scene := get_tree().current_scene
-	if not current_scene:
-		ship_visual.queue_free()
-		return
-
-	current_scene.add_child(ship_visual)
 	ship_visual.global_position = _get_travel_world_position(starting_cell_index)
-
+	craft.craft_state = Enums.CraftState.ON_ROUTE
 	for i in range(1, path.size()):
+		# 1. Double-check the node still exists before starting the next step
+		if not is_instance_valid(ship_visual) or ship_visual.is_queued_for_deletion():
+			print("Ship visual was freed mid-route. Aborting tween sequence.")
+			return
+
 		var next_position := _get_travel_world_position(path[i])
 
-		var tween := create_tween()
+
+		var tween := ship_visual.create_tween()
+		
 		tween.set_trans(Tween.TRANS_LINEAR)
 		tween.set_ease(Tween.EASE_IN_OUT)
 		tween.tween_property(
@@ -182,22 +190,30 @@ func send_ship_to_mission(
 
 		await tween.finished
 
-	craft.current_cell_index = mission_cell_index
+	# Ensure the craft data still exists before updating it
+	if not is_instance_valid(craft):
+		return
 
-	ship_visual.queue_free()
-	
-	SceneManager.set_session_value("current_craft", craft.serialize())
-	
-	SavesManager.spawn_counts = Vector2i(
-		craft.units_on_board.size(),
-		mission_def.enemy_spawn
-	)
-	SavesManager.map_size = Vector2i(2, 2)
+	craft.current_cell_index = cell_index
 
-	await SceneManager.change_scene(
-		Enums.SceneType.BATTLESCENE,
-		SavesManager.get_current_scene_data(Enums.SceneType.GLOBE)
-	)
+	if _is_craft_stored_at_cell(craft, cell_index):
+		craft.craft_state = Enums.CraftState.HOME
+		_remove_craft_visual(craft)
+	else:
+		craft.craft_state = Enums.CraftState.IDLE
+	
+	if mission_def:
+		var globe_transition_data := SavesManager.build_scene_transition_data(
+			Enums.SceneType.GLOBE,
+			{}
+		)
+		SceneManager.set_session_value("globe_state", globe_transition_data)
+		SceneManager.set_session_value("current_craft", craft.serialize())
+		SceneManager.set_session_value("current_mission", mission_def.serialize())
+		
+		await SceneManager.change_scene(
+			Enums.SceneType.BATTLESCENE,
+			globe_transition_data)
 
 
 func _spawn_craft_visual(craft: Craft) -> Node3D:
@@ -289,6 +305,107 @@ func _filter_cells_without_mission(cells: Array[int]) -> Array[int]:
 
 	return out
 
+
+func _get_craft_visual_key(craft: Craft) -> int:
+	return craft.get_instance_id()
+
+
+func _parent_craft_visual(visual: Node3D) -> bool:
+	if visual.is_inside_tree():
+		return true
+
+	var current_scene := get_tree().current_scene
+	if not current_scene:
+		return false
+
+	if visual.get_parent() != null:
+		visual.get_parent().remove_child(visual)
+
+	current_scene.add_child(visual)
+	return true
+
+
+func _get_or_create_craft_visual(craft: Craft) -> Node3D:
+	if not craft:
+		return null
+
+	var key := _get_craft_visual_key(craft)
+
+	if craft_visuals.has(key):
+		var existing: Node3D = craft_visuals[key]
+
+		if is_instance_valid(existing) and existing != null:
+			if _parent_craft_visual(existing):
+				return existing
+
+		craft_visuals.erase(key)
+
+	var visual := _spawn_craft_visual(craft)
+	if not visual:
+		return null
+
+	if not _parent_craft_visual(visual):
+		visual.queue_free()
+		return null
+
+	craft_visuals[key] = visual
+	return visual
+
+
+func _remove_craft_visual(craft: Craft) -> void:
+	if not craft:
+		return
+
+	var key := _get_craft_visual_key(craft)
+
+	if not craft_visuals.has(key):
+		return
+
+	var visual: Node3D = craft_visuals[key]
+
+	if is_instance_valid(visual):
+		visual.queue_free()
+
+	craft_visuals.erase(key)
+
+
+func _is_craft_stored_at_cell(craft: Craft, cell_index: int) -> bool:
+	if not craft:
+		return false
+
+	return cell_index == craft.home_cell_index
+
+
+func rebuild_active_craft_visuals() -> void:
+	for key in craft_visuals.keys():
+		var visual: Node3D = craft_visuals[key]
+		if is_instance_valid(visual):
+			visual.queue_free()
+
+	craft_visuals.clear()
+
+	var bases: Array = globe_manager.hex_grid_data.get_definitions_by_type(
+		Enums.HexCellDefinitionType.BASE
+	)
+
+	for base_def in bases:
+		if not base_def is TeamBaseDefinition:
+			continue
+
+		var base := base_def as TeamBaseDefinition
+
+		for craft in base.craft_hangers:
+			if not craft:
+				continue
+
+			if craft.craft_state == Enums.CraftState.HOME:
+				continue
+
+			var visual := _get_or_create_craft_visual(craft)
+			if visual:
+				visual.global_position = _get_travel_world_position(
+					craft.current_cell_index
+				)
 
 #region Save/Load Data
 func save_data() -> Dictionary:

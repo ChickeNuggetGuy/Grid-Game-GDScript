@@ -121,21 +121,12 @@ func set_cell_state_exclusive(state: Enums.cellState) -> void:
 
 func _handle_state_change() -> void:
 	var grid_system: GridSystem = GameManager.managers["GridSystem"]
-	var cs = GameManager.managers["MeshTerrainManager"].cell_size
 	
-	# Handle connections based on new state
-	if bool(grid_cell_state & Enums.cellState.AIR):
-		# Only clear connections for AIR cells
-		clear_connections()
-	elif bool(grid_cell_state & Enums.cellState.WALKABLE):
-		# Generate connections for walkable cells
-		grid_system.generate_connections_for_cell(
-			self,
-			grid_system.get_tree().root.world_3d.direct_space_state
-		)
-	# DON'T clear connections for OBSTRUCTED cells - units need to move out of them
+	# Pass the coordinate to the system so the cell AND its neighbors update their pathing arrays
+	grid_system.rebuild_connections_for_cells([self.grid_coordinates])
 
-# Update the existing set_grid_cell_state method:
+
+
 func set_grid_cell_state(state: Enums.cellState) -> void:
 	set_cell_state_exclusive(state)
 #endregion

@@ -1,6 +1,14 @@
 extends UIWindow
 class_name BuySellWindow
 
+
+const UNIT_PURCHASE_ID: int = -999
+const UNIT_BUY_PRICE: int = 500
+
+const CRAFT_PURCHASE_ID: int = -998
+const CRAFT_BUY_PRICE: int = 100000
+
+
 @export var item_tree: Tree
 @export var cancel_button: Button
 @export var confirm_button: Button
@@ -11,6 +19,8 @@ class_name BuySellWindow
 var created_items: Array[ItemData] = []
 var current_item_change: Dictionary[int, int] = {}
 var item_lookup: Dictionary[int, ItemData] = {}
+
+signal base_data_changed #
 
 
 func _setup() -> void:
@@ -43,10 +53,7 @@ func construct_buy_sell_tree():
 		push_error("Inventory Manager is null!")
 		return
 
-	var all_items: Array[ItemData] = (
-		inventory_manager.database.get_all_items()
-	)
-
+	var all_items: Array[ItemData] = inventory_manager.database.get_all_items()
 	for item in all_items:
 		item_lookup[item.item_id] = item
 
@@ -56,12 +63,45 @@ func construct_buy_sell_tree():
 
 	item_tree.clear()
 	var root := item_tree.create_item()
+	
+	# Fetch base data early so we can check stationed units
+	var base_data: TeamBaseDefinition = SceneManager.get_session_value("current_base", null)
 
 	for item in all_items:
 		create_item_display(item, root)
+		
+	if base_data:
+		var unit_tree_item := item_tree.create_item(root)
+		unit_tree_item.set_text(0, "Hire Unit")
+		unit_tree_item.set_metadata(0, UNIT_PURCHASE_ID)
+		
+		var current_units: int = base_data.stationed_units.size()
+		unit_tree_item.set_text(1, str(current_units))
+		
+		var unit_change_amount: int = current_item_change.get(UNIT_PURCHASE_ID, 0)
+		unit_tree_item.set_text(2, str(unit_change_amount))
+		
+		# Only add the buy button (column index 3)
+		unit_tree_item.add_button(3, buy_button_texture, 0)
+# Only add the buy button (column index 3)
+		unit_tree_item.add_button(3, buy_button_texture, 0)
+		
+		var current_crafts: int = base_data.craft_hangers.size()
+		var max_crafts: int = base_data.max_craft
+		
+		var craft_tree_item := item_tree.create_item(root)
+		craft_tree_item.set_text(0, "Buy Craft")
+		craft_tree_item.set_metadata(0, CRAFT_PURCHASE_ID)
+		
+		# Show current / max capacity
+		craft_tree_item.set_text(1, str(current_crafts) + "/" + str(max_crafts))
+		
+		var craft_change_amount: int = current_item_change.get(CRAFT_PURCHASE_ID, 0)
+		craft_tree_item.set_text(2, str(craft_change_amount))
+		
+		craft_tree_item.add_button(3, buy_button_texture, 0)
 
 	_update_transaction_total()
-
 
 func create_item_display(
 	item: ItemData, parent: TreeItem
@@ -120,14 +160,29 @@ func tree_button_clicked(
 	if not current_item_change.has(item_id):
 		current_item_change[item_id] = 0
 
-	if id == 0:
-		current_item_change[item_id] += 1
-	elif id == 1:
-		current_item_change[item_id] -= 1
+	if id == 0: # Buy Button
+		if item_id == CRAFT_PURCHASE_ID:
+			var base_data: TeamBaseDefinition = SceneManager.get_session_value("current_base", null)
+			if base_data:
+				var current_crafts: int = base_data.craft_hangers.size()
+				var current_queued: int = current_item_change[item_id]
+				if current_crafts + current_queued < base_data.max_craft:
+					current_item_change[item_id] += 1
+				else:
+					print("No available hangar space!")
+		else:
+			current_item_change[item_id] += 1
+			
+	elif id == 1: # Sell Button
+		# Prevent "selling" units and craft
+		if item_id == UNIT_PURCHASE_ID or item_id == CRAFT_PURCHASE_ID:
+			if current_item_change[item_id] > 0:
+				current_item_change[item_id] -= 1
+		else:
+			current_item_change[item_id] -= 1
 
 	item.set_text(2, str(current_item_change[item_id]))
 	_update_transaction_total()
-
 
 func _calculate_transaction_total() -> int:
 	var total: int = 0
@@ -135,6 +190,15 @@ func _calculate_transaction_total() -> int:
 		var change: int = current_item_change[item_id]
 		if change == 0:
 			continue
+			
+		if item_id == UNIT_PURCHASE_ID:
+			total -= UNIT_BUY_PRICE * change
+			continue
+			
+		if item_id == CRAFT_PURCHASE_ID:
+			total -= CRAFT_BUY_PRICE * change
+			continue
+			
 		var item_data: ItemData = item_lookup.get(item_id, null)
 		if not item_data:
 			continue
@@ -206,6 +270,25 @@ func _on_confirm() -> void:
 		var change: int = current_item_change[item_id]
 		if change == 0:
 			continue
+			
+		if item_id == UNIT_PURCHASE_ID:
+			if change > 0:
+				for i in range(change):
+					base_data.stationed_units.append(
+						UnitData.generate_random_unit("New Recruit", base_data.cell_index)
+					)
+			continue
+			
+		if item_id == CRAFT_PURCHASE_ID:
+			if change > 0:
+				for i in range(change):
+					var new_craft_name = "New Craft %d" % (base_data.craft_hangers.size() + 1)
+					base_data.craft_hangers.append(
+						Craft.new(new_craft_name, base_data.cell_index, [])
+					)
+			continue
+			
+		# Handle standard items
 		var item_data: ItemData = item_lookup.get(item_id, null)
 		if not item_data:
 			push_error("Unknown item id: " + str(item_id))
@@ -216,9 +299,11 @@ func _on_confirm() -> void:
 			base_data.remove_item(item_data, abs(change))
 	
 	SceneManager.set_session_value("current_base", base_data)
+	SceneManager.commit_definition_to_globe_state(base_data)
 	
 	# Apply funds change
 	_set_current_funds(current_funds + total)
 
 	current_item_change.clear()
+	base_data_changed.emit()
 	toggle()

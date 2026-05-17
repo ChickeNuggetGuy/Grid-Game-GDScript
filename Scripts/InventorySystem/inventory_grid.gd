@@ -141,6 +141,7 @@ func initialize(data: Dictionary = {}) -> void:
 				if not item_data is Dictionary:
 					continue
 
+				var item_id: int = item_data.get("item_id", -1)
 				var item_name: String = item_data.get("name", "")
 				var coords_dict: Dictionary = item_data.get("coords", {})
 				var coordinates := Vector2i(
@@ -148,9 +149,7 @@ func initialize(data: Dictionary = {}) -> void:
 					int(coords_dict.get("y", 0))
 				)
 
-				var result = GameManager.managers[
-					"InventoryManager"
-				].try_get_inventory_item(item_name)
+				var result = InventoryManager.try_get_inventory_item(item_id)
 
 				if result.get("success", false):
 					try_place_item_at(
@@ -162,9 +161,7 @@ func initialize(data: Dictionary = {}) -> void:
 
 		elif items_value is Dictionary:
 			for item_name in items_value:
-				var result = GameManager.managers[
-					"InventoryManager"
-				].try_get_inventory_item(item_name)
+				var result = InventoryManager.try_get_inventory_item(item_name)
 
 				if not result.get("success", false):
 					continue
@@ -221,10 +218,10 @@ func can_place_item_at(item: ItemData, position: Vector2i) -> bool:
 		or position.x < 0
 		or position.x >= _items[position.y].size()
 	):
-		printerr(
+		push_error(
 			"InventoryGrid: _items array not properly initialized or out "
-			+ "of bounds for position %s in can_place_item_at. "
-			+ "Reinitializing." % str(position)
+			+ "of bounds for position" + str(position) + " in can_place_item_at. "
+			+ "Reinitializing."
 		)
 		initialize()
 		return false
@@ -487,3 +484,18 @@ func save_data() -> Dictionary:
 	}
 
 	return ret_dict
+
+
+func clear_items() -> void:
+	for item in try_get_item_array():
+		if item != null:
+			item.current_inventory_grid = null
+
+	for y in range(_items.size()):
+		if not _items[y] is Array:
+			continue
+
+		for x in range(_items[y].size()):
+			_items[y][x] = null
+
+	emit_signal("inventory_changed")

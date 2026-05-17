@@ -7,7 +7,7 @@
 resource_local_to_scene = true
 script = ExtResource("1_xqnne")
 grid_width = 1
-grid_height = 1
+grid_depth = 1
 shape_grid = Array[int]([1])
 
 [resource]

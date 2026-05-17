@@ -25,6 +25,22 @@ func _setup():
 	
 	unitScene = load("Scenes/GridObjects/Unit.tscn")
 
+	var children = get_children()
+	var is_loading = load_data and load_data.size() > 0
+
+	for child in children:
+		if child is UnitTeamHolder:
+			var team_holder: UnitTeamHolder = child
+			var team_data = {}
+			if is_loading and load_data.has("unit_teams"):
+				var team_id_str = str(team_holder.team)
+				if load_data["unit_teams"].has(team_id_str):
+					team_data = load_data["unit_teams"][team_id_str]
+
+			if not unit_teams.has(team_holder.team):
+				unit_teams[team_holder.team] = team_holder
+			await team_holder.setup(self, team_data)
+
 
 func save_data() -> Dictionary:
 	var save_dict = {
@@ -44,44 +60,71 @@ func _execute_conditions() -> bool: return true
 
 
 func _execute():
-	var children = get_children()
+	#var children = get_children()
 	var is_loading = load_data and load_data.size() > 0
-
-	for child in children:
-		if child is UnitTeamHolder:
-			var team_holder: UnitTeamHolder = child
-			var team_data = {}
-			if is_loading and load_data.has("unit_teams"):
-				var team_id_str = str(team_holder.team)
-				if load_data["unit_teams"].has(team_id_str):
-					team_data = load_data["unit_teams"][team_id_str]
-
-			if not unit_teams.has(team_holder.team):
-				unit_teams[team_holder.team] = team_holder
-			await team_holder.setup(self, team_data)
+#
+	#for child in children:
+		#if child is UnitTeamHolder:
+			#var team_holder: UnitTeamHolder = child
+			#var team_data = {}
+			#if is_loading and load_data.has("unit_teams"):
+				#var team_id_str = str(team_holder.team)
+				#if load_data["unit_teams"].has(team_id_str):
+					#team_data = load_data["unit_teams"][team_id_str]
+#
+			#if not unit_teams.has(team_holder.team):
+				#unit_teams[team_holder.team] = team_holder
+			#await team_holder.setup(self, team_data)
 
 	if not is_loading:
-		
-		var craft_data : Dictionary = SceneManager.get_session_value("current_craft")
-		var units_on_board = craft_data.get("units_on_board")
-		if units_on_board:
-			for data in units_on_board:
-				var unit_data : UnitData = UnitData.deserialize(data)
-				if not unit_data:
-					push_error("deserializing unit data failed")
-					continue
-				
-				await spawn_unit(Enums.unitTeam.PLAYER, unit_data)
+		var craft_data: Dictionary = SceneManager.get_session_value("current_craft")
+
+		# ── Wait for the player to finish assigning equipment ──
+		var finalized_units: Array[UnitData] = await _await_equipment_window(craft_data)
+
+		for unit_data in finalized_units:
+			if unit_data == null:
+				push_error("Null UnitData from equipment window")
+				continue
+			await spawn_unit(Enums.unitTeam.PLAYER, unit_data)
 
 		for y in range(spawn_counts.y):
-			await spawn_unit(Enums.unitTeam.ENEMY, null) 
+			await spawn_unit(Enums.unitTeam.ENEMY, null)
 
-
-	if unit_teams.has(Enums.unitTeam.PLAYER) and unit_teams[Enums.unitTeam.PLAYER].grid_objects["active"].size() > 0:
+	if unit_teams.has(Enums.unitTeam.PLAYER) \
+		and unit_teams[Enums.unitTeam.PLAYER].grid_objects["active"].size() > 0:
 		set_selected_unit(unit_teams[Enums.unitTeam.PLAYER].grid_objects["active"][0])
 
 	execute_complete = true
 
+
+func _await_equipment_window(craft_data: Dictionary) -> Array[UnitData]:
+	var ui_manager: UIManager  = GameManager.get_manager("UIManager")
+	var equip_win: StartingEquipmentWindow = null
+	
+	# However your UIManager exposes windows — adjust this lookup as needed.
+	# Example using the UIWindow group:
+	for w in get_tree().get_nodes_in_group("UIWindow"):
+		if w is StartingEquipmentWindow:
+			equip_win = w
+			break
+
+	if equip_win == null:
+		push_error("StartingEquipmentWindow not found in scene. Skipping equipment phase.")
+		# Fallback: just deserialize straight from craft_data.
+		var fallback: Array[UnitData] = []
+		for data in craft_data.get("units_on_board", []):
+			var ud := UnitData.deserialize(data)
+			if ud: fallback.append(ud)
+		return fallback
+
+	equip_win.open_for_craft(craft_data)
+	var result = await equip_win.mission_equipment_confirmed
+	# signal emits (units: Array, ground: InventoryGrid)
+	var finalized: Array[UnitData] = []
+	for u in result[0]:
+		finalized.append(u)
+	return finalized
 
 func grid_system_grid_updated():
 	for team_holder in unit_teams.values():
@@ -111,9 +154,11 @@ func spawn_unit(team : Enums.unitTeam, unit_data : UnitData, grid_cell : GridCel
 	if unit_data == null:
 		unit_data = UnitData.generate_random_unit()
 	
+
 	var spawneUnit : Unit = unitScene.instantiate()
 	spawneUnit.position = grid_cell.world_position
 	spawneUnit.data = unit_data
+	
 	
 	
 	var team_holder : UnitTeamHolder = unit_teams[team]
@@ -121,8 +166,36 @@ func spawn_unit(team : Enums.unitTeam, unit_data : UnitData, grid_cell : GridCel
 	var data = {"grid_cell" : grid_cell,"direction" : direction,"team": team}
 	await team_holder.add_grid_object(spawneUnit, data, true, false)
 	
+	if unit_data and team == Enums.unitTeam.PLAYER:
+		await _apply_equipped_items_to_unit(spawneUnit, unit_data)
+
 	Unit_spawned.emit(spawneUnit)
 
+
+func _apply_equipped_items_to_unit(unit: Unit, unit_data: UnitData) -> void:
+	var inv_mgr: InventoryManager = InventoryManager
+
+	# Wait for inventories_ready if grids haven't been built yet.
+	if unit.inventory_grids.is_empty():
+		await unit.inventories_ready
+
+	for inv_type in unit_data.equipped_items.keys():
+		if not unit.inventory_grids.has(inv_type):
+			# Unit doesn't have that slot — either skip or push_warning.
+			push_warning("Unit has no inventory slot for type " + Enums.inventoryType.find_key(inv_type))
+			continue
+
+		var grid: InventoryGrid = unit.inventory_grids[inv_type]
+		for entry in unit_data.equipped_items[inv_type]:
+			if not (entry is Vector2i):
+				continue
+			var res = inv_mgr.try_get_inventory_item(entry.x)
+			if not res["success"]:
+				continue
+			for i in entry.y:
+				var item_copy: ItemData = res["inventory_item"].duplicate(true)
+				if not grid.try_add_item(item_copy):
+					push_warning("Could not fit item %d into slot %s" % [entry.x, str(inv_type)])
 
 func set_selected_unit(gridObject: Unit):
 	if selected_unit == gridObject:
@@ -136,8 +209,8 @@ func set_selected_unit(gridObject: Unit):
 	
 	var unit_action_manager :  UnitActionManager  = GameManager.get_manager("UnitActionManager")
 	
-	if unit_action_manager and selected_unit.default_action:
-		unit_action_manager._set_selected_action(selected_unit.default_action)
+	if unit_action_manager and selected_unit.default_main_action:
+		unit_action_manager._set_selected_action(selected_unit.default_main_action)
 
 
 func set_selected_unit_next():

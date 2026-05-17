@@ -9,7 +9,17 @@ var data : UnitData
 @export var unit_movement_stance : Enums.UnitMovementStance = Enums.UnitMovementStance.STATIONARY
 
 @export var _action_library: Array[BaseActionDefinition] = []
-@export var default_action: BaseActionDefinition
+@export var _default_main_action_index : int
+@export var _default_second_action_index : int
+
+var default_main_action : BaseActionDefinition:
+	get:
+		return _action_library.get(_default_main_action_index)
+
+var default_second_action : BaseActionDefinition:
+	get:
+		return _action_library.get(_default_second_action_index)
+
 var action_queue : Array[Action]
 
 
@@ -48,8 +58,6 @@ func is_moving() -> bool:
 	return unit_movement_stance == Enums.UnitMovementStance.MOVING
 #endregion
 
-func get_default_action() -> BaseActionDefinition:
-	return default_action
 	
 func get_action_node_by_index(i: int) -> BaseActionDefinition:
 	var a = _action_library[i]

@@ -115,15 +115,13 @@ func _setup(loading_data : bool, data: Dictionary = {}, ):
 func setup_inventory_grids(data : Dictionary = {}):
 	
 	for inventory_type in inventory_grid_types:
-		var result = GameManager.managers["InventoryManager"].try_get_inventory_grid(inventory_type)
+		var result = InventoryManager.try_get_inventory_grid(inventory_type)
 		if result["success"]:
 			inventory_grids[inventory_type] =  result["inventory_grid"]
 			
 			var key = str(inventory_type)
 			if not data.is_empty() and data.has(key):
 				inventory_grids[inventory_type].initialize(data[key])
-			elif inventory_type == Enums.inventoryType.RIGHTHAND:
-				inventory_grids[inventory_type].try_add_item(GameManager.managers["InventoryManager"].get_random_item())
 	emit_signal("inventories_ready")
 
 
@@ -219,13 +217,6 @@ func try_get_grid_object_component_by_type(type_to_find : String) -> Dictionary:
 	print("Component not found: " + type_to_find)
 	return retval
 
-
-func _unhandled_input(event):
-	if event is InputEventKey:
-		if event.pressed and event.keycode == KEY_B:
-			if GameManager.managers["UnitManager"].Instance.selectedUnit == self:
-				print(grid_position_data.grid_cell.inventory_grid.try_add_item(
-					GameManager.manager["InventoryManager"].Instance.get_random_item()))
 
 
 func save_data() -> Dictionary:

@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://b4p7n8olbfh0f"]
+
+[ext_resource type="Script" uid="uid://c6nuakjynh4o6" path="res://Scripts/GridObject/Actions/base_action_definition.gd" id="1_pfsk6"]
+[ext_resource type="Script" uid="uid://bf1isr1wcokqf" path="res://Scripts/InventorySystem/ItemActions/MeleeAttack/melee_attack_action_definition.gd" id="2_pbds5"]
+[ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="3_5r5i3"]
+[ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="4_1c76b"]
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="5_13f4h"]
+[ext_resource type="Texture2D" uid="uid://bqjfd3o63yup0" path="res://Third-Party Assests/Import/Polygon_Meadow/Textures/Plants/Branches_02.tga" id="6_e240d"]
+[ext_resource type="Script" uid="uid://c5pmnd42jig4o" path="res://Scripts/InventorySystem/ItemComponents/item_component.gd" id="7_hseu6"]
+
+[sub_resource type="Resource" id="Resource_dskw7"]
+script = ExtResource("2_pbds5")
+attack_count = 3
+action_name = "Stab"
+cost = 15
+metadata/_custom_type_script = "uid://bf1isr1wcokqf"
+
+[sub_resource type="Resource" id="Resource_n7fkn"]
+script = ExtResource("3_5r5i3")
+action_name = "Throw"
+cost = 25
+metadata/_custom_type_script = "uid://bj86rurumq14y"
+
+[sub_resource type="Resource" id="Resource_pi0no"]
+resource_local_to_scene = true
+script = ExtResource("5_13f4h")
+grid_width = 1
+grid_depth = 2
+shape_grid = Array[int]([1, 1])
+metadata/_custom_type_script = "uid://d3ivt40b3t3vb"
+
+[resource]
+resource_local_to_scene = true
+resource_name = "Knife_Item"
+script = ExtResource("4_1c76b")
+item_id = 3
+item_name = "Knife"
+description = "Simple Knife"
+icon = ExtResource("6_e240d")
+buy_price = 125
+sell_price = 100
+grid_shape = SubResource("Resource_pi0no")
+action_blueprints = Array[ExtResource("1_pfsk6")]([SubResource("Resource_dskw7"), SubResource("Resource_n7fkn")])
+item_costs = Dictionary[int, int]({
+1: 10,
+3: 8
+})

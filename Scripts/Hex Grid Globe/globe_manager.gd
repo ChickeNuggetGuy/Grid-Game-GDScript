@@ -4,6 +4,7 @@ class_name GlobeManager
 
 @export var hex_globe_Decorator : HexGridDecorator
 @export var hex_grid_data : HexGridData
+@export var camera_controller : GlobeCameraController
 
 
 var build_base_mode : bool  = false
@@ -22,14 +23,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if build_base_mode:
 			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
 				try_place_base(Enums.unitTeam.PLAYER)
-		else:
-			
-			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-				var definitions = hex_grid_data.get_cell_definitions(hex_globe_Decorator.hovered_cell)
-				for def in definitions:
-					if def is TeamBaseDefinition:
-						open_base_scene(def)
-						break
 #endregion
 
 
@@ -38,7 +31,6 @@ func open_base_scene(base: TeamBaseDefinition) -> void:
 		Enums.SceneType.GLOBE,
 		{}
 	)
-	print(globe_transition_data)
 	SceneManager.set_session_value("globe_state", globe_transition_data)
 	SceneManager.set_session_value("current_base", base)
 
@@ -139,7 +131,7 @@ func _execute():
 				).size()
 			)
 
-	return
+	resolve_completed_missions()
 
 func save_data() -> Dictionary:
 	var save_cell_definitions = {}
@@ -163,6 +155,51 @@ func save_data() -> Dictionary:
 	return save_dict
 
 
+func resolve_completed_missions() -> void:
+	var missions: Array = hex_grid_data.get_definitions_by_type(Enums.HexCellDefinitionType.MISSION)
+	var to_remove: Array = []
+	var mision_manager : GlobeMissionManager = GameManager.get_manager("GlobeMissionManager")
+	var team_manager : GlobeTeamManager = GameManager.get_manager("GlobeTeamManager")
+	var player_team : GlobeTeamHolder = team_manager.get_team_holder(Enums.unitTeam.PLAYER)
+	
+	for mission in missions:
+		var mdef : MissionDefinition = mission as MissionDefinition
+		if mdef.mission_status == Enums.MissionStatus.UNVISITED:
+			continue
+		
+		
+		if mdef.mission_status == Enums.MissionStatus.SUCCESFUL:
+			player_team.add_monthly_score(mdef.completed_point_gain)
+		elif mdef.mission_status == Enums.MissionStatus.FAIlED:
+			player_team.remove_monthly_score(mdef.failed_point_loss)
+		to_remove.append(mdef)
 
+		var craft := mdef.on_route_craft
+		
+		if craft:
+			call_deferred("_trigger_return_flight", craft, mision_manager)
+		else:
+			print("Warning: Could not find an IDLE craft parked at mission cell: ", mdef.cell_index)
+
+	# Erase missions from the grid
+	for mdef in to_remove:
+		hex_grid_data.remove_cell_definition(mdef.cell_index, Enums.HexCellDefinitionType.MISSION, mdef)
+	
+	hex_grid_data.hex_decorator.request_definitions_rebuild()
+
+func _trigger_return_flight(craft: Craft, mision_manager: GlobeMissionManager) -> void:
+	mision_manager.send_ship_to_cell(craft.current_cell_index, craft.home_cell_index, craft)
+
+
+func _find_craft_at_cell_and_state(cell_index: int, state: Enums.CraftState) -> Craft:
+	var bases := hex_grid_data.get_definitions_by_type(Enums.HexCellDefinitionType.BASE)
+	for base in bases:
+		if not base is TeamBaseDefinition:
+			continue
+		var b := base as TeamBaseDefinition
+		for craft in b.craft_hangers:
+			if craft.current_cell_index == cell_index and craft.craft_state == state:
+				return craft
+	return null
 #endregion
 #endregion

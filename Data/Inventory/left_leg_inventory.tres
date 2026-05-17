@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="InventoryGrid" format=3 uid="uid://b5w8trgmt8608"]
+
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="1_6x8a0"]
+[ext_resource type="Script" uid="uid://bvaar7mvf43va" path="res://Scripts/InventorySystem/inventory_grid.gd" id="2_epeom"]
+
+[sub_resource type="Resource" id="Resource_6x8a0"]
+resource_local_to_scene = true
+script = ExtResource("1_6x8a0")
+grid_width = 1
+grid_depth = 2
+shape_grid = Array[int]([1, 1])
+
+[resource]
+script = ExtResource("2_epeom")
+inventory_name = "leftLeg"
+inventory_type = 7
+grid_shape = SubResource("Resource_6x8a0")
+metadata/_custom_type_script = "uid://bvaar7mvf43va"

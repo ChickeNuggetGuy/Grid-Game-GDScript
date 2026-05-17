@@ -6,6 +6,9 @@ class_name UnitsPanelUI
 @export var hire_new_unit_button: Button
 @export var fire_unit_button: Button
 
+signal base_data_changed
+
+
 func _setup() -> void:
 	super._setup()
 
@@ -52,7 +55,7 @@ func hire_new_unit() -> void:
 		return
 
 	base_data.stationed_units.append(
-		UnitData.new("New Unit", base_data.cell_index)
+		UnitData.generate_random_unit("John Smith",  base_data.cell_index)
 	)
 
 	refresh_unit_list(base_data.stationed_units)
@@ -81,5 +84,9 @@ func fire_unit() -> void:
 	for index in selected_items:
 		if index >= 0 and index < unit_data.size():
 			unit_data.remove_at(index)
+	
+	SceneManager.set_session_value("current_base", base_data)
+	SceneManager.commit_definition_to_globe_state(base_data)
 
 	refresh_unit_list(unit_data)
+	base_data_changed.emit()

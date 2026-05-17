@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://bj86rurumq14y" path="res://Scripts/InventorySystem/ItemActions/Throw/throw_action_defintion.gd" id="2_ekde7"]
 [ext_resource type="Script" uid="uid://jkvvnktv2oyh" path="res://Scripts/InventorySystem/ItemActions/PrimeAction/prime_action_definition.gd" id="3_yvpcb"]
 [ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="4_ppmjx"]
-[ext_resource type="Texture2D" uid="uid://bqjfd3o63yup0" path="res://Third-Party Assests/Import/Polygon_Meadow/Textures/Plants/Branches_02.tga" id="5_bfhta"]
+[ext_resource type="Texture2D" uid="uid://di7uxdbvt4b7y" path="res://icon.png" id="6_5dvm3"]
 [ext_resource type="Script" uid="uid://c5pmnd42jig4o" path="res://Scripts/InventorySystem/ItemComponents/item_component.gd" id="6_w17nk"]
 [ext_resource type="Script" uid="uid://du6myjy8emtyk" path="res://Scripts/InventorySystem/ItemComponents/explosive_item.gd" id="7_50vnl"]
 [ext_resource type="Script" uid="uid://8if3mtpocl51" path="res://Scripts/InventorySystem/item_data.gd" id="8_dxops"]
@@ -39,11 +39,10 @@ resource_name = "Grenade_Item"
 script = ExtResource("8_dxops")
 item_id = 0
 item_name = "Grenade"
-icon = ExtResource("5_bfhta")
+icon = ExtResource("6_5dvm3")
 buy_price = 250
 sell_price = 250
 grid_shape = SubResource("Resource_phox0")
 item_components = Array[ExtResource("6_w17nk")]([SubResource("Resource_eeut8")])
 action_blueprints = Array[ExtResource("1_5dvm3")]([SubResource("Resource_56gy7"), SubResource("Resource_ugd1d")])
-associated_items = null
 metadata/_custom_type_script = "uid://8if3mtpocl51"

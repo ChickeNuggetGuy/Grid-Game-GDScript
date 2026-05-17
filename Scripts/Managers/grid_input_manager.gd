@@ -97,7 +97,10 @@ func _process(_delta: float) -> void:
 	var selected_unit : Unit = unit_manager.selected_unit
 	if not selected_unit:
 		return
-
+	
+	if selected_unit.grid_position_data.grid_cell.grid_cell_connections.is_empty():
+		return
+	
 	var path : Array[GridCell] = Pathfinder.find_path(selected_unit.grid_position_data.grid_cell, current_grid_cell)
 	if path.is_empty():
 		return

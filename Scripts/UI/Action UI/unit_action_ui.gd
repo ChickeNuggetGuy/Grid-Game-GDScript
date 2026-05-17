@@ -39,7 +39,7 @@ func update_stat_bars(unit : Unit):
 		
 		var stat : GridObjectStat = unit.get_stat_by_type(progress_bar.stat_type)
 		if stat != null:
-			progress_bar.setup(unit, stat)
+			progress_bar.setup(unit)
 			progress_bar.value = stat.current_value
 
 

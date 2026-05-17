@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="InventoryGrid" format=3 uid="uid://dc1pkfwuypju8"]
+
+[ext_resource type="Script" uid="uid://d3ivt40b3t3vb" path="res://Scripts/InventorySystem/grid_shape.gd" id="1_ds8uy"]
+[ext_resource type="Script" uid="uid://bvaar7mvf43va" path="res://Scripts/InventorySystem/inventory_grid.gd" id="2_hnoj1"]
+
+[sub_resource type="Resource" id="Resource_ds8uy"]
+resource_local_to_scene = true
+script = ExtResource("1_ds8uy")
+grid_width = 1
+grid_depth = 2
+shape_grid = Array[int]([1, 1])
+
+[resource]
+script = ExtResource("2_hnoj1")
+inventory_name = "QuickDraw"
+inventory_type = 3
+grid_shape = SubResource("Resource_ds8uy")
+metadata/_custom_type_script = "uid://bvaar7mvf43va"

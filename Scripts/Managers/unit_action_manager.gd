@@ -18,8 +18,8 @@ signal action_execution_finished(current_action_definition: BaseActionDefinition
 signal any_action_execution_finished(current_action_definition: BaseActionDefinition, grid_object : GridObject)
 
 
-signal action_execution_canceled(current_action_: Action )
-signal any_action_execution_canceled(current_action_: Action)
+signal action_execution_canceled(current_action : Action )
+signal any_action_execution_canceled(current_action : Action)
 
 #endregion
 
@@ -239,7 +239,7 @@ func _execute_action_internal(action_def: BaseActionDefinition, params: Dictiona
 	if action_def.multiple_exectutions:
 		_set_selected_action(action_def)
 	else:
-		_set_selected_action(params["unit"].get_default_action())
+		_set_selected_action(params["unit"].default_main_action)
 
 
 func cancel_current_action():
@@ -261,4 +261,4 @@ func turn_manager_turn_changed(_current_turn : TurnData) -> void:
 	
 	var selected_unit = unit_manager.selected_unit
 	
-	_set_selected_action(selected_unit.get_default_action())
+	_set_selected_action(selected_unit.default_main_action)

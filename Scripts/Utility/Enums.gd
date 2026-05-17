@@ -56,3 +56,8 @@ enum SceneType {
 	LOADING,
 	BASE
 }
+
+
+enum CraftState {HOME, ON_ROUTE, IDLE}
+
+enum MissionStatus { UNVISITED, SUCCESFUL, FAIlED}

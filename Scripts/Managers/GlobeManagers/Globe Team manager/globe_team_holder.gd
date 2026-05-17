@@ -4,15 +4,23 @@ class_name GlobeTeamHolder
 @export var team: Enums.unitTeam
 @export var _current_funds : int
 @export var base_indicies: Array[int ] = []
+var _monthly_score : int = 0
 
 
 signal on_current_funds_changed(current_funds : int)
+signal bases_changed(bases : Array[int], team_holder : GlobeTeamHolder)
+signal monthly_score_chnaged(score : int)
 
 func _init(t : Enums.unitTeam, funds : int, bases: Array[int]) -> void:
 	team = t
 	_current_funds = funds
 	base_indicies = bases
 
+
+func setup():
+	var time_manager : GlobeTimeManager = GameManager.get_manager("GlobeTimeManager")
+	
+	time_manager.month_changed.connect(time_manager_month_changed)
 
 func get_current_funds() -> int:
 	return _current_funds
@@ -36,7 +44,27 @@ func remove_funds(value : int):
 func add_base_index(index : int):
 	if not base_indicies.has(index):
 		base_indicies.append(index)
+		bases_changed.emit(base_indicies, self)
 
+
+func add_monthly_score(value : int ):
+	_monthly_score += value
+	monthly_score_chnaged.emit(_monthly_score)
+
+
+func remove_monthly_score(value : int ):
+	_monthly_score -= value
+	monthly_score_chnaged.emit(_monthly_score)
+
+func set_monthly_score(value : int ):
+	_monthly_score = value
+	monthly_score_chnaged.emit(_monthly_score)
+
+
+func time_manager_month_changed(month : int):
+	set_monthly_score(0)
+	print("month passed")
+	pass
 #region save/load functions
 
 func serialize() -> Dictionary[String, Variant]:

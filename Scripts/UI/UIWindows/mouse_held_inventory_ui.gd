@@ -3,7 +3,8 @@ class_name MouseHeldInventoryUI
 
 @export var inventory_holder : InventoryGridHolder
 
-func Setup() -> void:
+
+func _setup():
 	for child in UtilityMethods.get_all_children(self, true):
 		if child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_IGNORE

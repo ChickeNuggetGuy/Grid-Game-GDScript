@@ -39,7 +39,7 @@ func _show() -> void:
 	if visual != null:
 		visual.show()
 	else:
-		push_warning("Visual for UI Window is null!")
+		push_warning("Visual for UI Window: " + name +  " is null!")
 
 	if block_inputs:
 		var ui_manager := _get_ui_manager()
@@ -75,8 +75,8 @@ func toggle() -> void:
 		show_call()
 
 
-func _setup() -> void:
-	print("setup: " + name)
+func setup_call():
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var ui_manager := _get_ui_manager()
 	if ui_manager:
 		ui_manager.add_ui_window(self)
@@ -87,11 +87,24 @@ func _setup() -> void:
 	for element in ui_elements:
 		if element != null:
 			await element.setup_call()
+	
+	_setup()
 
 	if start_hidden:
 		hide_call()
 	else:
 		show_call()
+
+	_is_setup = true
+	_is_setting_up = false
+	setup_finished.emit()
+
+
+func _setup() -> void:
+	pass
+
+
+
 
 
 func _collect_owned_ui_elements(node: Node) -> void:

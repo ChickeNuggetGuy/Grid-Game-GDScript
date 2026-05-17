@@ -4,6 +4,7 @@ extends HexCellDefinition
 var base_name : String = "New Base"
 var team_affiliation: Enums.unitTeam
 var craft_hangers: Array[Craft]
+var max_craft : int = 3
 var stationed_units: Array[UnitData]
 var equipment : Dictionary[int, int ]
 
@@ -66,6 +67,8 @@ func serialize() -> Dictionary:
 	for craft in craft_hangers:
 		if craft != null:
 			craft_data.append(craft.serialize())
+			
+			
 
 	return {
 		"class_name": get_class_name(),

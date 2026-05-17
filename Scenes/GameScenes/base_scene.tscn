@@ -490,7 +490,6 @@ layout_mode = 2
 text = "Confirm"
 
 [node name="BuildListUI" type="Control" parent="Managers/UIManager/UIWindow" unique_id=197341496 node_paths=PackedStringArray("visual")]
-visible = false
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 1
 anchors_preset = 11

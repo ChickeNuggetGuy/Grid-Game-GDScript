@@ -58,6 +58,8 @@ func add_cell_definitions_from_data_bulk(items: Dictionary) -> void:
 					inst = TeamBaseDefinition.deserialize(definition_data)
 				Enums.HexCellDefinitionType.MISSION:
 					inst = MissionDefinition.deserialize(definition_data)
+					if inst and inst.mission_status != Enums.MissionStatus.UNVISITED:
+						inst.send_craft_home(true)
 				_:
 					inst = NodeUtils.create_instance_from_data(definition_data)
 
@@ -139,4 +141,75 @@ func clear_dirty() -> void:
 func clear() -> void:
 	cell_definitions.clear()
 	_dirty = true
+	emit_signal("definitions_changed")
+
+
+# Removes a specific definition instance from the given type list.
+# If `definition` is not provided, it will remove ALL definitions of
+# that type at the given cell index.
+func remove_cell_definition(
+	cell_index: int,
+	definition_type: Enums.HexCellDefinitionType,
+	definition: HexCellDefinition = null
+) -> bool:
+	if not cell_definitions.has(definition_type):
+		return false
+
+	var arr: Array = cell_definitions[definition_type]
+	var removed = false
+
+	# Iterate backward to safely remove while looping
+	for i in range(arr.size() - 1, -1, -1):
+		var def: HexCellDefinition = arr[i]
+		if def.cell_index != cell_index:
+			continue
+		if definition != null and def != definition:
+			continue
+		arr.remove_at(i)
+		removed = true
+
+	if removed:
+		_dirty = true
+		if hex_decorator and hex_decorator.is_inside_tree():
+			hex_decorator.request_definitions_rebuild()
+		emit_signal("definitions_changed")
+
+	return removed
+
+# Removes ALL definitions (of all types) at a given cell index.
+func remove_cell_definitions_by_cell(cell_index: int) -> void:
+	var changed := false
+	for def_type in cell_definitions.keys():
+		var arr: Array = cell_definitions[def_type]
+		var to_remove := []
+		for i in range(arr.size()):
+			if arr[i].cell_index == cell_index:
+				to_remove.append(i)
+
+		# Remove in reverse order to keep indices valid
+		if not to_remove.is_empty():
+			to_remove.reverse()
+			for idx in to_remove:
+				arr.remove_at(idx)
+			changed = true
+
+	if changed:
+		_dirty = true
+		if hex_decorator and hex_decorator.is_inside_tree():
+			hex_decorator.request_definitions_rebuild()
+		emit_signal("definitions_changed")
+
+
+
+# Removes all definitions of a single type.
+func remove_all_definitions_of_type(
+	definition_type: Enums.HexCellDefinitionType
+) -> void:
+	if not cell_definitions.has(definition_type):
+		return
+
+	cell_definitions.erase(definition_type)
+	_dirty = true
+	if hex_decorator and hex_decorator.is_inside_tree():
+		hex_decorator.request_definitions_rebuild()
 	emit_signal("definitions_changed")

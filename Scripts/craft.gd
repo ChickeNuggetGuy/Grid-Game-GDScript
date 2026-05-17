@@ -3,10 +3,12 @@ extends Node3D
 
 var craft_name: String = "New Craft"
 var units_on_board: Array[UnitData]
-var items: Dictionary[ItemData, int]
+var items: Dictionary[int, int] = {}
 
 var current_cell_index: int = -1
 var home_cell_index: int = -1
+
+var craft_state: Enums.CraftState = Enums.CraftState.HOME
 
 
 func _init(
@@ -71,16 +73,18 @@ func try_add_item_to_craft(
 	if not origin_base:
 		return false
 
+	var item_id := item_to_add.item_id
+
 	if not origin_base.has_item(item_to_add):
 		print("Item not at base of origin specified!")
 		return false
 
 	origin_base.remove_item(item_to_add, 1)
 
-	if items.has(item_to_add):
-		items[item_to_add] += 1
+	if items.has(item_id):
+		items[item_id] += 1
 	else:
-		items[item_to_add] = 1
+		items[item_id] = 1
 
 	return true
 
@@ -94,20 +98,52 @@ func try_remove_item_from_craft(
 	if not target_base:
 		return false
 
-	if not items.has(item_to_remove):
+	var item_id := item_to_remove.item_id
+
+	if not items.has(item_id):
 		print("Item not on craft specified!")
 		return false
 
-	var item_count: int = items[item_to_remove]
+	var item_count: int = items[item_id]
 
 	if item_count <= 1:
-		items.erase(item_to_remove)
+		items.erase(item_id)
 	else:
-		items[item_to_remove] = item_count - 1
+		items[item_id] = item_count - 1
 
 	target_base.add_item(item_to_remove)
 	return true
 
+
+func try_remove_item_id_from_craft(
+	item_id: int,
+	target_base: TeamBaseDefinition
+) -> bool:
+	if item_id < 0:
+		return false
+	if not target_base:
+		return false
+
+	if not items.has(item_id):
+		print("Item not on craft specified!")
+		return false
+
+	var result := InventoryManager.try_get_inventory_item(item_id)
+	if not result["success"]:
+		push_error("Could not resolve item id: " + str(item_id))
+		return false
+
+	var item_data: ItemData = result["inventory_item"]
+
+	var item_count: int = items[item_id]
+
+	if item_count <= 1:
+		items.erase(item_id)
+	else:
+		items[item_id] = item_count - 1
+
+	target_base.add_item(item_data)
+	return true
 
 func return_all_contents_to_base(target_base: TeamBaseDefinition) -> void:
 	if not target_base:
@@ -118,13 +154,18 @@ func return_all_contents_to_base(target_base: TeamBaseDefinition) -> void:
 			target_base.stationed_units.append(unit)
 	units_on_board.clear()
 
-	var item_keys := items.keys()
-	for item in item_keys:
-		var item_count: int = items[item]
+	for item_id in items.keys():
+		var item_count: int = items[item_id]
+
+		var result := InventoryManager.try_get_inventory_item(item_id)
+		if not result["success"]:
+			push_error("Could not resolve item id: " + str(item_id))
+			continue
+
+		var item_data: ItemData = result["inventory_item"]
 
 		for i in range(item_count):
-			if item:
-				target_base.add_item(item)
+			target_base.add_item(item_data)
 
 	items.clear()
 
@@ -133,6 +174,7 @@ func serialize() -> Dictionary:
 	var ret_data: Dictionary = {}
 
 	ret_data["craft_name"] = craft_name
+	ret_data["craft_state"] = int(craft_state)
 
 	var units_data: Array = []
 	for unit in units_on_board:
@@ -140,14 +182,13 @@ func serialize() -> Dictionary:
 			units_data.append(unit.serialize())
 
 	ret_data["units_on_board"] = units_data
-	
-	
-	var item_data: Dictionary = {}
-	for item in items:
-		if item != null:
-			item_data[item.item_id] = items[item]
 
-	# TODO: Serialize item data as well.
+	var item_data: Dictionary = {}
+	for item_id in items.keys():
+		var count: int = items[item_id]
+		if count > 0:
+			item_data[int(item_id)] = count
+
 	ret_data["current_cell_index"] = current_cell_index
 	ret_data["home_cell_index"] = home_cell_index
 	ret_data["position"] = position
@@ -164,6 +205,12 @@ static func deserialize(data: Dictionary) -> Craft:
 		int(data.get("current_cell_index", -1))
 	)
 
+	var default_state := Enums.CraftState.HOME
+	if instance.current_cell_index != instance.home_cell_index:
+		default_state = Enums.CraftState.IDLE
+
+	instance.craft_state = int(data.get("craft_state", default_state))
+
 	instance.units_on_board.clear()
 
 	var units_data: Array = data.get("units_on_board", [])
@@ -171,23 +218,20 @@ static func deserialize(data: Dictionary) -> Craft:
 		if unit_data is Dictionary:
 			instance.units_on_board.append(UnitData.deserialize(unit_data))
 
+	instance.items.clear()
 
 	var items_data: Dictionary = data.get("items", {})
-	for item_id in items_data:
-		var id_int := int(item_id)
-		if id_int == -1:
-			push_error("Failed to load item data")
+	for item_id_key in items_data.keys():
+		var item_id := int(item_id_key)
+		var count := int(items_data[item_id_key])
+
+		if item_id < 0:
+			push_error("Invalid item id while loading craft item data.")
 			continue
 
-		var inventory_manager: InventoryManager = GameManager.get_manager("InventoryManager")
-		if not inventory_manager:
-			push_error("InventoryManager not found")
+		if count <= 0:
 			continue
 
-		var result = inventory_manager.try_get_inventory_item(id_int)
-		if not result["success"]:
-			push_error("Could not resolve item id: " + str(id_int))
-			continue
+		instance.items[item_id] = count
 
-		instance.items[result["inventory_item"]] = int(items_data[item_id])
 	return instance
