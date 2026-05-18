@@ -6,6 +6,8 @@ class_name UnitsPanelUI
 @export var hire_new_unit_button: Button
 @export var fire_unit_button: Button
 
+@export var unit_stat_ui : UnitStatsUI
+
 signal base_data_changed
 
 
@@ -19,7 +21,8 @@ func _setup() -> void:
 	if fire_unit_button \
 	and not fire_unit_button.pressed.is_connected(fire_unit):
 		fire_unit_button.pressed.connect(fire_unit)
-
+	
+	unit_item_list.item_selected.connect(unit_list_item_selected)
 
 	var base_data: TeamBaseDefinition = SceneManager.get_session_value(
 		"current_base",
@@ -33,6 +36,33 @@ func _setup() -> void:
 	var unit_data = base_data.stationed_units
 	refresh_unit_list(unit_data)
 
+
+func unit_list_item_selected(index : int ):
+	if index == -1:
+		unit_stat_ui.hide_call()
+	
+	var base_data: TeamBaseDefinition = SceneManager.get_session_value(
+		"current_base",
+		null
+	)
+
+	if base_data == null:
+		print("Could not find current base")
+		return
+	
+	
+	var item_meta_data : Dictionary = unit_item_list.get_item_metadata(index)
+	var unit_rid : RID = item_meta_data["rid"]
+	var unit_data = base_data.stationed_units
+	for unit in unit_data:
+		if unit_rid == unit.get_rid():
+			unit_stat_ui.selected_unit = unit
+			unit_stat_ui.show_call()
+			break
+	
+	if not unit_stat_ui.selected_unit:
+		unit_stat_ui.hide_call()
+
 func refresh_unit_list(unit_data: Array[UnitData]) -> void:
 	if unit_data.is_empty():
 		print("Could not find Unit Data")
@@ -43,7 +73,10 @@ func refresh_unit_list(unit_data: Array[UnitData]) -> void:
 		create_unit_element(unit)
 
 func create_unit_element(unit: UnitData) -> void:
-	unit_item_list.add_item(unit.name)
+	var index : int = unit_item_list.add_item(unit.name)
+	unit_item_list.set_item_metadata(index, {
+		"rid" : unit.get_rid()
+	})
 
 func hire_new_unit() -> void:
 	var base_data: TeamBaseDefinition = SceneManager.get_session_value(

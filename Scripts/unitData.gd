@@ -65,3 +65,13 @@ static func generate_random_unit(unit_name : String = "Jhon Smith", base_cell_in
 	new_unit_data.stats[Enums.Stat.BRAVERY] = randi_range(30, 90)
 
 	return new_unit_data
+
+
+func get_stat_by_type(stat_type: Enums.Stat) -> int:
+	
+	var stat : int = stats.get(stat_type, null)
+	
+	if not stat:
+		return -1
+	else:
+		return stat
