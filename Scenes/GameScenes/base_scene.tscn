@@ -11,8 +11,12 @@
 [ext_resource type="Script" uid="uid://e0ruw4osorhf" path="res://Scripts/UI/base_ui_window.gd" id="6_45agt"]
 [ext_resource type="Script" uid="uid://c765wp6o6lpyo" path="res://Scripts/UI/Units Panel UI/units_panel_ui.gd" id="7_0537q"]
 [ext_resource type="Script" uid="uid://dujgqeredbamg" path="res://Scripts/UI/BuildingUI/BuildingButtonUI.gd" id="9_8jjf8"]
-[ext_resource type="Script" uid="uid://chij4u271t5e3" path="res://Scripts/UI/Craft Panel/CraftPanelUI.gd" id="9_e36me"]
+[ext_resource type="Script" uid="uid://chij4u271t5e3" path="res://Scripts/UI/Craft Panel/craft_panel_ui.gd" id="9_e36me"]
 [ext_resource type="Script" uid="uid://dk5awkmpux2e4" path="res://Scripts/UI/buy_sell_window.gd" id="9_iqgji"]
+[ext_resource type="Script" uid="uid://dttvh37yr34fj" path="res://Scripts/UI/Craft Panel/craft_equipment_ui.gd" id="11_6i7wn"]
+[ext_resource type="Texture2D" uid="uid://bnufc8p6spdtn" path="res://addons/beehave/debug/icons/port_left.svg" id="12_0kxh6"]
+[ext_resource type="Texture2D" uid="uid://bbmd6vk23ympm" path="res://addons/beehave/debug/icons/port_right.svg" id="13_rdcx2"]
+[ext_resource type="Script" uid="uid://txm3vjnhe5kt" path="res://Scripts/UI/Craft Panel/craft_units_ui.gd" id="14_rdcx2"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_iqgji"]
 size = Vector2(25, 25)
@@ -207,6 +211,7 @@ size_flags_horizontal = 3
 text = "Fire Unit"
 
 [node name="Buy_Sell Panel" type="Control" parent="Managers/UIManager/UIWindow" unique_id=2012630624 node_paths=PackedStringArray("item_tree", "cancel_button", "confirm_button", "current_transaction_total_label", "visual", "toggle_button")]
+visible = false
 custom_minimum_size = Vector2(450, 500)
 layout_mode = 1
 anchors_preset = 8
@@ -292,7 +297,7 @@ size_flags_horizontal = 3
 text = "Confirm
 "
 
-[node name="Craft Panel" type="Control" parent="Managers/UIManager/UIWindow" unique_id=588141834 node_paths=PackedStringArray("craft_tree", "add_button", "remove_button", "sell_craft_button", "tab_container", "units_item_list", "equipment_item_list", "buy_craft_button", "rename_craft_button", "rename_window", "text_edit", "confirm_button", "visual", "toggle_button")]
+[node name="Craft Panel" type="Control" parent="Managers/UIManager/UIWindow" unique_id=1212152608 node_paths=PackedStringArray("craft_list", "sell_craft_button", "edit_units_button", "edit_equipment_button", "craft_units_window", "craft_equipment_window", "rename_craft_button", "rename_window", "text_edit", "confirm_button", "visual", "toggle_button")]
 custom_minimum_size = Vector2(400, 450)
 layout_mode = 1
 anchors_preset = 8
@@ -308,14 +313,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("9_e36me")
-craft_tree = NodePath("Panel/VBoxContainer/Center Section/VBoxContainer2/CraftTree")
-add_button = NodePath("Panel/VBoxContainer/Center Section/VBoxContainer/Add Button")
-remove_button = NodePath("Panel/VBoxContainer/Center Section/VBoxContainer/Remove Button")
+craft_list = NodePath("Panel/VBoxContainer/Center Section/VBoxContainer2/CraftList")
 sell_craft_button = NodePath("Panel/VBoxContainer/Bottom Section/Sell Craft Button2")
-tab_container = NodePath("Panel/VBoxContainer/Center Section/TabContainer")
-units_item_list = NodePath("Panel/VBoxContainer/Center Section/TabContainer/UnitsItemList")
-equipment_item_list = NodePath("Panel/VBoxContainer/Center Section/TabContainer/EquipmentItemList")
-buy_craft_button = NodePath("Panel/VBoxContainer/Bottom Section/Buy Craft Button")
+edit_units_button = NodePath("Panel/VBoxContainer/Bottom Section/Units Button")
+edit_equipment_button = NodePath("Panel/VBoxContainer/Bottom Section/Equipment Button")
+craft_units_window = NodePath("CraftUnitsUI")
+craft_equipment_window = NodePath("CraftEquipmentUI")
 rename_craft_button = NodePath("Panel/VBoxContainer/Bottom Section/Rename Craft Button2")
 rename_window = NodePath("Panel/Rename Window")
 text_edit = NodePath("Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2/TextEdit")
@@ -325,8 +328,7 @@ visual = NodePath("Panel")
 toggle_button = NodePath("Panel/VBoxContainer/HBoxContainer2/Close Button")
 metadata/_custom_type_script = "uid://chij4u271t5e3"
 
-[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel" unique_id=1893974886]
-visible = false
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel" unique_id=2087278003]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -334,7 +336,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel" unique_id=83933389]
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel" unique_id=1735134788]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -342,93 +344,69 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer" unique_id=609342232]
+[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer" unique_id=1051403709]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=661804740]
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=800588981]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Craft Panel"
 
-[node name="Close Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=1761445293]
+[node name="Close Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/HBoxContainer2" unique_id=856619686]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 text = "close"
 
-[node name="Center Section" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer" unique_id=1585675703]
+[node name="Center Section" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer" unique_id=942568532]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section" unique_id=190207638]
+[node name="VBoxContainer2" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section" unique_id=2047896966]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/VBoxContainer2" unique_id=7833349]
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/VBoxContainer2" unique_id=1181413756]
 layout_mode = 2
 text = "All Craft"
 
-[node name="CraftTree" type="Tree" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/VBoxContainer2" unique_id=1673120871]
+[node name="CraftList" type="ItemList" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/VBoxContainer2" unique_id=516957440]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 select_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section" unique_id=1880471466]
+[node name="Bottom Section" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer" unique_id=560097222]
 layout_mode = 2
 alignment = 1
 
-[node name="Add Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/VBoxContainer" unique_id=152730196]
-layout_mode = 2
-text = "<"
-
-[node name="Remove Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/VBoxContainer" unique_id=1377666533]
-layout_mode = 2
-text = ">"
-
-[node name="TabContainer" type="TabContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section" unique_id=1123623666]
-layout_mode = 2
-size_flags_horizontal = 3
-current_tab = 0
-tab_0/title = "Units"
-tab_1/title = "Equipment"
-
-[node name="UnitsItemList" type="ItemList" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/TabContainer" unique_id=987717166]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-select_mode = 1
-metadata/_tab_index = 0
-metadata/_tab_name = "Units"
-
-[node name="EquipmentItemList" type="ItemList" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Center Section/TabContainer" unique_id=1351013461]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-metadata/_tab_index = 1
-metadata/_tab_name = "Equipment"
-
-[node name="Bottom Section" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer" unique_id=1615191411]
-layout_mode = 2
-alignment = 1
-
-[node name="Buy Craft Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=969685924]
-custom_minimum_size = Vector2(0, 25)
-layout_mode = 2
-text = "Buy Craft"
-
-[node name="Rename Craft Button2" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=303721711]
+[node name="Rename Craft Button2" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=458951344]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 text = "Rename Craft"
 
-[node name="Sell Craft Button2" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=2041595001]
+[node name="Equipment Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=2081661316]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+text = "Equipment
+"
+
+[node name="Units Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=948537147]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+text = "Units
+"
+
+[node name="VSeparator" type="VSeparator" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=27669007]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Sell Craft Button2" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/VBoxContainer/Bottom Section" unique_id=462039320]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
 text = "Sell Craft
 "
 
-[node name="Rename Window" type="Control" parent="Managers/UIManager/UIWindow/Craft Panel/Panel" unique_id=1298439266 node_paths=PackedStringArray("visual")]
+[node name="Rename Window" type="Control" parent="Managers/UIManager/UIWindow/Craft Panel/Panel" unique_id=1148107246 node_paths=PackedStringArray("visual")]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -440,7 +418,7 @@ block_inputs = true
 visual = NodePath("Panel")
 metadata/_custom_type_script = "uid://djnfglh5vj3vy"
 
-[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window" unique_id=113947288]
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window" unique_id=142321742]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -449,7 +427,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel" unique_id=758887059]
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel" unique_id=1199715337]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -457,37 +435,175 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer" unique_id=569385055]
+[node name="HBoxContainer" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer" unique_id=1640078637]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/HBoxContainer" unique_id=1123863597]
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/HBoxContainer" unique_id=2128601521]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Rename Craft"
 
-[node name="Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/HBoxContainer" unique_id=1162003710]
+[node name="Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/HBoxContainer" unique_id=922859910]
 layout_mode = 2
 text = "cancel
 "
 
-[node name="MarginContainer" type="MarginContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer" unique_id=1589538169]
+[node name="MarginContainer" type="MarginContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer" unique_id=554727965]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_right = 5
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/MarginContainer" unique_id=1483004763]
+[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/MarginContainer" unique_id=1994782021]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="TextEdit" type="TextEdit" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2" unique_id=1524955660]
+[node name="TextEdit" type="TextEdit" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2" unique_id=158382825]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Remane Craft"
 
-[node name="Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2" unique_id=2050135084]
+[node name="Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/Panel/Rename Window/Panel/VBoxContainer/MarginContainer/HBoxContainer2" unique_id=1658676581]
 layout_mode = 2
 text = "Confirm"
+
+[node name="CraftEquipmentUI" type="Control" parent="Managers/UIManager/UIWindow/Craft Panel" unique_id=735619910 node_paths=PackedStringArray("equipment_tree", "visual", "toggle_button")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("11_6i7wn")
+equipment_tree = NodePath("Panel/VBoxContainer/Center Section/ItemTree")
+add_button_texture = ExtResource("12_0kxh6")
+remove_button_texture = ExtResource("13_rdcx2")
+start_hidden = true
+visual = NodePath("Panel")
+toggle_button = NodePath("Panel/VBoxContainer/HBoxContainer2/Close Button")
+metadata/_custom_type_script = "uid://dttvh37yr34fj"
+
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI" unique_id=1643194533]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI/Panel" unique_id=1101347469]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI/Panel/VBoxContainer" unique_id=1510470548]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI/Panel/VBoxContainer/HBoxContainer2" unique_id=68369450]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Craft Equipment Panel"
+
+[node name="Close Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI/Panel/VBoxContainer/HBoxContainer2" unique_id=125033899]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+text = "close"
+
+[node name="Center Section" type="MarginContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI/Panel/VBoxContainer" unique_id=1996619280]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ItemTree" type="Tree" parent="Managers/UIManager/UIWindow/Craft Panel/CraftEquipmentUI/Panel/VBoxContainer/Center Section" unique_id=760353151]
+layout_mode = 2
+
+[node name="CraftUnitsUI" type="Control" parent="Managers/UIManager/UIWindow/Craft Panel" unique_id=1098333266 node_paths=PackedStringArray("base_units_list", "craft_units_list", "assign_button", "unassign_button", "visual", "toggle_button")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("14_rdcx2")
+base_units_list = NodePath("Panel/VBoxContainer/HBoxContainer/VBoxContainer2/VBoxContainer/ItemList")
+craft_units_list = NodePath("Panel/VBoxContainer/HBoxContainer/VBoxContainer/ItemList")
+assign_button = NodePath("Panel/VBoxContainer/HBoxContainer/VBoxContainer3/Button")
+unassign_button = NodePath("Panel/VBoxContainer/HBoxContainer/VBoxContainer3/Button2")
+start_hidden = true
+visual = NodePath("Panel")
+toggle_button = NodePath("Panel/VBoxContainer/Top Section/Button")
+metadata/_custom_type_script = "uid://txm3vjnhe5kt"
+
+[node name="Panel" type="Panel" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI" unique_id=2046154937]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel" unique_id=900563401]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Top Section" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer" unique_id=930775147]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/Top Section" unique_id=1633430373]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/Top Section" unique_id=1601552924]
+layout_mode = 2
+text = "Close"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer" unique_id=1650681846]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer" unique_id=1844626676]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemList" type="ItemList" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=414826682]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer" unique_id=1622771381]
+layout_mode = 2
+alignment = 1
+
+[node name="Button" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=758295846]
+layout_mode = 2
+text = "<"
+
+[node name="Button2" type="Button" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer/VBoxContainer3" unique_id=819011091]
+layout_mode = 2
+text = ">"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer" unique_id=953588816]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer/VBoxContainer2" unique_id=926529992]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ItemList" type="ItemList" parent="Managers/UIManager/UIWindow/Craft Panel/CraftUnitsUI/Panel/VBoxContainer/HBoxContainer/VBoxContainer2/VBoxContainer" unique_id=1659543945]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="BuildListUI" type="Control" parent="Managers/UIManager/UIWindow" unique_id=197341496 node_paths=PackedStringArray("visual")]
 custom_minimum_size = Vector2(250, 0)

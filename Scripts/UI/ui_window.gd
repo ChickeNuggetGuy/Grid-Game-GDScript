@@ -77,6 +77,8 @@ func toggle() -> void:
 
 func setup_call():
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	show()
+	
 	var ui_manager := _get_ui_manager()
 	if ui_manager:
 		ui_manager.add_ui_window(self)
